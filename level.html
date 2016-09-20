@@ -4,10 +4,21 @@
     <title>Level rendering test</title>
     <meta charset="UTF-8">
     <style>
+.level {
+  margin: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.levelRow {
+  height: 40px;
+}
 .levelBlock {
   height: 40px;
   width: 40px;
-  display: inline;
+  display: inline-block;
 }
 .air {
   background: none;
@@ -55,6 +66,8 @@ function render(level) {
     data+="</div>";
   }
   document.querySelector(".level").innerHTML=data;
+  document.querySelector(".level").style.width=(levels[level][0].length*40)+"px";
+  document.querySelector(".level").style.height=(levels[level].length*40)+"px";
 }
 render(0);
     </script>
