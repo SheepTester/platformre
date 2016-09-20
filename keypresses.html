@@ -31,7 +31,9 @@ document.body.onkeydown=function(e){
       dDown=true;
       break;
   }
-  document.querySelector("#"+ele).innerHTML="yes";
+  if (!ele===undefined) {
+    document.querySelector("#"+ele).innerHTML="yes";
+  }
 };
 document.body.onkeyup=function(e){
   var ele;
@@ -69,6 +71,8 @@ setInterval(function(){
   if (dDown) {
     xv+=5;
   }
+  x+=xv;y+=yv;
+  document.querySelector("#vels").innerHTML="{xVelocity: "+xv+",vVelocity:"+yv+",xPosition:"+x+",yPosition:"+y+"}";
 },33);
     </script>
   </body>
