@@ -3,19 +3,29 @@
   <head>
     <title>Sean aka SheepTester</title>
     <meta charset="UTF-8">
+    <style>
+#player {
+  position: fixed;
+  background: black;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  bottom: 0;
+  left: 0;
+}
+    </style>
   </head>
   <body>
     <p>w pressed: <span id="w">no</span></p>
     <p>a pressed: <span id="a">no</span></p>
     <p>d pressed: <span id="d">no</span></p>
     <p id="vels"></p>
+    <div id="player"></div>
     
     <script src="../sheep.js"></script>
     <script>
 var wDown=false,aDown=false,dDown=false;
 document.body.onkeydown=function(e){
-  console.log(e);
-  console.log(e.keyCode);
   var ele;
   switch (e.keyCode) {
     case 87:
@@ -31,7 +41,7 @@ document.body.onkeydown=function(e){
       dDown=true;
       break;
   }
-  if (!ele===undefined) {
+  if (ele!==undefined) {
     document.querySelector("#"+ele).innerHTML="yes";
   }
 };
@@ -51,7 +61,9 @@ document.body.onkeyup=function(e){
       dDown=false;
       break;
   }
-  document.querySelector("#"+ele).innerHTML="no";
+  if (ele!==undefined) {
+    document.querySelector("#"+ele).innerHTML="no";
+  }
 };
 /* plattformre script based off those from Scratch */
 var xv=0,yv=0,x=0,y=0;
@@ -76,7 +88,9 @@ setInterval(function(){
     xv+=5;
   }
   x+=xv;y+=yv;
-  document.querySelector("#vels").innerHTML="{xVelocity: "+xv+",vVelocity:"+yv+",xPosition:"+x+",yPosition:"+y+"}";
+  document.querySelector("#vels").innerHTML="{<br>xVelocity: "+xv+",<br>vVelocity:"+yv+",<br>xPosition:"+x+",<br>yPosition:"+y+"<br>}";
+  document.querySelector("#player").style.left=x+"px";
+  document.querySelector("#player").style.bottom=y+"px";
 },33);
     </script>
   </body>
