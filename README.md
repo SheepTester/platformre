@@ -1,2 +1,4 @@
 # platformre
-Platformre script >uo
+Platformre scripts :wink:
+
+- [key press test](sheeptester.github.io/platformre/keypresses.html)
