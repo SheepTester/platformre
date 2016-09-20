@@ -88,11 +88,19 @@ setInterval(function(){
     }
   }
   if (x<0) {
-    xv*=-0.5;
+    if (aDown||dDown) {
+      xv*=-0.5;
+    } else {
+      xv=0;
+    }
     x=0;
   }
   if (x>window.innerWidth-playerWidth) {
-    xv*=-0.5;
+    if (aDown||dDown) {
+      xv*=-0.5;
+    } else {
+      xv=0;
+    }
     x=window.innerWidth-playerWidth;
   }
   x+=xv;y+=yv;
