@@ -56,8 +56,8 @@ document.body.onkeyup=function(e){
 /* plattformre script based off those from Scratch */
 var xv=0,yv=0,x=0,y=0;
 setInterval(function(){
-  xv*=0.9;
-  if (x>0) {
+  xv=Math.round(xv*9000)/10000;
+  if (y>0) {
     yv-=0.5;
     if (wDown) {
       yv+=10;
