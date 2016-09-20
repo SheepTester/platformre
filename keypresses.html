@@ -80,12 +80,20 @@ setInterval(function(){
     if (wDown) {
       yv=10;
     }
+    if (aDown) {
+      xv-=1;
+    }
+    if (dDown) {
+      xv+=1;
+    }
   }
-  if (aDown) {
-    xv-=5;
+  if (x<0) {
+    xv*=-0.5;
+    x+=xv;
   }
-  if (dDown) {
-    xv+=5;
+  if (x>window.innerWidth) {
+    xv*=-0.5;
+    x+=xv;
   }
   x+=xv;y+=yv;
   document.querySelector("#vels").innerHTML="{<br>xVelocity: "+xv+",<br>vVelocity:"+yv+",<br>xPosition:"+x+",<br>yPosition:"+y+"<br>}";
