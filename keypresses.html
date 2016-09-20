@@ -5,12 +5,14 @@
     <meta charset="UTF-8">
   </head>
   <body>
-    <p>w pressed: <span id="w"></span></p>
-    <p>a pressed: <span id="a"></span></p>
-    <p>d pressed: <span id="d"></span></p>
+    <p>w pressed: <span id="w">no</span></p>
+    <p>a pressed: <span id="a">no</span></p>
+    <p>d pressed: <span id="d">no</span></p>
+    <p id="vels"></p>
     
     <script src="../sheep.js"></script>
     <script>
+var wDown=false,aDown=false,dDown=false;
 document.body.onkeydown=function(e){
   console.log(e);
   console.log(e.keyCode);
@@ -18,12 +20,15 @@ document.body.onkeydown=function(e){
   switch (e.keyCode) {
     case 87:
       ele="w";
+      wDown=true;
       break;
     case 65:
       ele="a";
+      aDown=true;
       break;
     case 68:
       ele="d";
+      dDown=true;
       break;
   }
   document.querySelector("#"+ele).innerHTML="yes";
@@ -33,16 +38,38 @@ document.body.onkeyup=function(e){
   switch (e.keyCode) {
     case 87:
       ele="w";
+      wDown=false;
       break;
     case 65:
       ele="a";
+      aDown=false;
       break;
     case 68:
       ele="d";
+      dDown=false;
       break;
   }
   document.querySelector("#"+ele).innerHTML="no";
 };
+/* plattformre script based off those from Scratch */
+var xv=0,yv=0,x=0,y=0;
+setInterval(function(){
+  xv*=0.9;
+  if (x>0) {
+    yv-=0.5;
+    if (wDown) {
+      yv+=10;
+    }
+  } else {
+    yv=0;
+  }
+  if (aDown) {
+    xv-=5;
+  }
+  if (dDown) {
+    xv+=5;
+  }
+},33);
     </script>
   </body>
 </html>
