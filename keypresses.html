@@ -66,7 +66,7 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=0,y=0;
+var xv=0,yv=0,x=0,y=0,playerWidth=30;
 setInterval(function(){
   if (y>=0) {
     yv-=0.5;
@@ -88,12 +88,12 @@ setInterval(function(){
     }
   }
   if (x<0) {
-    xv=-0.5;
+    xv*=-0.5;
     x=0;
   }
-  if (x>window.innerWidth) {
+  if (x>window.innerWidth-playerWidth) {
     xv*=-0.5;
-    x=window.innerWidth;
+    x=window.innerWidth-playerWidth;
   }
   x+=xv;y+=yv;
   document.querySelector("#vels").innerHTML="{<br>xVelocity: "+xv+",<br>vVelocity:"+yv+",<br>xPosition:"+x+",<br>yPosition:"+y+"<br>}";
