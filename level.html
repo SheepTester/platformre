@@ -4,23 +4,59 @@
     <title>Level rendering test</title>
     <meta charset="UTF-8">
     <style>
-
+.levelBlock {
+  height: 40px;
+  width: 40px;
+  display: inline;
+}
+.air {
+  background: none;
+}
+.ground {
+  background: #212121;
+}
+.lava {
+  background: #FF5722;
+}
     </style>
   </head>
   <body>
     <p><b>Look.</b></p>
+    <div class="level"></div>
     
     <script src="../sheep.js"></script>
     <script>
-var levels=[ /* space=air, @=ground, %=lava */
+var levels=[ /* space=air, @=ground, #=lava */
   [
   "@@@@@@@@@@@@@@@",
   "@         @@@@@",
   "@  @@@@@      @",
   "@         @ @@@",
-  "@@@@@%@@@@@@@@@",
+  "@@@@@#@@@@@@@@@",
   ],
 ];
+function render(level) {
+  var data="";
+  for (var i=0;i<levels[level].length;i++) {
+    data+="<div class='levelRow'>";
+    for (var j=0;j<levels[level][i].length;j++) {
+      switch (levels[level][i][j]) {
+        case " ":
+          data+="<div class='levelBlock air'></div>";
+          break;
+        case "@":
+          data+="<div class='levelBlock ground'></div>";
+          break;
+        case "#":
+          data+="<div class='levelBlock lava'></div>";
+          break;
+      }
+    }
+    data+="</div>";
+  }
+  document.querySelector(".level").innerHTML=data;
+}
+render(0);
     </script>
   </body>
 </html>
