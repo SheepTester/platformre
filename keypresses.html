@@ -11,7 +11,38 @@
     
     <script src="../sheep.js"></script>
     <script>
-/* eeee */
+document.body.onkeydown=function(e){
+  console.log(e);
+  console.log(e.keyCode);
+  var ele;
+  switch (e.keyCode) {
+    case 87:
+      ele="w";
+      break;
+    case 65:
+      ele="a";
+      break;
+    case 68:
+      ele="d";
+      break;
+  }
+  document.querySelector("#"+ele).innerHTML="yes";
+};
+document.body.onkeyup=function(e){
+  var ele;
+  switch (e.keyCode) {
+    case 87:
+      ele="w";
+      break;
+    case 65:
+      ele="a";
+      break;
+    case 68:
+      ele="d";
+      break;
+  }
+  document.querySelector("#"+ele).innerHTML="no";
+};
     </script>
   </body>
 </html>
