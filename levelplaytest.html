@@ -151,19 +151,19 @@ var xv=0,yv=0,x=40,y=40,lev=0,play=function(){
   } else {
     yv=0;
     y=Math.round((y-5)/40)*40;
-    xv=Math.round(xv*800)/1000;
-    if (Math.abs(xv)<0.01) {
-      xv=0;
-      x=Math.round(x*1000)/1000;
-    }
     if (wDown) {
       yv=15;
     }
-    if (aDown) {
+    if (aDown&&!dDown&&xv>-10) {
       xv-=1.5;
-    }
-    if (dDown) {
+    } else if (dDown&&!aDown&&xv<10) {
       xv+=1.5;
+    } else {
+      xv=Math.round(xv*800)/1000;
+      if (Math.abs(xv)<0.01) {
+        xv=0;
+        x=Math.round(x*1000)/1000;
+      }
     }
   }
   if (getBlock(0,15)=="#") { /* ceiling */
