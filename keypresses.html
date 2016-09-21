@@ -69,30 +69,38 @@ document.body.onkeyup=function(e){
 /* plattformre script based off those from Scratch */
 var xv=0,yv=0,x=0,y=0,playerWidth=30;
 setInterval(function(){
-  if (y>=0) {
-    yv-=0.5;
+  if (y>0) {
+    yv-=1;
   } else {
     yv=0;
-    xv=Math.round(xv*900)/1000;
+    y=0;
+    xv=Math.round(xv*800)/1000;
     if (Math.abs(xv)<0.01) {
       xv=0;
       x=Math.round(x*1000)/1000;
     }
     if (wDown) {
-      yv=10;
+      yv=15;
     }
     if (aDown) {
-      xv-=1;
+      xv-=1.5;
     }
     if (dDown) {
-      xv+=1;
+      xv+=1.5;
     }
   }
   if (x<0) {
     if (aDown||dDown) {
-      xv*=-0.5;
+      if (wDown) {
+        yv=10;
+        xv*=-1;
+      } else {
+        xv*=-0.5;
+        yv=0;
+      }
     } else {
-      xv=0;
+      xv*=-0.1;
+      yv=0;
     }
     x=0;
   }
@@ -101,6 +109,7 @@ setInterval(function(){
       xv*=-0.5;
     } else {
       xv=0;
+      yv=0;
     }
     x=window.innerWidth-playerWidth;
   }
