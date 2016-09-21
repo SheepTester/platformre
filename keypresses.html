@@ -99,15 +99,23 @@ setInterval(function(){
         yv=0;
       }
     } else {
-      xv*=-0.1;
+      // xv*=-0.1; removed for demonstration purposes
+      xv=0;
       yv=0;
     }
     x=0;
   }
   if (x>window.innerWidth-playerWidth) {
     if (aDown||dDown) {
-      xv*=-0.5;
+      if (wDown) {
+        yv=10;
+        xv*=-1;
+      } else {
+        xv*=-0.5;
+        yv=0;
+      }
     } else {
+      // xv*=-0.1; removed for demonstration purposes
       xv=0;
       yv=0;
     }
