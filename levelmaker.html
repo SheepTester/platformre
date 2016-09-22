@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Level makitor</title>
+    <meta charset="UTF-8">
+    <style>
+.level {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.levelRow {
+  height: 40px;
+}
+.levelBlock {
+  height: 40px;
+  width: 40px;
+  display: inline-block;
+  transition: transform .2s;
+}
+.levelBlock:hover {
+  transform: scale(0.8);
+  box-shadow: inset 0 0 3px rgba(0,0,0,0.5);
+}
+.air {
+  background: white;
+}
+.ground {
+  background: #212121;
+}
+.lava {
+  background: #FF5722;
+}
+.win {
+  background: #8BC34A;
+}
+.blkTyp, .btn {
+  cursor: pointer;
+}
+.blkTyp:hover, .btn:hover {
+  background: gray;
+}
+.blkTyp:active, .btn:active {
+  background: black;
+  color: white;
+}
+#current {
+  color: coral;
+}
+#done {
+  white-space: pre-wrap;
+  font-family: monospace;
+}
+    </style>
+  </head>
+  <body>
+    <p><b>Click. Press the arrow keys to expand or shorten the level size.</b> <span class="blkTyp" id="space">air</span> <span class="blkTyp" id="at">solid</span> <span class="blkTyp" id="hash">lava</span> <span class="blkTyp" id="plus">destination</span> <span id="current">solid</span></p>
+    <div class="level"></div>
+    <span id="done" class="btn">get code for this</span> <span id="load" class="btn">import code NOT FINISHED</span>
+    
+    <script src="../sheep.js"></script>
+    <script>
+var level=[ /* space=air, @=ground, #=lava */
+  "@@@@@@@@@@@@@@@@",
+  "@          @@ @@",
+  "@              @",
+  "@   @@@@@      @",
+  "@     #        +",
+  "@     #    @ @+@",
+  "@@@@@###@@@@@@@@",
+];
+function render() {
+  var data="";
+  for (var i=0;i<level.length;i++) {
+    data+="<div class='levelRow' id='r"+i+"'>";
+    for (var j=0;j<level[i].length;j++) {
+      switch (level[i][j]) {
+        case " ":
+          data+="<div class='levelBlock air' id='c"+j+"'></div>";
+          break;
+        case "@":
+          data+="<div class='levelBlock ground' id='c"+j+"'></div>";
+          break;
+        case "#":
+          data+="<div class='levelBlock lava' id='c"+j+"'></div>";
+          break;
+        case "+":
+          data+="<div class='levelBlock win' id='c"+j+"'></div>";
+          break;
+      }
+    }
+    data+="</div>";
+  }
+  document.querySelector(".level").innerHTML=data;
+}
+render();
+document.querySelector("p").onclick=function(e){
+  if (e.target.className=="blkTyp") {
+    document.querySelector("#current").innerHTML={space:"air",at:"solid",hash:"lava",plus:"destination"}[e.target.id];
+  }
+}
+var mD=false;
+document.querySelector(".level").onmousedown=function(e){
+  mD=true;
+  if (e.target.className.slice(0,10)=="levelBlock") {
+    e.target.className="levelBlock "+{air:"air",solid:"ground",lava:"lava",destination:"win"}[document.querySelector("#current").innerHTML];
+    var row=Number(e.target.parentNode.id.slice(1));
+    var col=Number(e.target.id.slice(1));
+    level[row]=level[row].slice(0,col)+{air:" ",solid:"@",lava:"#",destination:"+"}[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
+  }
+}
+document.querySelector(".level").onmouseup=function(){mD=false;}
+document.querySelector(".level").onmouseover=function(e){
+  if (e.target.className.slice(0,10)=="levelBlock"&&mD) {
+    e.target.className="levelBlock "+{air:"air",solid:"ground",lava:"lava",destination:"win"}[document.querySelector("#current").innerHTML];
+    var row=Number(e.target.parentNode.id.slice(1));
+    var col=Number(e.target.id.slice(1));
+    level[row]=level[row].slice(0,col)+{air:" ",solid:"@",lava:"#",destination:"+"}[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
+  }
+}
+document.body.onkeydown=function(e){
+  switch (e.keyCode) {
+    case 37:
+      if (level[0].length>1) {
+        for (var i=0;i<level.length;i++) {
+          level[i]=level[i].slice(0,-1);
+        }
+      }
+      break;
+    case 39:
+      for (var i=0;i<level.length;i++) {
+        level[i]+="@";
+      }
+      break;
+    case 40:
+      if (level.length>1) {
+        level.splice(0,1);
+      }
+      break;
+    case 38:
+      level.splice(0,0,"@".repeat(level[0].length));
+      break;
+  }
+  render();
+};
+function highlight(element) { // based off http://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse
+  if (document.body.createTextRange) {
+    var ran=document.body.createTextRange();
+    ran.moveToElementText(document.querySelector(element));
+    ran.select();
+  } else if (window.getSelection) {
+    var sel=window.getSelection(), ran=document.createRange();
+    sel.removeAllRanges(),ran.selectNodeContents(document.querySelector(element))
+    sel.addRange(ran);
+  }
+}
+document.querySelector("#done").onclick=function(){
+  document.querySelector("#done").innerHTML="[<br>\""+level.join("\",<br>\"")+"\"<br>]";
+  highlight("#done");
+}
+document.querySelector("#load").onclick=function(){
+  //level=prompt("Paste in the code:").slice(1,-1).split("\",\"");
+  level=JSON.parse(prompt("Paste in the code: (warning there is no data validation)"));
+  render();
+}
+    </script>
+  </body>
+</html>
