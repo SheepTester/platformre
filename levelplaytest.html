@@ -30,34 +30,56 @@
   display: inline-block;
 }
 .air {
-  background: none;
+  background: rgba(255,255,255,0.5);
 }
 .ground {
   background: #212121;
 }
 .lava {
   background: #FF5722;
+  /*animation: lava 2s linear infinite;*/
+}
+@keyframes lava {
+  0% {background:#FF6F00;}
+  25% {background:#FF9100;}
+  50% {background:#FF9800;}
+  75% {background:#EF6C00;}
+  100% {background:#FF6F00;}
 }
 .win {
   background: #8BC34A;
 }
 @keyframes diePainfully {
-  from {background:#E91E63;opacity:1;}
-  to {background:#212121;opacity:0;}
+  from {background:#E91E63;opacity:1;transform:scale(1);}
+  to {background:#212121;opacity:0;transform:scale(0);}
 }
 .die {
   background: #212121;
   opacity: 0;
+  transform: scale(0);
   animation: diePainfully 0.5s;
 }
 @keyframes congrats {
-  from {background:#E91E63;opacity:1;}
-  to {background:white;opacity:0;}
+  from {transform:scale(1);opacity:1;}
+  to {transform:scale(2);opacity:0;}
 }
 .winner {
-  background: white;
   opacity: 0;
+  transform: scale(2);
   animation: congrats 0.5s;
+}
+textarea {
+  display: block;
+}
+#load {
+  cursor: pointer;
+}
+#load:hover {
+  background: gray;
+}
+#load:active {
+  background: black;
+  color: white;
 }
     </style>
   </head>
@@ -70,6 +92,9 @@
     <div class="level">
       <div id="player"></div>
     </div>
+    <textarea placeholder="code here"></textarea>
+    <span id="load">load level</span><br>
+    <a href="levelmaker.html">make level</a>
     
     <script src="../sheep.js"></script>
     <script>
@@ -291,6 +316,12 @@ function die(type) {
     }
     document.querySelector("#player").className="";
   },500);
+}
+document.querySelector("#load").onclick=function(){
+  levels=[JSON.parse(document.querySelector("textarea").value),["@@@","@ @","@@@",]];
+  lev=0;
+  render(0);
+  xv=0,yv=0,x=40,y=40;
 }
     </script>
   </body>

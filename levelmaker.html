@@ -4,6 +4,9 @@
     <title>Level makitor</title>
     <meta charset="UTF-8">
     <style>
+body {
+  font-family: monospace;
+}
 .level {
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -52,14 +55,23 @@
 }
 #done {
   white-space: pre-wrap;
+}
+textarea {
+  display: block;
   font-family: monospace;
+  font-size: inherit;
+  width: 200px;
+  height: 200px;
 }
     </style>
   </head>
   <body>
     <p><b>Click. Press the arrow keys to expand or shorten the level size.</b> <span class="blkTyp" id="space">air</span> <span class="blkTyp" id="at">solid</span> <span class="blkTyp" id="hash">lava</span> <span class="blkTyp" id="plus">destination</span> <span id="current">solid</span></p>
     <div class="level"></div>
-    <span id="done" class="btn">get code for this</span> <span id="load" class="btn">import code NOT FINISHED</span>
+    <span id="done" class="btn">get code for this</span><br>
+    <span id="load" class="btn">import</span>
+    <textarea placeholder="code here"></textarea>
+    <a href="levelplaytest.html">test level</a>
     
     <script src="../sheep.js"></script>
     <script>
@@ -158,14 +170,23 @@ function highlight(element) { // based off http://stackoverflow.com/questions/98
   }
 }
 document.querySelector("#done").onclick=function(){
-  document.querySelector("#done").innerHTML="[<br>\""+level.join("\",<br>\"")+"\"<br>]";
-  highlight("#done");
+  document.querySelector("textarea").value="[\n\""+level.join("\",\n\"")+"\"\n]";
+  document.querySelector("textarea").select();
 }
 document.querySelector("#load").onclick=function(){
-  //level=prompt("Paste in the code:").slice(1,-1).split("\",\"");
-  level=JSON.parse(prompt("Paste in the code: (warning there is no data validation)"));
+  level=JSON.parse(document.querySelector("textarea").value);
   render();
 }
+/*
+[
+"@@@@@@@@@@@@@@",
+"@@@@@@@@#@@+@@",
+"@@@@@####++++@",
+"@@@#######++@@",
+"@#########@@@@",
+"@@@@@@@@@@@@@@"
+]
+*/
     </script>
   </body>
 </html>
