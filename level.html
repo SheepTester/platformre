@@ -11,6 +11,15 @@
   left: 0;
   right: 0;
   bottom: 0;
+  display: none;
+}
+.lvl {
+  margin: auto;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 .levelRow {
   height: 40px;
@@ -22,18 +31,22 @@
 }
 .air {
   background: none;
+  fill: none;
 }
 .ground {
   background: #212121;
+  fill: #212121;
 }
 .lava {
   background: #FF5722;
+  fill: #FF5722;
 }
     </style>
   </head>
   <body>
     <p><b>Look.</b></p>
     <div class="level"></div>
+    <svg class="lvl"></svg>
     
     <script src="../sheep.js"></script>
     <script>
@@ -48,26 +61,21 @@ var levels=[ /* space=air, @=ground, #=lava */
 ];
 function render(level) {
   var data="";
-  for (var i=0;i<levels[level].length;i++) {
-    data+="<div class='levelRow'>";
+  for (var i=0;i<levels[level].length;i++) { // j is x, i is y <rect x=50 y=20 width=150 height=150 class=air/>
     for (var j=0;j<levels[level][i].length;j++) {
       switch (levels[level][i][j]) {
-        case " ":
-          data+="<div class='levelBlock air'></div>";
-          break;
         case "@":
-          data+="<div class='levelBlock ground'></div>";
+          data+="<rect x="+(j*40)+" y="+(i*40)+" width=40 height=40 class=ground></rect>";
           break;
         case "#":
-          data+="<div class='levelBlock lava'></div>";
+          data+="<rect x="+(j*40)+" y="+(i*40)+" width=40 height=40 class=lava></rect>";
           break;
       }
     }
-    data+="</div>";
   }
-  document.querySelector(".level").innerHTML=data;
-  document.querySelector(".level").style.width=(levels[level][0].length*40)+"px";
-  document.querySelector(".level").style.height=(levels[level].length*40)+"px";
+  document.querySelector(".lvl").innerHTML=data;
+  document.querySelector(".lvl").style.width=(levels[level][0].length*40)+"px";
+  document.querySelector(".lvl").style.height=(levels[level].length*40)+"px";
 }
 render(0);
     </script>
