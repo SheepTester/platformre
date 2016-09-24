@@ -29,25 +29,12 @@
   width: 40px;
   display: inline-block;
 }
-.air {
-  background: rgba(255,255,255,0.5);
-}
-.ground {
-  background: #212121;
-}
-.lava {
-  background: #FF5722;
-  /*animation: lava 2s linear infinite;*/
-}
 @keyframes lava {
   0% {background:#FF6F00;}
   25% {background:#FF9100;}
   50% {background:#FF9800;}
   75% {background:#EF6C00;}
   100% {background:#FF6F00;}
-}
-.win {
-  background: #8BC34A;
 }
 @keyframes diePainfully {
   from {background:#E91E63;opacity:1;transform:scale(1);}
@@ -81,12 +68,24 @@ textarea {
   background: black;
   color: white;
 }
+.air {background:rgba(255,255,255,0.5);}
+.ground {background:#212121;}
+.lava {background:#FF5722;/*animation: lava 2s linear infinite;*/}
+.win {background:#8BC34A;}
+.jump {background:#9C27B0;}
+.mud {background:#795548;}
+.nojump {background:#FFC107;}
+.ice {background:#00BCD4;}
+.water {background:#2196F3;}
+.left {background-color:#009688;background-image:url(materialicon_chevron_left.svg);background-position:center;background-repeat:no-repeat;}
+.right {background-color:#004D40;background-image:url(materialicon_chevron_right.svg);background-position:center;background-repeat:no-repeat;}
     </style>
   </head>
   <body>
     <p><b>Use the keys WAD to move the player around.</b></p>
     <p>w pressed: <span id="w">no</span></p>
     <p>a pressed: <span id="a">no</span></p>
+    <p>s pressed: <span id="s">no</span></p>
     <p>d pressed: <span id="d">no</span></p>
     <p id="vels"></p>
     <div class="level">
@@ -98,15 +97,15 @@ textarea {
     
     <script src="../sheep.js"></script>
     <script>
-var levels=[ /* space=air, @=ground, #=lava */
+var levels=[ /* space=air, @=ground, #=lava, +=win, ^=jumpboost, v=nojumping, ==mud, *=ice, w=water */
   [
-  "@@@@@@@@@@@@@@@@",
-  "@          @@ @@",
-  "@              @",
-  "@   @@@@@      @",
-  "@     #        +",
-  "@     #    @ @+@",
-  "@@@@@###@@@@@@@@",
+  "@@@@@@@@@@@@@@@@@+@@",
+  "@              @@w@@",
+  "@               www@",
+  "@   @===@       www@",
+  "@     #         www@",
+  "@     #        @w@@@",
+  "@v^@@###*>><<**@@@@@",
   ],[
   "@@@@",
   "@  +",
@@ -141,6 +140,27 @@ function render(level) {
         case "+":
           data+="<div class='levelBlock win'></div>";
           break;
+        case "^":
+          data+="<div class='levelBlock jump'></div>";
+          break;
+        case "=":
+          data+="<div class='levelBlock mud'></div>";
+          break;
+        case "v":
+          data+="<div class='levelBlock nojump'></div>";
+          break;
+        case "*":
+          data+="<div class='levelBlock ice'></div>";
+          break;
+        case "w":
+          data+="<div class='levelBlock water'></div>";
+          break;
+        case "<":
+          data+="<div class='levelBlock left'></div>";
+          break;
+        case ">":
+          data+="<div class='levelBlock right'></div>";
+          break;
       }
     }
     data+="</div>";
@@ -149,7 +169,7 @@ function render(level) {
   document.querySelector(".level").style.width=(levels[level][0].length*40)+"px";
   document.querySelector(".level").style.height=(levels[level].length*40)+"px";
 }
-var wDown=false,aDown=false,dDown=false,pausd=false;
+var wDown=false,aDown=false,dDown=false,sDown=false,pausd=false;
 document.body.onkeydown=function(e){
   var ele;
   switch (e.keyCode) {
@@ -160,6 +180,10 @@ document.body.onkeydown=function(e){
     case 65:
       ele="a";
       aDown=true;
+      break;
+    case 83:
+      ele="s";
+      sDown=true;
       break;
     case 68:
       ele="d";
@@ -195,6 +219,10 @@ document.body.onkeyup=function(e){
       ele="a";
       aDown=false;
       break;
+    case 83:
+      ele="s";
+      sDown=false;
+      break;
     case 68:
       ele="d";
       dDown=false;
@@ -211,7 +239,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,play=function(){
     die();
   } else if (getBlock(-15,0)=="+") {
     die("win");
-  } else if (getBlock(-15,0)=="@") {
+  } else if (["@","^","v","*","=","<",">",].includes(getBlock(-15,0))) {
     if (aDown||dDown) {
       if (wDown) {
         yv=10;
@@ -230,7 +258,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,play=function(){
     die();
   } else if (getBlock(15,0)=="+") {
     die("win");
-  } else if (getBlock(15,0)=="@") {
+  } else if (["@","^","v","*","=","<",">",].includes(getBlock(15,0))) {
     if (aDown||dDown) {
       if (wDown) {
         yv=10;
@@ -245,24 +273,42 @@ var xv=0,yv=0,x=40,y=40,lev=0,play=function(){
     }
     x=Math.floor((x-5)/40)*40+10;
   }
-  if (getBlock(-10,-16)==" "&&getBlock(10,-16)==" ") { /* ground and gravity and moving */
+  var water;
+  if (["@","^","v","*","=","<",">",].includes(getBlock(0,-16))) {
+    yv=0;
+    y=Math.ceil((y-5)/40)*40;
+  }
+  if (getBlock(-10,-16)==" "&&getBlock(10,-16)==" ") { /* ground and gravity and swimming */
     yv-=1;
+    water="falling";
   } else if (getBlock(0,-16)=="#") {
     die();
   } else if (getBlock(0,-16)=="+") {
     die("win");
-  } else {
-    yv=0;
-    y=Math.ceil((y-5)/40)*40;
+  } else if (getBlock(0,-16)=="<") {
+    xv-=2;
+  } else if (getBlock(0,-16)==">") {
+    xv+=2;
+  }
+  if ([getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("w")) {
+    water="swimming";
+    xv=Math.round(xv*950)/1000;
+    yv=Math.round(yv*950)/1000;
+    if(wDown){yv+=1;}
+    if(aDown){xv-=1;}
+    if(sDown){yv-=1;}
+    if(dDown){xv+=1;}
+  }
+  if (!["#","+"].includes(getBlock(0,-16))&&water===undefined) { /* moving */
     if (wDown) {
-      yv=15;
+      if(getBlock(0,-16)=="^"){yv=20;}else if(getBlock(0,-16)!="v"){yv=15;}
     }
     if (aDown&&!dDown&&xv>-10) {
-      xv-=1.5;
+      if(getBlock(0,-16)=="="){xv-=0.2;}else if(getBlock(0,-16)=="*"){xv-=1;}else{xv-=1.5;}
     } else if (dDown&&!aDown&&xv<10) {
-      xv+=1.5;
+      if(getBlock(0,-16)=="="){xv+=0.2;}else if(getBlock(0,-16)=="*"){xv+=1;}else{xv+=1.5;}
     } else {
-      xv=Math.round(xv*800)/1000;
+      if(getBlock(0,-16)=="="){xv=Math.round(xv*500)/1000;}else if(getBlock(0,-16)=="*"){xv=Math.round(xv*950)/1000;}else{xv=Math.round(xv*800)/1000;}
       if (Math.abs(xv)<0.01) {
         xv=0;
         x=Math.round(x*1000)/1000;
@@ -273,7 +319,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,play=function(){
     die();
   } else if (getBlock(0,15)=="+") {
     die("win");
-  } else if (getBlock(-10,15)=="@"||getBlock(10,15)=="@") {
+  } else if (["@","^","v","*","=","<",">",].includes(getBlock(-10,15))||["@","^","v","*","=","<",">",].includes(getBlock(10,15))) {
     yv=-1;
     y=Math.floor((y-5)/40)*40+10;
   }

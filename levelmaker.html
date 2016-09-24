@@ -40,6 +40,13 @@ body {
 .win {
   background: #8BC34A;
 }
+.jump {background:#9C27B0;}
+.mud {background:#795548;}
+.nojump {background:#FFC107;}
+.ice {background:#00BCD4;}
+.water {background:#2196F3;}
+.left {background-color:#009688;background-image:url(materialicon_chevron_left.svg);background-position:center;background-repeat:no-repeat;}
+.right {background-color:#004D40;background-image:url(materialicon_chevron_right.svg);background-position:center;background-repeat:no-repeat;}
 .blkTyp, .btn {
   cursor: pointer;
 }
@@ -66,7 +73,7 @@ textarea {
     </style>
   </head>
   <body>
-    <p><b>Click. Press the arrow keys to expand or shorten the level size.</b> <span class="blkTyp" id="space">air</span> <span class="blkTyp" id="at">solid</span> <span class="blkTyp" id="hash">lava</span> <span class="blkTyp" id="plus">destination</span> <span id="current">solid</span></p>
+    <p><b>Click. Press the arrow keys to expand or shorten the level size.</b> <span class="blkTyp" id="space">air</span> <span class="blkTyp" id="at">solid</span> <span class="blkTyp" id="hash">lava</span> <span class="blkTyp" id="plus">destination</span> <span class="blkTyp" id="carrot">jumpboost</span> <span class="blkTyp" id="v">stickyground</span> <span class="blkTyp" id="aster">ice</span> <span class="blkTyp" id="equals">mud</span> <span class="blkTyp" id="w">water</span> <span class="blkTyp" id="less">leftconveyorbelt</span> <span class="blkTyp" id="great">rightconveyorbelt</span> <span id="current">solid</span></p>
     <div class="level"></div>
     <span id="done" class="btn">get code for this</span><br>
     <span id="load" class="btn">import</span>
@@ -76,13 +83,13 @@ textarea {
     <script src="../sheep.js"></script>
     <script>
 var level=[ /* space=air, @=ground, #=lava */
-  "@@@@@@@@@@@@@@@@",
-  "@          @@ @@",
-  "@              @",
-  "@   @@@@@      @",
-  "@     #        +",
-  "@     #    @ @+@",
-  "@@@@@###@@@@@@@@",
+  "@@@@@@@@@@@@@@@@@+@@",
+  "@              @@w@@",
+  "@               www@",
+  "@   @===@       www@",
+  "@     #         www@",
+  "@     #        @w@@@",
+  "@v^@@###*>><<**@@@@@",
 ];
 function render() {
   var data="";
@@ -102,6 +109,27 @@ function render() {
         case "+":
           data+="<div class='levelBlock win' id='c"+j+"'></div>";
           break;
+        case "^":
+          data+="<div class='levelBlock jump' id='c"+j+"'></div>";
+          break;
+        case "=":
+          data+="<div class='levelBlock mud' id='c"+j+"'></div>";
+          break;
+        case "v":
+          data+="<div class='levelBlock nojump' id='c"+j+"'></div>";
+          break;
+        case "*":
+          data+="<div class='levelBlock ice' id='c"+j+"'></div>";
+          break;
+        case "w":
+          data+="<div class='levelBlock water' id='c"+j+"'></div>";
+          break;
+        case "<":
+          data+="<div class='levelBlock left' id='c"+j+"'></div>";
+          break;
+        case ">":
+          data+="<div class='levelBlock right' id='c"+j+"'></div>";
+          break;
       }
     }
     data+="</div>";
@@ -111,26 +139,26 @@ function render() {
 render();
 document.querySelector("p").onclick=function(e){
   if (e.target.className=="blkTyp") {
-    document.querySelector("#current").innerHTML={space:"air",at:"solid",hash:"lava",plus:"destination"}[e.target.id];
+    document.querySelector("#current").innerHTML={space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt"}[e.target.id];
   }
 }
 var mD=false;
 document.querySelector(".level").onmousedown=function(e){
   mD=true;
   if (e.target.className.slice(0,10)=="levelBlock") {
-    e.target.className="levelBlock "+{air:"air",solid:"ground",lava:"lava",destination:"win"}[document.querySelector("#current").innerHTML];
+    e.target.className="levelBlock "+{air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump",stickyground:"nojump",ice:"ice",mud:"mud",water:"water",leftconveyorbelt:"left",rightconveyorbelt:"right"}[document.querySelector("#current").innerHTML];
     var row=Number(e.target.parentNode.id.slice(1));
     var col=Number(e.target.id.slice(1));
-    level[row]=level[row].slice(0,col)+{air:" ",solid:"@",lava:"#",destination:"+"}[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
+    level[row]=level[row].slice(0,col)+{air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">"}[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
   }
 }
 document.querySelector(".level").onmouseup=function(){mD=false;}
 document.querySelector(".level").onmouseover=function(e){
   if (e.target.className.slice(0,10)=="levelBlock"&&mD) {
-    e.target.className="levelBlock "+{air:"air",solid:"ground",lava:"lava",destination:"win"}[document.querySelector("#current").innerHTML];
+    e.target.className="levelBlock "+{air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump",stickyground:"nojump",ice:"ice",mud:"mud",water:"water",leftconveyorbelt:"left",rightconveyorbelt:"right"}[document.querySelector("#current").innerHTML];
     var row=Number(e.target.parentNode.id.slice(1));
     var col=Number(e.target.id.slice(1));
-    level[row]=level[row].slice(0,col)+{air:" ",solid:"@",lava:"#",destination:"+"}[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
+    level[row]=level[row].slice(0,col)+{air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">"}[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
   }
 }
 document.body.onkeydown=function(e){
