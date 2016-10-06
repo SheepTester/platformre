@@ -78,7 +78,9 @@ textarea {
     <span id="done" class="btn">get code for this</span><br>
     <span id="load" class="btn">import</span>
     <textarea placeholder="code here"></textarea>
-    <a href="levelplaytest.html">test level</a>
+    <a href="levelplaytest.html">test level</a><br>
+    suggest level piece for the randomized level <a href="https://scratch.mit.edu/projects/124314649/">on Scratch</a> or
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdz6F-IRXt_H6P3nMQCwJKHqSzmi5X0XzgvgI7HtQXeRiUcSw/viewform">on a google form</a> (btw these level pieces have to be 4-8 blocks by 6 with no right wall nor ceiling)
     
     <script src="../sheep.js"></script>
     <script>
@@ -198,7 +200,7 @@ function highlight(element) { // based off http://stackoverflow.com/questions/98
   }
 }
 document.querySelector("#done").onclick=function(){
-  document.querySelector("textarea").value="[\n\""+level.join("\",\n\"")+"\"\n]";
+  document.querySelector("textarea").value="[[],\n\""+level.join("\",\n\"")+"\"\n]";
   document.querySelector("textarea").select();
 }
 document.querySelector("#load").onclick=function(){

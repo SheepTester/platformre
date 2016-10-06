@@ -13,13 +13,11 @@
   bottom: 0;
   left: 0;
 }
-.level, #message {
+.level {
   margin: auto;
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
 }
 .levelRow {
   height: 40px;
@@ -69,6 +67,10 @@ textarea {
   color: white;
 }
 #message {
+  margin: auto;
+  position: fixed;
+  top: 0;
+  bottom: 0;
   width: 100%;
   height: 20px;
   text-align: center;
@@ -91,45 +93,23 @@ textarea {
     </style>
   </head>
   <body>
-    <p><b>Use the keys WAD to move the player around.</b></p>
+    <p><b>Use the keys WAD to move the player around. Scroll the page to access the off-screen parts of the level (shift+scroll wheel=horizontal scroll)</b></p>
     <p>w pressed: <span id="w">no</span></p>
     <p>a pressed: <span id="a">no</span></p>
     <p>s pressed: <span id="s">no</span></p>
     <p>d pressed: <span id="d">no</span></p>
     <p id="vels"></p>
-    <div class="level">
+    <div class="level" style="height: 0px;width: 0px;">
       <div id="player"></div>
     </div>
     <p id="message"></p>
     
-    <textarea placeholder="code here"></textarea>
-    <span id="load">load level</span><br>
-    <a href="levelmaker.html">make level</a>
-    <a href="randomlevelgen.html">play randomized level</a>
-    
     <script src="../sheep.js"></script>
+    <script src="randomparts.js"></script>
     <script>
 var levels=[ /* space=air, @=ground, #=lava, +=win, ^=jumpboost, v=nojumping, ==mud, *=ice, w=water */
   [
-    ["In case you haven't noticed, you're standing on a greyish block with a T on it."],
-    "@@@@@@@@@@@@@@@@@+@@",
-    "@              @@w@@",
-    "@               www@",
-    "@   @===@       www@",
-    "@     #         www@",
-    "@     #        0w@@@",
-    "@v^@@###*>><<**@@@@@",
-  ],[
-    [],
-    "@@@@",
-    "@  +",
-    "@  @",
-    "@  @",
-    "@  @",
-    "@  @",
-    "@  @",
-    "@  @",
-    "@@@@",
+    ["This is a randomly generated level with 4 floors of mini-platformer-ness."],
   ],[
     [],
     "@@@", /* emergency last level */
@@ -310,7 +290,9 @@ var xv=0,yv=0,x=40,y=40,lev=0,collide=["@","^","v","*","=","<",">","0","1","2","
     xv+=2;
   }
   if (/[0-9]/.test(getBlock(0,-16))) {
-    document.querySelector("#message").innerHTML=levels[lev][0][Number(getBlock(0,-16))];
+    if (levels[lev][0][Number(getBlock(0,-16))]!==undefined) {
+      document.querySelector("#message").innerHTML=levels[lev][0][Number(getBlock(0,-16))];
+    }
   } else if (document.querySelector("#message").innerHTML) {
     document.querySelector("#message").innerHTML="";
   }
@@ -347,11 +329,10 @@ var xv=0,yv=0,x=40,y=40,lev=0,collide=["@","^","v","*","=","<",">","0","1","2","
     yv=-1;
     y=Math.floor((y-5)/40)*40+10;
   }
-  document.querySelector("#vels").innerHTML="{<br>xVelocity: "+xv+",<br>yVelocity: "+yv+",<br>xPosition: "+x+",<br>yPosition: "+y+"<br>}";
+  //document.querySelector("#vels").innerHTML="{<br>xVelocity: "+xv+",<br>yVelocity: "+yv+",<br>xPosition: "+x+",<br>yPosition: "+y+"<br>}";
   document.querySelector("#player").style.left=x+"px";
   document.querySelector("#player").style.bottom=y+"px";
 };
-render(lev);
 var wow=setInterval(play,33);
 function getBlock(nx,ny) {
   nx=Math.round((x+nx-5)/40);ny=Math.round((y+ny-5)/40);
@@ -387,8 +368,53 @@ function die(type) {
     document.querySelector("#player").className="";
   },500);
 }
-document.querySelector("#load").onclick=function(){
-  levels=[JSON.parse(document.querySelector("textarea").value),["@@@","@ @","@@@",]];
+function rand(min,max) {
+  return Math.floor(Math.random()*(max-min+1))+min;
+}
+function createRandomLevel() {
+  var floorlength,level=[],k;
+  function build(dat,rev) {
+    var rev;
+    for (var i=0;i<6;i++) {
+      level[i]+=dat[i];
+    }
+  }
+  for (var j=0;j<4;j++) {
+    level.splice(0,0,"","","","","","");
+    if (j==0) {
+      build(start);
+    } else {
+      build(upwards2);
+    }
+    floorlength=40;
+    while (floorlength>8) {
+      k=rand(0,4);
+      floorlength-=k+4;
+      build(parts[k][rand(0,parts[k].length-1)]);
+    }
+    if (floorlength>3) {
+      build(parts[floorlength-4][rand(0,parts[floorlength-4].length-1)]);
+    } else {
+      for (var i=0;i<5;i++) {
+        level[i]+=" ".repeat(floorlength);
+      }
+      level[5]+="@".repeat(floorlength);
+    }
+    if (j==3) {
+      build(fin);
+    } else {
+      build(upwards1);
+    }
+    if (j%2==1) {
+      for (var i=0;i<6;i++) {
+        level[i]=level[i].split("").reverse().join("");
+      }
+    }
+  }
+  level.splice(0,0,"@".repeat(48));
+  
+  level.splice(0,0,["This is a randomly generated level with 4 floors of mini-platformer-ness.","Next floor!","Almost there!"]);
+  levels=[level,["@@@","@ @","@@@",]];
   lev=0;
   render(0);
   xv=0,yv=0,x=40,y=40;
