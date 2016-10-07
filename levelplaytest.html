@@ -4,6 +4,9 @@
     <title>Platformre level test</title>
     <meta charset="UTF-8">
     <style>
+body {
+  font-family: monospace;
+}
 #player {
   position: absolute;
   background: #E91E63;
@@ -57,6 +60,10 @@
 }
 textarea {
   display: block;
+  font-family: inherit;
+  font-size: inherit;
+  width: 200px;
+  height: 200px;
 }
 #load {
   cursor: pointer;
@@ -88,6 +95,8 @@ textarea {
 .left {background-color:#009688;background-image:url(materialicon_chevron_left.svg);background-position:center;background-repeat:no-repeat;}
 .right {background-color:#004D40;background-image:url(materialicon_chevron_right.svg);background-position:center;background-repeat:no-repeat;}
 .text {background-color:#eee;background-image:url(materialicon_title.svg);background-position:center;background-repeat:no-repeat;}
+.check {background-color:#4CAF50;background-image:url(materialicon_beenhere.svg);background-position:center;background-repeat:no-repeat;}
+.glitch {background-color:magenta;}
     </style>
   </head>
   <body>
@@ -179,6 +188,8 @@ function render(level) {
         default:
           if (/[0-9]/.test(levels[level][i][j])) {
             data+="<div class='levelBlock text'></div>";
+          } else {
+            data+="<div class='levelBlock glitch'></div>";
           }
       }
     }

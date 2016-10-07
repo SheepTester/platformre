@@ -16,6 +16,20 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "ww#ww",
       "ww#ww",
       "@@@@@"
+    ],[
+      "@www@",
+      "@www@",
+      "@www@",
+      " www ",
+      " www ",
+      "@###@"
+    ],[
+      "@@@@@",
+      "@@@@@",
+      "@@@@@",
+      "@@@@@",
+      "     ",
+      "@<<<@"
     ],
   ],[ // 6-wide levels
     [
@@ -34,7 +48,14 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "       ",
       "       ",
       ">***>**"
-    ],
+    ],[
+      "*******",
+      "**    *",
+      "*  C  *",
+      "   *   ",
+      "   *   ",
+      ">*****<"
+    ]
   ],[ // 8-wide levels
     [
       "        ",
@@ -51,7 +72,7 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
   "@   ",
   "@   ",
   "@   ",
-  "@@0@",
+  "@C0@",
 ],fin=[
   "   +",
   "   +",

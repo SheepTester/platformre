@@ -4,6 +4,9 @@
     <title>Platformre level test</title>
     <meta charset="UTF-8">
     <style>
+body {
+  font-family: monospace;
+}
 #player {
   position: absolute;
   background: #E91E63;
@@ -53,8 +56,17 @@
   transform: scale(2);
   animation: congrats 0.5s;
 }
+button, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
 textarea {
   display: block;
+  width: 200px;
+  height: 200px;
+}
+button {
+  cursor: pointer;
 }
 #load {
   cursor: pointer;
@@ -81,15 +93,17 @@ textarea {
 .air {background:rgba(255,255,255,0.5);}
 .ground {background:#212121;}
 .lava {background:#FF5722;/*animation: lava 2s linear infinite;*/}
-.win {background:#8BC34A;}
-.jump {background:#9C27B0;}
-.mud {background:#795548;}
-.nojump {background:#FFC107;}
-.ice {background:#00BCD4;}
+.win {background:#8BC34A;background-image:url(materialicon_flag.svg);background-position:center;background-repeat:no-repeat;}
+.jump {background:#9C27B0;height:35px;border-top:5px solid hsl(291, 64%, 32%);background-image:url(materialicon_keyboard_arrow_up.svg);background-position:center;background-repeat:no-repeat;}
+.mud {background:#795548;border-top:5px solid hsl(16,25%,28%);height:35px;}
+.nojump {background:#FFC107;background-image:url(materialicon_block.svg);background-position:center;background-repeat:no-repeat;}
+.ice {background:#00BCD4;background-image:url(iceshine.svg);background-position:center;background-repeat:no-repeat;}
 .water {background:#2196F3;}
-.left {background-color:#009688;background-image:url(materialicon_chevron_left.svg);background-position:center;background-repeat:no-repeat;}
-.right {background-color:#004D40;background-image:url(materialicon_chevron_right.svg);background-position:center;background-repeat:no-repeat;}
-.text {background-color:#eee;background-image:url(materialicon_title.svg);background-position:center;background-repeat:no-repeat;}
+.left {background-color:#009688;height:35px;border-top:5px solid hsl(174,100%,19%);background-image:url(materialicon_chevron_left.svg);background-position:center;background-repeat:no-repeat;}
+.right {background-color:#004D40;height:35px;border-top:5px solid hsl(170,100%,5%);background-image:url(materialicon_chevron_right.svg);background-position:center;background-repeat:no-repeat;}
+.text {background-color:#eee;border-top:5px solid hsl(0, 0%, 83%);height:35px;background-image:url(materialicon_title.svg);background-position:center;background-repeat:no-repeat;}
+.check {background-color:#4CAF50;border-top:5px solid hsl(122, 39%, 39%);height:35px;background-image:url(materialicon_beenhere.svg);background-position:center;background-repeat:no-repeat;}
+.glitch {background-color:magenta;}
     </style>
   </head>
   <body>
@@ -103,6 +117,7 @@ textarea {
       <div id="player"></div>
     </div>
     <p id="message"></p>
+    <a href="levelmaker.html">make a level piece</a><br>
     
     <script src="../sheep.js"></script>
     <script src="randomparts.js"></script>
@@ -156,9 +171,14 @@ function render(level) {
         case ">":
           data+="<div class='levelBlock right'></div>";
           break;
+        case "C":
+          data+="<div class='levelBlock check'></div>";
+          break;
         default:
           if (/[0-9]/.test(levels[level][i][j])) {
             data+="<div class='levelBlock text'></div>";
+          } else {
+            data+="<div class='levelBlock glitch'></div>";
           }
       }
     }
@@ -232,7 +252,7 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,collide=["@","^","v","*","=","<",">","0","1","2","3","4","5","6","7","8","9",],play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">","0","1","2","3","4","5","6","7","8","9","C"],play=function(){
   x+=xv;y+=yv;
   if (getBlock(-15,0)=="#") { /* left wall */
     die();
@@ -288,6 +308,9 @@ var xv=0,yv=0,x=40,y=40,lev=0,collide=["@","^","v","*","=","<",">","0","1","2","
     xv-=2;
   } else if (getBlock(0,-16)==">") {
     xv+=2;
+  } else if (getBlock(0,-16)=="C") {
+    cpx=x;
+    cpy=y;
   }
   if (/[0-9]/.test(getBlock(0,-16))) {
     if (levels[lev][0][Number(getBlock(0,-16))]!==undefined) {
@@ -357,7 +380,7 @@ function die(type) {
     document.querySelector("#player").className="die";
   }
   setTimeout(function(){
-    xv=0,yv=0,x=40,y=40;
+    xv=0,yv=0,x=cpx,y=cpy;
     if (document.querySelector("#player").className=="winner") {
       lev++;render(lev);
     }
@@ -408,6 +431,9 @@ function createRandomLevel() {
     if (j%2==1) {
       for (var i=0;i<6;i++) {
         level[i]=level[i].split("").reverse().join("");
+        level[i]=level[i].replace(/</g,"~");
+        level[i]=level[i].replace(/>/g,"<");
+        level[i]=level[i].replace(/~/g,">");
       }
     }
   }
