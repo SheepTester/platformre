@@ -3,10 +3,17 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
     [
       " @@@",
       " @@@",
-      " @@@",
+      " @@ ",
       "    ",
       "@   ",
       "@==#"
+    ],[
+      "@@@@",
+      "    ",
+      "    ",
+      "@  @",
+      "@  @",
+      "@vv@"
     ],
   ],[ // 5-wide levels
     [
@@ -39,6 +46,13 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "      ",
       "      ",
       "@@^@^@"
+    ],[
+      "LLLLLL",
+      "RRRRRR",
+      "LLLLLL",
+      "      ",
+      "      ",
+      "RRRRRR"
     ],
   ],[ // 7-wide levels
     [
@@ -64,6 +78,13 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "        ",
       "        ",
       "@@#<vv>#"
+    ],[
+      "        ",
+      "        ",
+      "   RL   ",
+      "   @@   ",
+      "        ",
+      "@@BBBB@@"
     ],
   ],
 ],start=[
@@ -84,15 +105,18 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
   "   @",
   "   @",
   "   @",
-  "   @",
-  "   @",
-  "1^@@",
+  " ^ @",
+  " @B@",
+  "1@@@",
 ],upwards2=[
-  "@   ",
-  "@   ",
-  "@   ",
-  "@   ",
-  "@   ",
-  "@@ @",
+  "@***",
+  "@*w*",
+  "@***",
+  "@@@@",
+  "@L  ",
+  "@@ C",
 ];
-document.body.innerHTML+="<button onclick='createRandomLevel()'>GENERATE LEVEL</button>";
+//document.body.innerHTML+="<button onclick='createRandomLevel()'>GENERATE LEVEL</button>";
+setTimeout(function(){
+  createRandomLevel();
+},100);

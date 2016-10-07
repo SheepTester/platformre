@@ -15,20 +15,16 @@ body {
   border-radius: 50%;
   bottom: 0;
   left: 0;
+  z-index: 100;
 }
 .level {
-  margin: auto;
   position: absolute;
-  top: 0;
   left: 0;
-}
-.levelRow {
-  height: 40px;
 }
 .levelBlock {
   height: 40px;
   width: 40px;
-  display: inline-block;
+  position: absolute;
 }
 @keyframes lava {
   0% {background:#FF6F00;}
@@ -90,34 +86,43 @@ button {
   color: #212121;
   text-shadow: 0 0 15px white;
 }
-.air {background:rgba(255,255,255,0.5);}
+.topOnly:before {
+  content: '';
+  border-top: 5px solid rgba(0,0,0,0.2);
+  display: block;
+}
 .ground {background:#212121;}
 .lava {background:#FF5722;/*animation: lava 2s linear infinite;*/}
 .win {background:#8BC34A;background-image:url(materialicon_flag.svg);background-position:center;background-repeat:no-repeat;}
-.jump {background:#9C27B0;height:35px;border-top:5px solid hsl(291, 64%, 32%);background-image:url(materialicon_keyboard_arrow_up.svg);background-position:center;background-repeat:no-repeat;}
-.mud {background:#795548;border-top:5px solid hsl(16,25%,28%);height:35px;}
+.jump {background:#9C27B0;background-image:url(materialicon_keyboard_arrow_up.svg);background-position:center;background-repeat:no-repeat;}
+.mud {background:#795548;}
 .nojump {background:#FFC107;background-image:url(materialicon_block.svg);background-position:center;background-repeat:no-repeat;}
 .ice {background:#00BCD4;background-image:url(iceshine.svg);background-position:center;background-repeat:no-repeat;}
 .water {background:#2196F3;}
-.left {background-color:#009688;height:35px;border-top:5px solid hsl(174,100%,19%);background-image:url(materialicon_chevron_left.svg);background-position:center;background-repeat:no-repeat;}
-.right {background-color:#004D40;height:35px;border-top:5px solid hsl(170,100%,5%);background-image:url(materialicon_chevron_right.svg);background-position:center;background-repeat:no-repeat;}
-.text {background-color:#eee;border-top:5px solid hsl(0, 0%, 83%);height:35px;background-image:url(materialicon_title.svg);background-position:center;background-repeat:no-repeat;}
-.check {background-color:#4CAF50;border-top:5px solid hsl(122, 39%, 39%);height:35px;background-image:url(materialicon_beenhere.svg);background-position:center;background-repeat:no-repeat;}
+.left {background-color:#009688;background-image:url(materialicon_chevron_left.svg);background-position:center;background-repeat:no-repeat;}
+.right {background-color:#004D40;background-image:url(materialicon_chevron_right.svg);background-position:center;background-repeat:no-repeat;}
+.text {background-color:#eee;background-image:url(materialicon_title.svg);background-position:center;background-repeat:no-repeat;}
+.check {background-color:#4CAF50;background-image:url(materialicon_beenhere.svg);background-position:center;background-repeat:no-repeat;}
+.fanL, .fanR, .fanB {background-color:#607D8B;}
+.fanL:before {content:'';border-right:5px solid rgba(255,255,255,0.2);display:block;height:40px;}
+.fanR:before {content:'';border-left:5px solid rgba(255,255,255,0.2);display:block;height:40px;}
+.fanB:before {content:'';border-top:5px solid rgba(255,255,255,0.2);display:block;}
 .glitch {background-color:magenta;}
     </style>
   </head>
   <body>
     <p><b>Use the keys WAD to move the player around. Scroll the page to access the off-screen parts of the level (shift+scroll wheel=horizontal scroll)</b></p>
+    <p>No level appearing? Go to the JS console and type in "createRandomLevel()"</p>
     <p>w pressed: <span id="w">no</span></p>
     <p>a pressed: <span id="a">no</span></p>
     <p>s pressed: <span id="s">no</span></p>
     <p>d pressed: <span id="d">no</span></p>
     <p id="vels"></p>
+    <a href="levelmaker.html">make a level piece</a><br>
     <div class="level" style="height: 0px;width: 0px;">
       <div id="player"></div>
     </div>
     <p id="message"></p>
-    <a href="levelmaker.html">make a level piece</a><br>
     
     <script src="../sheep.js"></script>
     <script src="randomparts.js"></script>
@@ -135,57 +140,60 @@ var levels=[ /* space=air, @=ground, #=lava, +=win, ^=jumpboost, v=nojumping, ==
 function render(level) {
   var data="<div id='player'></div>";
   for (var i=1;i<levels[level].length;i++) {
-    data+="<div class='levelRow'>";
     for (var j=0;j<levels[level][i].length;j++) {
       switch (levels[level][i][j]) {
-        case " ":
-          data+="<div class='levelBlock air'></div>";
-          break;
         case "@":
-          data+="<div class='levelBlock ground'></div>";
+          data+="<div class='levelBlock ground' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           break;
         case "#":
-          data+="<div class='levelBlock lava'></div>";
+          data+="<div class='levelBlock lava' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           break;
         case "+":
-          data+="<div class='levelBlock win'></div>";
+          data+="<div class='levelBlock win' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           break;
         case "^":
-          data+="<div class='levelBlock jump'></div>";
+          data+="<div class='levelBlock jump topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           break;
         case "=":
-          data+="<div class='levelBlock mud'></div>";
+          data+="<div class='levelBlock mud topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           break;
         case "v":
-          data+="<div class='levelBlock nojump'></div>";
+          data+="<div class='levelBlock nojump topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           break;
         case "*":
-          data+="<div class='levelBlock ice'></div>";
+          data+="<div class='levelBlock ice' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           break;
         case "w":
-          data+="<div class='levelBlock water'></div>";
+          data+="<div class='levelBlock water' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           break;
         case "<":
-          data+="<div class='levelBlock left'></div>";
+          data+="<div class='levelBlock left topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           break;
         case ">":
-          data+="<div class='levelBlock right'></div>";
+          data+="<div class='levelBlock right topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           break;
         case "C":
-          data+="<div class='levelBlock check'></div>";
+          data+="<div class='levelBlock check topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
+          break;
+        case "L":
+          data+="<div class='levelBlock fanL' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
+          break;
+        case "R":
+          data+="<div class='levelBlock fanR' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
+          break;
+        case "B":
+          data+="<div class='levelBlock fanB' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           break;
         default:
           if (/[0-9]/.test(levels[level][i][j])) {
-            data+="<div class='levelBlock text'></div>";
-          } else {
-            data+="<div class='levelBlock glitch'></div>";
+            data+="<div class='levelBlock text topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
+          } else if (levels[level][i][j]!=" ") {
+            data+="<div class='levelBlock glitch' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
           }
       }
     }
-    data+="</div>";
   }
   document.querySelector(".level").innerHTML=data;
-  document.querySelector(".level").style.width=(levels[level][1].length*40)+"px";
   document.querySelector(".level").style.height=(levels[level].length*40-40)+"px";
 }
 var wDown=false,aDown=false,dDown=false,sDown=false,pausd=false;
@@ -252,7 +260,7 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">","0","1","2","3","4","5","6","7","8","9","C"],play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">","0","1","2","3","4","5","6","7","8","9","C","L","R","B"],play=function(){
   x+=xv;y+=yv;
   if (getBlock(-15,0)=="#") { /* left wall */
     die();
@@ -328,16 +336,16 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">"
     if(sDown){yv-=1;}
     if(dDown){xv+=1;}
   }
-  if (!["#","+"].includes(getBlock(0,-16))&&water===undefined) { /* moving */
-    if (wDown) {
+  if (!["#","+"].includes(getBlock(0,-16))&&(water===undefined||getBlock(0,-40)=="B")) { /* moving */
+    if (wDown&&getBlock(0,-40)!="B") {
       if(getBlock(0,-16)=="^"){yv=20;}else if(getBlock(0,-16)!="v"){yv=15;}
     }
     if (aDown&&!dDown&&xv>-10) {
-      if(getBlock(0,-16)=="="){xv-=0.2;}else if(getBlock(0,-16)=="*"){xv-=1;}else{xv-=1.5;}
+      if(getBlock(0,-16)=="="){xv-=0.2;}else if(getBlock(0,-16)=="*"||getBlock(0,-40)=="B"){xv-=1;}else{xv-=1.5;}
     } else if (dDown&&!aDown&&xv<10) {
-      if(getBlock(0,-16)=="="){xv+=0.2;}else if(getBlock(0,-16)=="*"){xv+=1;}else{xv+=1.5;}
+      if(getBlock(0,-16)=="="){xv+=0.2;}else if(getBlock(0,-16)=="*"||getBlock(0,-40)=="B"){xv+=1;}else{xv+=1.5;}
     } else {
-      if(getBlock(0,-16)=="="){xv=Math.round(xv*500)/1000;}else if(getBlock(0,-16)=="*"){xv=Math.round(xv*950)/1000;}else{xv=Math.round(xv*800)/1000;}
+      if(getBlock(0,-16)=="="){xv=Math.round(xv*200)/1000;}else if(getBlock(0,-16)=="*"||getBlock(0,-40)=="B"){xv=Math.round(xv*950)/1000;}else{xv=Math.round(xv*800)/1000;}
       if (Math.abs(xv)<0.01) {
         xv=0;
         x=Math.round(x*1000)/1000;
@@ -352,6 +360,9 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">"
     yv=-1;
     y=Math.floor((y-5)/40)*40+10;
   }
+  if (getBlock(-40,0)=="L") {xv+=2;}
+  if (getBlock(40,0)=="R") {xv-=2;}
+  if (getBlock(0,-40)=="B") {yv+=2;}
   //document.querySelector("#vels").innerHTML="{<br>xVelocity: "+xv+",<br>yVelocity: "+yv+",<br>xPosition: "+x+",<br>yPosition: "+y+"<br>}";
   document.querySelector("#player").style.left=x+"px";
   document.querySelector("#player").style.bottom=y+"px";
@@ -434,6 +445,9 @@ function createRandomLevel() {
         level[i]=level[i].replace(/</g,"~");
         level[i]=level[i].replace(/>/g,"<");
         level[i]=level[i].replace(/~/g,">");
+        level[i]=level[i].replace(/L/g,"~");
+        level[i]=level[i].replace(/R/g,"L");
+        level[i]=level[i].replace(/~/g,"R");
       }
     }
   }
@@ -444,6 +458,7 @@ function createRandomLevel() {
   lev=0;
   render(0);
   xv=0,yv=0,x=40,y=40;
+  window.scrollTo(0, 600);
 }
     </script>
   </body>

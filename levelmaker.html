@@ -14,38 +14,46 @@ body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-}
-.levelRow {
-  height: 40px;
+  position: relative;
 }
 .levelBlock {
   height: 40px;
   width: 40px;
-  display: inline-block;
   transition: transform .2s;
+  position: absolute;
+}
+#curB {
+  height: 40px;
+  width: 40px;
+  display: inline-block;
+  transform: scale(0.4);
+  position: absolute;
 }
 .levelBlock:hover {
   transform: scale(0.8);
   box-shadow: inset 0 0 3px rgba(0,0,0,0.5);
 }
-.air {
-  background: white;
+.topOnly:before {
+  content: '';
+  border-top: 5px solid rgba(0,0,0,0.2);
+  display: block;
 }
-.ground {
-  background: #212121;
-}
-.lava {
-  background: #FF5722;
-}
+.ground {background:#212121;}
+.lava {background:#FF5722;/*animation: lava 2s linear infinite;*/}
 .win {background:#8BC34A;background-image:url(materialicon_flag.svg);background-position:center;background-repeat:no-repeat;}
-.jump {background:#9C27B0;height:35px;border-top:5px solid hsl(291, 64%, 32%);background-image:url(materialicon_keyboard_arrow_up.svg);background-position:center;background-repeat:no-repeat;}
-.mud {background:#795548;border-top:5px solid hsl(16,25%,28%);height:35px;}
+.jump {background:#9C27B0;background-image:url(materialicon_keyboard_arrow_up.svg);background-position:center;background-repeat:no-repeat;}
+.mud {background:#795548;}
 .nojump {background:#FFC107;background-image:url(materialicon_block.svg);background-position:center;background-repeat:no-repeat;}
 .ice {background:#00BCD4;background-image:url(iceshine.svg);background-position:center;background-repeat:no-repeat;}
 .water {background:#2196F3;}
-.left {background-color:#009688;height:35px;border-top:5px solid hsl(174,100%,19%);background-image:url(materialicon_chevron_left.svg);background-position:center;background-repeat:no-repeat;}
-.right {background-color:#004D40;height:35px;border-top:5px solid hsl(170,100%,5%);background-image:url(materialicon_chevron_right.svg);background-position:center;background-repeat:no-repeat;}
-.check {background-color:#4CAF50;border-top:5px solid hsl(122, 39%, 39%);height:35px;background-image:url(materialicon_beenhere.svg);background-position:center;background-repeat:no-repeat;}
+.left {background-color:#009688;background-image:url(materialicon_chevron_left.svg);background-position:center;background-repeat:no-repeat;}
+.right {background-color:#004D40;background-image:url(materialicon_chevron_right.svg);background-position:center;background-repeat:no-repeat;}
+.text {background-color:#eee;background-image:url(materialicon_title.svg);background-position:center;background-repeat:no-repeat;}
+.check {background-color:#4CAF50;background-image:url(materialicon_beenhere.svg);background-position:center;background-repeat:no-repeat;}
+.fanL, .fanR, .fanB {background-color:#607D8B;}
+.fanL:before {content:'';border-right:5px solid rgba(255,255,255,0.2);display:block;height:40px;}
+.fanR:before {content:'';border-left:5px solid rgba(255,255,255,0.2);display:block;height:40px;}
+.fanB:before {content:'';border-top:5px solid rgba(255,255,255,0.2);display:block;}
 .glitch {background-color:magenta;}
 .blkTyp, .btn {
   cursor: pointer;
@@ -59,6 +67,8 @@ body {
 }
 #current {
   color: coral;
+  padding-left: 40px;
+  padding-top: 10px;
 }
 #done {
   white-space: pre-wrap;
@@ -76,9 +86,25 @@ textarea {
     </style>
   </head>
   <body>
-    <p><b>Click. Press the arrow keys to expand or shorten the level size.</b><br>
-    <span class="blkTyp" id="space">air</span> <span class="blkTyp" id="at">solid</span> <span class="blkTyp" id="hash">lava</span> <span class="blkTyp" id="plus">destination</span> <span class="blkTyp" id="carrot">jumpboost</span> <span class="blkTyp" id="v">stickyground</span> <span class="blkTyp" id="aster">ice</span> <span class="blkTyp" id="equals">mud</span> <span class="blkTyp" id="w">water</span> <span class="blkTyp" id="less">leftconveyorbelt</span> <span class="blkTyp" id="great">rightconveyorbelt</span> <span class="blkTyp" id="c">checkpoint</span>
-    <span id="current">solid</span></p>
+    <p>
+      <b>Click. Press the arrow keys to expand or shorten the level size.</b><br>
+      <span class="blkTyp" id="space">air</span>
+      <span class="blkTyp" id="at">solid</span>
+      <span class="blkTyp" id="hash">lava</span>
+      <span class="blkTyp" id="plus">destination</span>
+      <span class="blkTyp" id="carrot">jumpboost</span>
+      <span class="blkTyp" id="v">stickyground</span>
+      <span class="blkTyp" id="aster">ice</span>
+      <span class="blkTyp" id="equals">mud</span>
+      <span class="blkTyp" id="w">water</span>
+      <span class="blkTyp" id="less">leftconveyorbelt</span>
+      <span class="blkTyp" id="great">rightconveyorbelt</span>
+      <span class="blkTyp" id="c">checkpoint</span>
+      <span class="blkTyp" id="r">leftfan</span>
+      <span class="blkTyp" id="l">rightfan</span>
+      <span class="blkTyp" id="b">upfan</span>
+    </p>
+    <div id="curB" class="ground"></div><p id="current">solid</p>
     <div class="level"></div>
     width: <span id="width"></span> height: <span id="height"></span> <span id="template" class="btn">set height to 6</span><br>
     <span id="done" class="btn">get code for this</span><br>
@@ -109,43 +135,54 @@ function render() {
     for (var j=0;j<level[i].length;j++) {
       switch (level[i][j]) {
         case " ":
-          data+="<div class='levelBlock air' id='c"+j+"'></div>";
+          data+="<div class='levelBlock air' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         case "@":
-          data+="<div class='levelBlock ground' id='c"+j+"'></div>";
+          data+="<div class='levelBlock ground' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         case "#":
-          data+="<div class='levelBlock lava' id='c"+j+"'></div>";
+          data+="<div class='levelBlock lava' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         case "+":
-          data+="<div class='levelBlock win' id='c"+j+"'></div>";
+          data+="<div class='levelBlock win' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         case "^":
-          data+="<div class='levelBlock jump' id='c"+j+"'></div>";
+          data+="<div class='levelBlock jump topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         case "=":
-          data+="<div class='levelBlock mud' id='c"+j+"'></div>";
+          data+="<div class='levelBlock mud topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         case "v":
-          data+="<div class='levelBlock nojump' id='c"+j+"'></div>";
+          data+="<div class='levelBlock nojump topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         case "*":
-          data+="<div class='levelBlock ice' id='c"+j+"'></div>";
+          data+="<div class='levelBlock ice' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         case "w":
-          data+="<div class='levelBlock water' id='c"+j+"'></div>";
+          data+="<div class='levelBlock water' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         case "<":
-          data+="<div class='levelBlock left' id='c"+j+"'></div>";
+          data+="<div class='levelBlock left topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         case ">":
-          data+="<div class='levelBlock right' id='c"+j+"'></div>";
+          data+="<div class='levelBlock right topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         case "C":
-          data+="<div class='levelBlock check' id='c"+j+"'></div>";
+          data+="<div class='levelBlock check topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
+          break;
+        case "L":
+          data+="<div class='levelBlock fanL' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
+          break;
+        case "R":
+          data+="<div class='levelBlock fanR' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
+          break;
+        case "B":
+          data+="<div class='levelBlock fanB' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
           break;
         default:
-          data+="<div class='levelBlock glitch' id='c"+j+"'></div>";
+          if (level[i][j]!=" ") {
+            data+="<div class='levelBlock glitch' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
+          }
       }
     }
     data+="</div>";
@@ -153,30 +190,39 @@ function render() {
   document.querySelector(".level").innerHTML=data;
   document.querySelector("#width").innerHTML=level[0].length;
   document.querySelector("#height").innerHTML=level.length;
+  document.querySelector(".level").style.height=(level.length*40)+"px";
 }
 render();
+var paletteIdToPaletteLabel={
+  space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan"
+},paletteLabelToClassName={
+  air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB"
+},paletteLabelToSymbol={
+  air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B"
+};
 document.querySelector("p").onclick=function(e){
   if (e.target.className=="blkTyp") {
-    document.querySelector("#current").innerHTML={space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint"}[e.target.id];
+    document.querySelector("#current").innerHTML=paletteIdToPaletteLabel[e.target.id];
+    document.querySelector("#curB").className=paletteLabelToClassName[document.querySelector("#current").innerHTML];
   }
 }
 var mD=false;
 document.querySelector(".level").onmousedown=function(e){
   mD=true;
   if (e.target.className.slice(0,10)=="levelBlock") {
-    e.target.className="levelBlock "+{air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump",stickyground:"nojump",ice:"ice",mud:"mud",water:"water",leftconveyorbelt:"left",rightconveyorbelt:"right",checkpoint:"check"}[document.querySelector("#current").innerHTML];
+    e.target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
     var row=Number(e.target.parentNode.id.slice(1));
     var col=Number(e.target.id.slice(1));
-    level[row]=level[row].slice(0,col)+{air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C"}[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
+    level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
   }
 }
 document.querySelector(".level").onmouseup=function(){mD=false;}
 document.querySelector(".level").onmouseover=function(e){
   if (e.target.className.slice(0,10)=="levelBlock"&&mD) {
-    e.target.className="levelBlock "+{air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump",stickyground:"nojump",ice:"ice",mud:"mud",water:"water",leftconveyorbelt:"left",rightconveyorbelt:"right",checkpoint:"check"}[document.querySelector("#current").innerHTML];
+    e.target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
     var row=Number(e.target.parentNode.id.slice(1));
     var col=Number(e.target.id.slice(1));
-    level[row]=level[row].slice(0,col)+{air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C"}[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
+    level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
   }
 }
 document.body.onkeydown=function(e){
