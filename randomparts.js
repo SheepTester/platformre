@@ -14,6 +14,20 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "@  @",
       "@  @",
       "@vv@"
+    ],[
+      "    ",
+      "  @@",
+      "  @#",
+      "  @#",
+      "  @#",
+      "@^@#"
+    ],[
+      "@@@@",
+      "@   ",
+      "@  @",
+      "@  @",
+      "   @",
+      "@@@@"
     ],
   ],[ // 5-wide levels
     [
@@ -37,6 +51,13 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "@@@@@",
       "     ",
       "@<<<@"
+    ],[
+      "L   #",
+      "@ @ #",
+      "@ @ #",
+      "@ @ @",
+      "  @  ",
+      "@&@@@"
     ],
   ],[ // 6-wide levels
     [
@@ -53,6 +74,20 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "      ",
       "      ",
       "RRRRRR"
+    ],[
+      "@    @",
+      "@@@@@@",
+      "      ",
+      "      ",
+      "      ",
+      ">>##<<"
+    ],[
+      "######",
+      "      ",
+      "      ",
+      "      ",
+      "      ",
+      "@&&&&@"
     ],
   ],[ // 7-wide levels
     [
@@ -64,12 +99,26 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       ">***>**"
     ],[
       "*******",
-      "**    *",
-      "*  C  *",
-      "   *   ",
+      "**   **",
+      "*  C **",
+      "   * * ",
       "   *   ",
       ">*****<"
-    ]
+    ],[
+      "@@@@@@@",
+      "wwwwwww",
+      "w@#####",
+      "w@@@@@@",
+      "w@@@@@@",
+      "@@@@@@@"
+    ],[
+      "w     @",
+      "w>>>> R",
+      "w@    R",
+      "wL <<<@",
+      "wL     ",
+      "@@>>>>>"
+    ],
   ],[ // 8-wide levels
     [
       "        ",
@@ -77,7 +126,7 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "        ",
       "        ",
       "        ",
-      "@@#<vv>#"
+      "@#<vv>#@"
     ],[
       "        ",
       "        ",
@@ -85,6 +134,20 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "   @@   ",
       "        ",
       "@@BBBB@@"
+    ],[
+      "        ",
+      "        ",
+      "        ",
+      "        ",
+      "        ",
+      "@######@"
+    ],[
+      "@@@@@@@@",
+      "@   @   ",
+      "@ v @ v ",
+      "  @   @ ",
+      "  @   @ ",
+      ">^@>>^@>"
     ],
   ],
 ],start=[
