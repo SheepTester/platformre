@@ -110,6 +110,7 @@ textarea {
     <div class="level"></div>
     width: <span id="width"></span> height: <span id="height"></span> <span id="template" class="btn">set height to 6</span><br>
     <span id="done" class="btn">get code for this</span><br>
+    <span id="doneBit" class="btn">get code for this as a level bit</span><br>
     <span id="load" class="btn">import</span>
     <textarea placeholder="code here"></textarea>
     <a href="levelplaytest.html">test level</a><br>
@@ -268,6 +269,10 @@ function highlight(element) { // based off http://stackoverflow.com/questions/98
 }
 document.querySelector("#done").onclick=function(){
   document.querySelector("textarea").value="[[],\n\""+level.join("\",\n\"")+"\"\n]";
+  document.querySelector("textarea").select();
+}
+document.querySelector("#doneBit").onclick=function(){
+  document.querySelector("textarea").value="[\n  \""+level.join("\",\n  \"")+"\"\n],";
   document.querySelector("textarea").select();
 }
 document.querySelector("#load").onclick=function(){

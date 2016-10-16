@@ -417,6 +417,14 @@ function createRandomLevel() {
     var rev;
     for (var i=0;i<6;i++) {
       level[i]+=dat[i];
+      if (i==5&&level.length>6) {
+        var pos=dat[5].indexOf("#");
+        while (pos!==-1) {
+          var tem = level[6][pos] + level[7][pos] + level[8][pos] + level[9][pos] + level[10][pos] + level[11][pos];
+          if (tem=="     &") level[11] = level[11].slice(0,pos) + "^" + level[11].slice(pos+1);
+          pos=dat[5].indexOf('#',pos + 1);
+        }
+      }
     }
   }
   for (var j=0;j<4;j++) {
@@ -428,7 +436,7 @@ function createRandomLevel() {
     }
     floorlength=40;
     var nextbit;
-    while (floorlength>8) {
+    while (floorlength>9) {
       k=rand(0,4);
       floorlength-=k+4;
       nextbit=parts[k][rand(0,parts[k].length-1)];
@@ -446,6 +454,11 @@ function createRandomLevel() {
       }
       build(nextbit);
     }
+    for (var i=0;i<5;i++) {
+      level[i]+=" ";
+    }
+    level[5]+="@";
+    floorlength--;
     if (floorlength>3) {
       build(parts[floorlength-4][rand(0,parts[floorlength-4].length-1)]);
     } else {
