@@ -55,6 +55,8 @@ body {
 .fanR:before {content:'';border-left:5px solid rgba(255,255,255,0.2);display:block;height:40px;}
 .fanB:before {content:'';border-top:5px solid rgba(255,255,255,0.2);display:block;}
 .ajump {background-color:#E91E63;background-image:url(icons/materialicon_arrow_upward.svg);background-position:center;background-repeat:no-repeat;}
+.gold {background:#FFC107;background-image:url(icons/iceshine.svg);background-position:center;background-repeat:no-repeat;}
+.sand {background:#FFCC80;}
 .glitch {background-color:magenta;}
 .blkTyp, .btn {
   cursor: pointer;
@@ -89,28 +91,13 @@ textarea {
   <body>
     <p>
       <b>Click. Press the arrow keys to expand or shorten the level size.</b><br>
-      <span class="blkTyp" id="space">air</span>
-      <span class="blkTyp" id="at">solid</span>
-      <span class="blkTyp" id="hash">lava</span>
-      <span class="blkTyp" id="plus">destination</span>
-      <span class="blkTyp" id="carrot">jumpboost</span>
-      <span class="blkTyp" id="v">stickyground</span>
-      <span class="blkTyp" id="aster">ice</span>
-      <span class="blkTyp" id="equals">mud</span>
-      <span class="blkTyp" id="w">water</span>
-      <span class="blkTyp" id="less">leftconveyorbelt</span>
-      <span class="blkTyp" id="great">rightconveyorbelt</span>
-      <span class="blkTyp" id="c">checkpoint</span>
-      <span class="blkTyp" id="r">leftfan</span>
-      <span class="blkTyp" id="l">rightfan</span>
-      <span class="blkTyp" id="b">upfan</span>
-      <span class="blkTyp" id="amp">autojumppad</span>
+      <span id="palette"></span>
     </p>
     <div id="curB" class="ground"></div><p id="current">solid</p>
     <div class="level"></div>
     width: <span id="width"></span> height: <span id="height"></span> <span id="template" class="btn">set height to 6</span><br>
     <span id="done" class="btn">get code for this</span><br>
-    <span id="doneBit" class="btn">get code for this as a level bit</span><br>
+    <span id="doneBit" class="btn">(for developers) get code as level bit</span><br>
     <span id="load" class="btn">import</span>
     <textarea placeholder="code here"></textarea>
     <a href="levelplaytest.html">test level</a><br>
@@ -129,67 +116,19 @@ var level=[ /* space=air, @=ground, #=lava */
   "@v^@@###*>><<**@@@@@",
 ];
 function render() {
-  var data="";
+  var blockClasses=["air","ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand"],
+  ids=" @#+^=v*w<>CLRB&gs",
+  data="";
   if (typeof level[0]=="object") {
     level.splice(0,1);
   }
   for (var i=0;i<level.length;i++) {
     data+="<div class='levelRow' id='r"+i+"'>";
     for (var j=0;j<level[i].length;j++) {
-      switch (level[i][j]) {
-        case " ":
-          data+="<div class='levelBlock air' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "@":
-          data+="<div class='levelBlock ground' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "#":
-          data+="<div class='levelBlock lava' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "+":
-          data+="<div class='levelBlock win' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "^":
-          data+="<div class='levelBlock jump topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "=":
-          data+="<div class='levelBlock mud topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "v":
-          data+="<div class='levelBlock nojump topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "*":
-          data+="<div class='levelBlock ice' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "w":
-          data+="<div class='levelBlock water' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "<":
-          data+="<div class='levelBlock left topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case ">":
-          data+="<div class='levelBlock right topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "C":
-          data+="<div class='levelBlock check topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "L":
-          data+="<div class='levelBlock fanL' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "R":
-          data+="<div class='levelBlock fanR' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "B":
-          data+="<div class='levelBlock fanB' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        case "&":
-          data+="<div class='levelBlock ajump topOnly' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          break;
-        default:
-          if (level[i][j]!=" ") {
-            data+="<div class='levelBlock glitch' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
-          }
-      }
+      var id=ids.indexOf(level[i][j]);
+      if (id>-1) id=blockClasses[id];
+      else if (level[i][j]!=" ") id="glitch";
+      data+="<div class='levelBlock "+id+"' style='top:"+(i*40)+"px;left:"+(j*40)+"px;' id='c"+j+"'></div>";
     }
     data+="</div>";
   }
@@ -200,12 +139,17 @@ function render() {
 }
 render();
 var paletteIdToPaletteLabel={
-  space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",amp:"autojumppad"
+  space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",amp:"autojumppad",g:"gold",s:"sand"
 },paletteLabelToClassName={
-  air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB",autojumppad:"ajump topOnly"
+  air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB",autojumppad:"ajump topOnly",gold:"gold",sand:"sand"
 },paletteLabelToSymbol={
-  air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B",autojumppad:"&"
+  air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B",autojumppad:"&",gold:"g",sand:"s"
 };
+var innerht='';
+for (var span in paletteIdToPaletteLabel) {
+  innerht+='<span class="blkTyp" id="'+span+'">'+paletteIdToPaletteLabel[span]+'</span> ';
+}
+document.querySelector("#palette").innerHTML=innerht;
 document.querySelector("p").onclick=function(e){
   if (e.target.className=="blkTyp") {
     document.querySelector("#current").innerHTML=paletteIdToPaletteLabel[e.target.id];
@@ -291,13 +235,16 @@ document.querySelector("#template").onclick=function(){
   render();
 }
 /*
-[
-"@@@@@@@@@@@@@@",
-"@@@@@@@@#@@+@@",
-"@@@@@####++++@",
-"@@@#######++@@",
-"@#########@@@@",
-"@@@@@@@@@@@@@@"
+[[],
+"@@@@@@@@",
+"@@C@@@@@",
+"@CCCC@@@",
+"@@=@C@@@",
+"@=@@@@@@",
+"@=@@@@@@",
+"@=@@@@@@",
+"sss@@@@@",
+"ssssswww"
 ]
 */
     </script>

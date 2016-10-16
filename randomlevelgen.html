@@ -91,6 +91,23 @@ button {
   border-top: 5px solid rgba(0,0,0,0.2);
   display: block;
 }
+textarea {
+  display: block;
+  font-family: inherit;
+  font-size: inherit;
+  width: 200px;
+  height: 200px;
+}
+span {
+  cursor: pointer;
+}
+span:hover {
+  background: gray;
+}
+span:active {
+  background: black;
+  color: white;
+}
 .ground {background:#212121;}
 .lava {background:#FF5722;/*animation: lava 2s linear infinite;*/}
 .win {background:#8BC34A;background-image:url(icons/materialicon_flag.svg);background-position:center;background-repeat:no-repeat;}
@@ -108,19 +125,17 @@ button {
 .fanR:before {content:'';border-left:5px solid rgba(255,255,255,0.2);display:block;height:40px;}
 .fanB:before {content:'';border-top:5px solid rgba(255,255,255,0.2);display:block;}
 .ajump {background-color:#E91E63;background-image:url(icons/materialicon_arrow_upward.svg);background-position:center;background-repeat:no-repeat;}
+.gold {background:#FFC107;background-image:url(icons/iceshine.svg);background-position:center;background-repeat:no-repeat;}
+.sand {background:#FFCC80;}
 .glitch {background-color:magenta;}
     </style>
   </head>
   <body>
-    <p><b>Use the keys WAD to move the player around. Scroll the page to access the off-screen parts of the level (shift+scroll wheel=horizontal scroll)</b></p>
-    <p>No level appearing? Go to the JS console and type in "createRandomLevel()"</p>
-    <p>w pressed: <span id="w">no</span></p>
-    <p>a pressed: <span id="a">no</span></p>
-    <p>s pressed: <span id="s">no</span></p>
-    <p>d pressed: <span id="d">no</span></p>
-    <p id="vels"></p>
-    <a href="levelmaker.html">make a level piece</a><br>
-    <div class="level" style="height: 0px;width: 0px;">
+    <p><b>Use the keys WAD to move the player around. Use the S key to swim downwards. Press p to pause, r to suicide, and space to brake.</b><br>Scroll the page to access the off-screen parts of the level (shift+scroll wheel=horizontal scroll)</p>
+    <a href="levelmaker.html">make a level</a><br>
+    <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span><span id="load">load</span>
+    <textarea placeholder="Level data here" autofocus></textarea><br>
+    <div class="level" style="height: 0px;width: 0px;margin-top: 30px;">
       <div id="player"></div>
     </div>
     <p id="message"></p>
@@ -139,132 +154,73 @@ var levels=[ /* space=air, @=ground, #=lava, +=win, ^=jumpboost, v=nojumping, ==
   ],
 ];
 function render(level) {
-  var data="<div id='player'></div>";
+  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold",],
+  ids="@#+^=v*w<>CLRB&g",
+  data="<div id='player'></div>";
   for (var i=1;i<levels[level].length;i++) {
     for (var j=0;j<levels[level][i].length;j++) {
-      switch (levels[level][i][j]) {
-        case "@":
-          data+="<div class='levelBlock ground' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "#":
-          data+="<div class='levelBlock lava' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "+":
-          data+="<div class='levelBlock win' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "^":
-          data+="<div class='levelBlock jump topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "=":
-          data+="<div class='levelBlock mud topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "v":
-          data+="<div class='levelBlock nojump topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "*":
-          data+="<div class='levelBlock ice' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "w":
-          data+="<div class='levelBlock water' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "<":
-          data+="<div class='levelBlock left topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case ">":
-          data+="<div class='levelBlock right topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "C":
-          data+="<div class='levelBlock check topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "L":
-          data+="<div class='levelBlock fanL' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "R":
-          data+="<div class='levelBlock fanR' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "B":
-          data+="<div class='levelBlock fanB' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        case "&":
-          data+="<div class='levelBlock ajump topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          break;
-        default:
-          if (/[0-9]/.test(levels[level][i][j])) {
-            data+="<div class='levelBlock text topOnly' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          } else if (levels[level][i][j]!=" ") {
-            data+="<div class='levelBlock glitch' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-          }
-      }
+      var id=ids.indexOf(levels[level][i][j]);
+      if (id>-1) id=blockClasses[id];
+      else if (/[0-9]/.test(levels[level][i][j])) id="text topOnly";
+      else if (levels[level][i][j]!=" ") id="glitch";
+      data+="<div class='levelBlock "+id+"' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
     }
   }
   document.querySelector(".level").innerHTML=data;
   document.querySelector(".level").style.height=(levels[level].length*40-40)+"px";
 }
-var wDown=false,aDown=false,dDown=false,sDown=false,pausd=false;
+var wDown=false,aDown=false,dDown=false,sDown=false,pausd=true,spaceDown=false;
 document.body.onkeydown=function(e){
-  var ele;
   switch (e.keyCode) {
     case 87:
-      ele="w";
       wDown=true;
       break;
     case 65:
-      ele="a";
       aDown=true;
       break;
     case 83:
-      ele="s";
       sDown=true;
       break;
     case 68:
-      ele="d";
       dDown=true;
       break;
-    case 82:
-      if (!pausd) {
-        die();
-      }
-      break;
     case 32:
+      spaceDown=true;
+      break;
+    case 82:
+      die();
+      break;
+    case 80:
       if (pausd) {
         wow=setInterval(play,33);
       } else {
         clearInterval(wow);
-        document.querySelector("#vels").innerHTML="paused";
       }
       pausd=!pausd;
       break;
   }
-  if (ele!==undefined) {
-    document.querySelector("#"+ele).innerHTML="yes";
-  }
 };
 document.body.onkeyup=function(e){
-  var ele;
   switch (e.keyCode) {
     case 87:
-      ele="w";
       wDown=false;
       break;
     case 65:
-      ele="a";
       aDown=false;
       break;
     case 83:
-      ele="s";
       sDown=false;
       break;
     case 68:
-      ele="d";
       dDown=false;
       break;
-  }
-  if (ele!==undefined) {
-    document.querySelector("#"+ele).innerHTML="no";
+    case 32:
+      spaceDown=false;
+      break;
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">","0","1","2","3","4","5","6","7","8","9","C","L","R","B","&"],play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">","0","1","2","3","4","5","6","7","8","9","C","L","R","B","&","g","s"],play=function(){
   x+=xv;y+=yv;
   if (getBlock(-15,0)=="#") { /* left wall */
     die();
@@ -335,27 +291,48 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">"
   }
   if ([getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("w")) {
     water="swimming";
-    xv=Math.round(xv*950)/1000;
-    yv=Math.round(yv*950)/1000;
-    if(wDown){yv+=1;}
-    if(aDown){xv-=1;}
-    if(sDown){yv-=1;}
-    if(dDown){xv+=1;}
+    if (spaceDown) {
+      xv=Math.round(xv*800)/1000;
+      yv=Math.round(yv*800)/1000;
+    } else {
+      xv=Math.round(xv*950)/1000;
+      yv=Math.round(yv*950)/1000;
+      if(wDown)yv+=1;
+      if(aDown)xv-=1;
+      if(sDown)yv-=1;
+      if(dDown)xv+=1;
+    }
   }
-  if (!["#","+"].includes(getBlock(0,-16))&&(water===undefined||getBlock(0,-40)=="B")) { /* moving */
+  if (collide.includes(getBlock(0,-16))&&(water===undefined||getBlock(0,-40)=="B")) { /* moving */
     if (wDown&&getBlock(0,-40)!="B") {
       if(getBlock(0,-16)=="^"){yv=20;}else if(getBlock(0,-16)!="v"){yv=15;}
     }
-    if (aDown&&!dDown&&xv>-10) {
-      if(getBlock(0,-16)=="="){xv-=0.2;}else if(getBlock(0,-16)=="*"||getBlock(0,-40)=="B"){xv-=1;}else{xv-=1.5;}
-    } else if (dDown&&!aDown&&xv<10) {
-      if(getBlock(0,-16)=="="){xv+=0.2;}else if(getBlock(0,-16)=="*"||getBlock(0,-40)=="B"){xv+=1;}else{xv+=1.5;}
-    } else {
-      if(getBlock(0,-16)=="="){xv=Math.round(xv*200)/1000;}else if(getBlock(0,-16)=="*"||getBlock(0,-40)=="B"){xv=Math.round(xv*950)/1000;}else{xv=Math.round(xv*800)/1000;}
-      if (Math.abs(xv)<0.01) {
-        xv=0;
-        x=Math.round(x*1000)/1000;
+    var tempp;
+    if (getBlock(0,-16)=="=") tempp=5;
+    else if (getBlock(0,-16)=="*"||getBlock(0,-40)=="B") tempp=15;
+    else tempp=10;
+    if (spaceDown) {
+      if (tempp==15) xv=Math.round(xv*700)/1000;
+      else xv=Math.round(xv*300)/1000;
+    }
+    else {
+      if (aDown&&!dDown&&xv>-tempp) {
+        if (tempp==5) xv-=0.5;
+        else if (tempp==15) xv-=0.5;
+        else xv-=1.5;
+      } else if (dDown&&!aDown&&xv<tempp) {
+        if (tempp==5) xv+=0.5;
+        else if (tempp==15) xv+=0.5;
+        else xv+=1.5;
+      } else {
+        if (tempp==5) xv=Math.round(xv*500)/1000;
+        else if (tempp==15) xv=Math.round(xv*950)/1000;
+        else xv=Math.round(xv*700)/1000;
       }
+    }
+    if (Math.abs(xv)<0.01) {
+      xv=0;
+      x=Math.round(x*1000)/1000;
     }
   }
   if (getBlock(0,15)=="#") { /* ceiling */
@@ -369,11 +346,9 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">"
   if (getBlock(-40,0)=="L") {xv+=2;}
   if (getBlock(40,0)=="R") {xv-=2;}
   if (getBlock(0,-40)=="B") {yv+=2;}
-  //document.querySelector("#vels").innerHTML="{<br>xVelocity: "+xv+",<br>yVelocity: "+yv+",<br>xPosition: "+x+",<br>yPosition: "+y+"<br>}";
   document.querySelector("#player").style.left=x+"px";
   document.querySelector("#player").style.bottom=y+"px";
 };
-var wow=setInterval(play,33);
 function getBlock(nx,ny) {
   nx=Math.round((x+nx-5)/40);ny=Math.round((y+ny-5)/40);
   var zzz=levels[lev][levels[lev].length-1-ny];
@@ -390,7 +365,10 @@ function foo(ox,oy) {
 }
 function die(type) {
   var type;
-  clearInterval(wow);
+  if (!pausd) {
+    pausd=true;
+    clearInterval(wow);
+  }
   if (type=="win") {
     document.querySelector("#player").className="winner";
   } else {
@@ -402,7 +380,8 @@ function die(type) {
       lev++;render(lev);
     }
     play();
-    if (!pausd) {
+    if (pausd) {
+      pausd=false;
       wow=setInterval(play,33);
     }
     document.querySelector("#player").className="";
@@ -491,7 +470,22 @@ function createRandomLevel() {
   lev=0;
   render(0);
   xv=0,yv=0,x=40,y=40;
-  window.scrollTo(0, 600);
+  window.scrollTo(0,document.body.scrollHeight);
+  if (pausd) {
+    pausd=false;
+    wow=setInterval(play,33);
+  }
+}
+document.querySelector("#load").onclick=function(){
+  levels=[JSON.parse(document.querySelector("textarea").value),[[],"@@@","@ @","@@@",]];
+  lev=0;
+  render(0);
+  xv=0,yv=0,x=40,y=40;
+  window.scrollTo(0,document.body.scrollHeight);
+  if (pausd) {
+    pausd=false;
+    wow=setInterval(play,33);
+  }
 }
     </script>
   </body>

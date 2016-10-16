@@ -3,10 +3,10 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
     [
       " @@@",
       " @@@",
-      " @@ ",
       "    ",
-      "@   ",
-      "@==#"
+      "    ",
+      "@== ",
+      "@@@#"
     ],[
       "@@@@",
       "    ",
@@ -49,6 +49,13 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "    ",
       "    ",
       "#vv#"
+    ],[
+      "@  @",
+      "    ",
+      "    ",
+      "    ",
+      "@  @",
+      "@^^@"
     ],
   ],[ // 5-wide levels
     [
@@ -100,6 +107,13 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "     ",
       "     ",
       "***##"
+    ],[
+      "@@#@@",
+      "  #  ",
+      "     ",
+      "     ",
+      "     ",
+      "@@&@@"
     ],
   ],[ // 6-wide levels
     [
@@ -151,6 +165,13 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "w   ww",
       "w     ",
       "######"
+    ],[
+      "      ",
+      "    * ",
+      "  *w* ",
+      "  *w**",
+      " **w**",
+      "******"
     ],
   ],[ // 7-wide levels
     [
@@ -202,6 +223,13 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "       ",
       "      R",
       "@>>>>&@"
+    ],[
+      "@@@@@@@",
+      "  @g@  ",
+      "   @   ",
+      "       ",
+      "       ",
+      "@##@##@"
     ],
   ],[ // 8-wide levels
     [
@@ -253,6 +281,13 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "  L w R ",
       "  @#w#@ ",
       "@&@#w#@@"
+    ],[
+      "        ",
+      "        ",
+      "        ",
+      "        ",
+      "  swwws ",
+      "ssssssss"
     ],
   ],
 ],start=[
@@ -284,7 +319,3 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
   "@L  ",
   "@@ C",
 ];
-//document.body.innerHTML+="<button onclick='createRandomLevel()'>GENERATE LEVEL</button>";
-setTimeout(function(){
-  createRandomLevel();
-},100);
