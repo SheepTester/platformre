@@ -127,13 +127,14 @@ span:active {
 .ajump {background-color:#E91E63;background-image:url(icons/materialicon_arrow_upward.svg);background-position:center;background-repeat:no-repeat;}
 .gold {background:#FFC107;background-image:url(icons/iceshine.svg);background-position:center;background-repeat:no-repeat;}
 .sand {background:#FFCC80;}
+.antilava {background:#f44336;background-image:url(icons/materialicon_invert_colors.svg);background-position:center;background-repeat:no-repeat;}
+.nopower {background:#424242;}
 .glitch {background-color:magenta;}
     </style>
   </head>
   <body>
-    <p><b>Use the keys WAD to move the player around. Use the S key to swim downwards. Press p to pause, r to suicide, and space to brake.</b><br>Scroll the page to access the off-screen parts of the level (shift+scroll wheel=horizontal scroll)</p>
-    <a href="levelmaker.html">make a level</a><br>
-    <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span><span id="load">load</span>
+    <p><b>Use the keys WAD to move the player around. Use the S key to swim downwards. Press p to pause, r to suicide, and space to brake and use powerups.</b><br>Scroll the page to access the off-screen parts of the level (shift+scroll wheel=horizontal scroll)</p>
+    <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span> <span id="load">load</span> <a href="levelmaker.html">make a level</a>
     <textarea placeholder="Level data here" autofocus></textarea><br>
     <div class="level" style="height: 0px;width: 0px;margin-top: 30px;">
       <div id="player"></div>
@@ -154,9 +155,12 @@ var levels=[ /* space=air, @=ground, #=lava, +=win, ^=jumpboost, v=nojumping, ==
   ],
 ];
 function render(level) {
-  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold",],
-  ids="@#+^=v*w<>CLRB&g",
-  data="<div id='player'></div>";
+  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower topOnly"],
+  ids="@#+^=v*w<>CLRB&gsa`",
+  data="<div id='player'></div>",level;
+  if (level===undefined) {
+    level=lev;
+  }
   for (var i=1;i<levels[level].length;i++) {
     for (var j=0;j<levels[level][i].length;j++) {
       var id=ids.indexOf(levels[level][i][j]);
@@ -191,10 +195,10 @@ document.body.onkeydown=function(e){
       die();
       break;
     case 80:
-      if (pausd) {
-        wow=setInterval(play,33);
-      } else {
+      if (pausd) wow=setInterval(play,33);
+      else {
         clearInterval(wow);
+        document.querySelector("#message").innerHTML="Paused";
       }
       pausd=!pausd;
       break;
@@ -220,44 +224,46 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">","0","1","2","3","4","5","6","7","8","9","C","L","R","B","&","g","s"],play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`".split(''),power="",powerupdelay=-1,play=function(){
   x+=xv;y+=yv;
-  if (getBlock(-15,0)=="#") { /* left wall */
-    die();
-  } else if (getBlock(-15,0)=="+") {
-    die("win");
-  } else if (collide.includes(getBlock(-15,0))) {
+  if (power) {
+    switch (power) {
+      case "antilava":
+        var wasThereAnyLava=false;
+        for (var i=0;i<9;i++) {
+          if (getBlock(i%3*40-40,Math.floor(i/3)*40-40)=="#") {
+            setBlock(i%3*40-40,Math.floor(i/3)*40-40,"@");
+            wasThereAnyLava=true;
+          }
+        }
+        if (wasThereAnyLava) render();
+        break;
+    }
+  }
+  if (getBlock(-15,0)=="#") die(); /* left wall */
+  else if (getBlock(-15,0)=="+") die("win");
+  else if (collide.includes(getBlock(-15,0))) {
     if (aDown||dDown) {
       if (wDown) {
         yv=10;
         xv*=-1;
-      } else {
-        xv*=-0.5;
-        yv=0;
       }
-    } else {
-      xv*=-0.1;
-      yv=0;
+      else xv*=-0.5;
     }
+    else xv=0;
     x=Math.ceil((x-5)/40)*40;
   }
-  if (getBlock(15,0)=="#") { /* right wall */
-    die();
-  } else if (getBlock(15,0)=="+") {
-    die("win");
-  } else if (collide.includes(getBlock(15,0))) {
+  if (getBlock(15,0)=="#") die(); /* right wall */
+  else if (getBlock(15,0)=="+") die("win");
+  else if (collide.includes(getBlock(15,0))) {
     if (aDown||dDown) {
       if (wDown) {
         yv=10;
         xv*=-1;
-      } else {
-        xv*=-0.5;
-        yv=0;
       }
-    } else {
-      xv*=-0.1;
-      yv=0;
+      else xv*=-0.5;
     }
+    else xv=0;
     x=Math.floor((x-5)/40)*40+10;
   }
   var water;
@@ -268,27 +274,30 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">"
   if (getBlock(-10,-16)==" "&&getBlock(10,-16)==" ") { /* ground and gravity and swimming */
     yv-=1;
     water="falling";
-  } else if (getBlock(0,-16)=="#") {
-    die();
-  } else if (getBlock(0,-16)=="+") {
-    die("win");
-  } else if (getBlock(0,-16)=="<") {
-    xv-=2;
-  } else if (getBlock(0,-16)==">") {
-    xv+=2;
-  } else if (getBlock(0,-16)=="&") {
-    yv=20;
-  } else if (getBlock(0,-16)=="C") {
+  }
+  else if (getBlock(0,-16)=="#") die();
+  else if (getBlock(0,-16)=="+") die("win");
+  else if (getBlock(0,-16)=="<") xv-=3;
+  else if (getBlock(0,-16)==">") xv+=3;
+  else if (getBlock(0,-16)=="&") yv=20;
+  else if (getBlock(0,-16)=="C") {
     cpx=x;
     cpy=y;
   }
-  if (/[0-9]/.test(getBlock(0,-16))) {
-    if (levels[lev][0][Number(getBlock(0,-16))]!==undefined) {
-      document.querySelector("#message").innerHTML=levels[lev][0][Number(getBlock(0,-16))];
-    }
-  } else if (document.querySelector("#message").innerHTML) {
-    document.querySelector("#message").innerHTML="";
+  else if (getBlock(0,-16)=="a"&&spaceDown) {
+    power="antilava";
+    clearTimeout(powerupdelay);
+    powerupdelay=setTimeout(function(){
+      power='';
+    },5000);
+    setBlock(0,-16,"`");
+    render();
   }
+  if (/[0-9]/.test(getBlock(0,-16))) {
+    if (levels[lev][0][Number(getBlock(0,-16))]!==undefined) document.querySelector("#message").innerHTML=levels[lev][0][Number(getBlock(0,-16))];
+  }
+  else if (power) document.querySelector("#message").innerHTML={antilava:"Lava to solid powerup active"}[power];
+  else if (document.querySelector("#message").innerHTML) document.querySelector("#message").innerHTML="";
   if ([getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("w")) {
     water="swimming";
     if (spaceDown) {
@@ -303,19 +312,19 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">"
       if(dDown)xv+=1;
     }
   }
-  if (collide.includes(getBlock(0,-16))&&(water===undefined||getBlock(0,-40)=="B")) { /* moving */
+  if ((collide.includes(getBlock(0,-16))||getBlock(0,-40)=="B"||getBlock(0,-80)=="B")&&water!=="swimming") { /* moving */
     if (wDown&&getBlock(0,-40)!="B") {
-      if(getBlock(0,-16)=="^"){yv=20;}else if(getBlock(0,-16)!="v"){yv=15;}
+      if (getBlock(0,-16)=="^") yv=20;
+      else if (getBlock(0,-16)!="v") yv=15;
     }
     var tempp;
     if (getBlock(0,-16)=="=") tempp=5;
-    else if (getBlock(0,-16)=="*"||getBlock(0,-40)=="B") tempp=15;
+    else if (getBlock(0,-16)=="*"||getBlock(0,-40)=="B"||getBlock(0,-80)=="B") tempp=15;
     else tempp=10;
-    if (spaceDown) {
+    if (spaceDown&&collide.includes(getBlock(0,-16))) {
       if (tempp==15) xv=Math.round(xv*700)/1000;
       else xv=Math.round(xv*300)/1000;
-    }
-    else {
+    } else {
       if (aDown&&!dDown&&xv>-tempp) {
         if (tempp==5) xv-=0.5;
         else if (tempp==15) xv-=0.5;
@@ -335,17 +344,15 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide=["@","^","v","*","=","<",">"
       x=Math.round(x*1000)/1000;
     }
   }
-  if (getBlock(0,15)=="#") { /* ceiling */
-    die();
-  } else if (getBlock(0,15)=="+") {
-    die("win");
-  } else if (collide.includes(getBlock(-10,15))||collide.includes(getBlock(10,15))) {
+  if (getBlock(0,15)=="#") die(); /* ceiling */
+  else if (getBlock(0,15)=="+") die("win");
+  else if (collide.includes(getBlock(-10,15))||collide.includes(getBlock(10,15))) {
     yv=-1;
     y=Math.floor((y-5)/40)*40+10;
   }
-  if (getBlock(-40,0)=="L") {xv+=2;}
-  if (getBlock(40,0)=="R") {xv-=2;}
-  if (getBlock(0,-40)=="B") {yv+=2;}
+  if (getBlock(-40,0)=="L") xv+=2;
+  if (getBlock(40,0)=="R") xv-=2;
+  if (getBlock(0,-40)=="B") yv+=2;
   document.querySelector("#player").style.left=x+"px";
   document.querySelector("#player").style.bottom=y+"px";
 };
@@ -358,6 +365,10 @@ function getBlock(nx,ny) {
     return zzz[nx];
   }
 }
+function setBlock(nx,ny,block) { // be sure to call render(); after this
+  nx=Math.round((x+nx-5)/40);ny=levels[lev].length-1-Math.round((y+ny-5)/40);
+  levels[lev][ny]=levels[lev][ny].slice(0,nx)+block+levels[lev][ny].slice(nx+1);
+}
 function foo(ox,oy) {
   console.log(Math.round((x+ox-5)/40));
   console.log(Math.round((y+oy-5)/40));
@@ -365,6 +376,7 @@ function foo(ox,oy) {
 }
 function die(type) {
   var type;
+  document.querySelector("#message").innerHTML="";
   if (!pausd) {
     pausd=true;
     clearInterval(wow);
@@ -375,7 +387,7 @@ function die(type) {
     document.querySelector("#player").className="die";
   }
   setTimeout(function(){
-    xv=0,yv=0,x=cpx,y=cpy;
+    xv=0,yv=0,x=cpx,y=cpy,power='';
     if (document.querySelector("#player").className=="winner") {
       lev++;render(lev);
     }
@@ -399,7 +411,7 @@ function createRandomLevel() {
       if (i==5&&level.length>6) {
         var pos=dat[5].indexOf("#");
         while (pos!==-1) {
-          var tem = level[6][pos] + level[7][pos] + level[8][pos] + level[9][pos] + level[10][pos] + level[11][pos];
+          var tem = level[6][40-pos] + level[7][40-pos] + level[8][40-pos] + level[9][40-pos] + level[10][40-pos] + level[11][40-pos];
           if (tem=="     &") level[11] = level[11].slice(0,pos) + "^" + level[11].slice(pos+1);
           pos=dat[5].indexOf('#',pos + 1);
         }
