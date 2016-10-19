@@ -26,13 +26,6 @@ body {
   width: 40px;
   position: absolute;
 }
-@keyframes lava {
-  0% {background:#FF6F00;}
-  25% {background:#FF9100;}
-  50% {background:#FF9800;}
-  75% {background:#EF6C00;}
-  100% {background:#FF6F00;}
-}
 @keyframes diePainfully {
   from {background:#E91E63;opacity:1;transform:scale(1);}
   to {background:#212121;opacity:0;transform:scale(0);}
@@ -86,20 +79,17 @@ button {
   color: #212121;
   text-shadow: 0 0 15px white;
 }
-.topOnly:before {
-  content: '';
-  border-top: 5px solid rgba(0,0,0,0.2);
-  display: block;
-}
 textarea {
   display: block;
   font-family: inherit;
   font-size: inherit;
   width: 200px;
   height: 200px;
+  border: 1px solid #333;
 }
 span {
   cursor: pointer;
+  background: #eee;
 }
 span:hover {
   background: gray;
@@ -108,397 +98,21 @@ span:active {
   background: black;
   color: white;
 }
-.ground {background:#212121;}
-.lava {background:#FF5722;/*animation: lava 2s linear infinite;*/}
-.win {background:#8BC34A;background-image:url(icons/materialicon_flag.svg);background-position:center;background-repeat:no-repeat;}
-.jump {background:#9C27B0;background-image:url(icons/materialicon_keyboard_arrow_up.svg);background-position:center;background-repeat:no-repeat;}
-.mud {background:#795548;}
-.nojump {background:#FFC107;background-image:url(icons/materialicon_block.svg);background-position:center;background-repeat:no-repeat;}
-.ice {background:#00BCD4;background-image:url(icons/iceshine.svg);background-position:center;background-repeat:no-repeat;}
-.water {background:#2196F3;}
-.left {background-color:#009688;background-image:url(icons/materialicon_chevron_left.svg);background-position:center;background-repeat:no-repeat;}
-.right {background-color:#004D40;background-image:url(icons/materialicon_chevron_right.svg);background-position:center;background-repeat:no-repeat;}
-.text {background-color:#eee;background-image:url(icons/materialicon_title.svg);background-position:center;background-repeat:no-repeat;}
-.check {background-color:#4CAF50;background-image:url(icons/materialicon_beenhere.svg);background-position:center;background-repeat:no-repeat;}
-.fanL, .fanR, .fanB {background-color:#607D8B;}
-.fanL:before {content:'';border-right:5px solid rgba(255,255,255,0.2);display:block;height:40px;}
-.fanR:before {content:'';border-left:5px solid rgba(255,255,255,0.2);display:block;height:40px;}
-.fanB:before {content:'';border-top:5px solid rgba(255,255,255,0.2);display:block;}
-.ajump {background-color:#E91E63;background-image:url(icons/materialicon_arrow_upward.svg);background-position:center;background-repeat:no-repeat;}
-.gold {background:#FFC107;background-image:url(icons/iceshine.svg);background-position:center;background-repeat:no-repeat;}
-.sand {background:#FFCC80;}
-.antilava {background:#f44336;background-image:url(icons/materialicon_invert_colors.svg);background-position:center;background-repeat:no-repeat;}
-.nopower {background:#424242;}
-.glitch {background-color:magenta;}
     </style>
+    <link rel="stylesheet" type="text/css" href="blocks.css">
   </head>
   <body>
-    <p><b>Use the keys WAD to move the player around. Use the S key to swim downwards. Press p to pause, r to suicide, and space to brake and use powerups.</b><br>Scroll the page to access the off-screen parts of the level (shift+scroll wheel=horizontal scroll)</p>
+    <p><b>Use the keys WAD to move the player around. Use the S key to swim downwards. Press p to pause, r to suicide, and space to brake and use powerups and checkpoints.</b><br>Scroll the page to access the off-screen parts of the level (shift+scroll wheel=horizontal scroll)</p>
     <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span> <span id="load">load</span> <a href="levelmaker.html">make a level</a>
     <textarea placeholder="Level data here" autofocus></textarea><br>
+    spawn <span onclick="setBlock(0,-40,'a');render();">lava to solid</span> <span onclick="setBlock(0,-40,'C');render();">checkpoint</span> <span onclick="setBlock(0,-40,'i');render();">liquification</span> <span onclick="setBlock(0,-40,'p');render();">pillar</span> powerup Remember to use space to active powerups and checkpoints.<br>
     <div class="level" style="height: 0px;width: 0px;margin-top: 30px;">
       <div id="player"></div>
     </div>
-    <p id="message"></p>
+    <p id="message" style="display: none;"></p>
 
     <script src="../sheep.js"></script>
     <script src="randomparts.js"></script>
-    <script>
-var levels=[ /* space=air, @=ground, #=lava, +=win, ^=jumpboost, v=nojumping, ==mud, *=ice, w=water */
-  [
-    ["This is a randomly generated level with 4 floors of mini-platformer-ness."],
-  ],[
-    [],
-    "@@@", /* emergency last level */
-    "@ @",
-    "@@@",
-  ],
-];
-function render(level) {
-  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower topOnly"],
-  ids="@#+^=v*w<>CLRB&gsa`",
-  data="<div id='player'></div>",level;
-  if (level===undefined) {
-    level=lev;
-  }
-  for (var i=1;i<levels[level].length;i++) {
-    for (var j=0;j<levels[level][i].length;j++) {
-      var id=ids.indexOf(levels[level][i][j]);
-      if (id>-1) id=blockClasses[id];
-      else if (/[0-9]/.test(levels[level][i][j])) id="text topOnly";
-      else if (levels[level][i][j]!=" ") id="glitch";
-      data+="<div class='levelBlock "+id+"' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-    }
-  }
-  document.querySelector(".level").innerHTML=data;
-  document.querySelector(".level").style.height=(levels[level].length*40-40)+"px";
-}
-var wDown=false,aDown=false,dDown=false,sDown=false,pausd=true,spaceDown=false;
-document.body.onkeydown=function(e){
-  switch (e.keyCode) {
-    case 87:
-      wDown=true;
-      break;
-    case 65:
-      aDown=true;
-      break;
-    case 83:
-      sDown=true;
-      break;
-    case 68:
-      dDown=true;
-      break;
-    case 32:
-      spaceDown=true;
-      break;
-    case 82:
-      die();
-      break;
-    case 80:
-      if (pausd) wow=setInterval(play,33);
-      else {
-        clearInterval(wow);
-        document.querySelector("#message").innerHTML="Paused";
-      }
-      pausd=!pausd;
-      break;
-  }
-};
-document.body.onkeyup=function(e){
-  switch (e.keyCode) {
-    case 87:
-      wDown=false;
-      break;
-    case 65:
-      aDown=false;
-      break;
-    case 83:
-      sDown=false;
-      break;
-    case 68:
-      dDown=false;
-      break;
-    case 32:
-      spaceDown=false;
-      break;
-  }
-};
-/* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`".split(''),power="",powerupdelay=-1,play=function(){
-  x+=xv;y+=yv;
-  if (power) {
-    switch (power) {
-      case "antilava":
-        var wasThereAnyLava=false;
-        for (var i=0;i<9;i++) {
-          if (getBlock(i%3*40-40,Math.floor(i/3)*40-40)=="#") {
-            setBlock(i%3*40-40,Math.floor(i/3)*40-40,"@");
-            wasThereAnyLava=true;
-          }
-        }
-        if (wasThereAnyLava) render();
-        break;
-    }
-  }
-  if (getBlock(-15,0)=="#") die(); /* left wall */
-  else if (getBlock(-15,0)=="+") die("win");
-  else if (collide.includes(getBlock(-15,0))) {
-    if (aDown||dDown) {
-      if (wDown) {
-        yv=10;
-        xv*=-1;
-      }
-      else xv*=-0.5;
-    }
-    else xv=0;
-    x=Math.ceil((x-5)/40)*40;
-  }
-  if (getBlock(15,0)=="#") die(); /* right wall */
-  else if (getBlock(15,0)=="+") die("win");
-  else if (collide.includes(getBlock(15,0))) {
-    if (aDown||dDown) {
-      if (wDown) {
-        yv=10;
-        xv*=-1;
-      }
-      else xv*=-0.5;
-    }
-    else xv=0;
-    x=Math.floor((x-5)/40)*40+10;
-  }
-  var water;
-  if (collide.includes(getBlock(0,-16))) {
-    yv=0;
-    y=Math.ceil((y-5)/40)*40;
-  }
-  if (getBlock(-10,-16)==" "&&getBlock(10,-16)==" ") { /* ground and gravity and swimming */
-    yv-=1;
-    water="falling";
-  }
-  else if (getBlock(0,-16)=="#") die();
-  else if (getBlock(0,-16)=="+") die("win");
-  else if (getBlock(0,-16)=="<") xv-=3;
-  else if (getBlock(0,-16)==">") xv+=3;
-  else if (getBlock(0,-16)=="&") yv=20;
-  else if (getBlock(0,-16)=="C") {
-    cpx=x;
-    cpy=y;
-  }
-  else if (getBlock(0,-16)=="a"&&spaceDown) {
-    power="antilava";
-    clearTimeout(powerupdelay);
-    powerupdelay=setTimeout(function(){
-      power='';
-    },5000);
-    setBlock(0,-16,"`");
-    render();
-  }
-  if (/[0-9]/.test(getBlock(0,-16))) {
-    if (levels[lev][0][Number(getBlock(0,-16))]!==undefined) document.querySelector("#message").innerHTML=levels[lev][0][Number(getBlock(0,-16))];
-  }
-  else if (power) document.querySelector("#message").innerHTML={antilava:"Lava to solid powerup active"}[power];
-  else if (document.querySelector("#message").innerHTML) document.querySelector("#message").innerHTML="";
-  if ([getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("w")) {
-    water="swimming";
-    if (spaceDown) {
-      xv=Math.round(xv*800)/1000;
-      yv=Math.round(yv*800)/1000;
-    } else {
-      xv=Math.round(xv*950)/1000;
-      yv=Math.round(yv*950)/1000;
-      if(wDown)yv+=1;
-      if(aDown)xv-=1;
-      if(sDown)yv-=1;
-      if(dDown)xv+=1;
-    }
-  }
-  if ((collide.includes(getBlock(0,-16))||getBlock(0,-40)=="B"||getBlock(0,-80)=="B")&&water!=="swimming") { /* moving */
-    if (wDown&&getBlock(0,-40)!="B") {
-      if (getBlock(0,-16)=="^") yv=20;
-      else if (getBlock(0,-16)!="v") yv=15;
-    }
-    var tempp;
-    if (getBlock(0,-16)=="=") tempp=5;
-    else if (getBlock(0,-16)=="*"||getBlock(0,-40)=="B"||getBlock(0,-80)=="B") tempp=15;
-    else tempp=10;
-    if (spaceDown&&collide.includes(getBlock(0,-16))) {
-      if (tempp==15) xv=Math.round(xv*700)/1000;
-      else xv=Math.round(xv*300)/1000;
-    } else {
-      if (aDown&&!dDown&&xv>-tempp) {
-        if (tempp==5) xv-=0.5;
-        else if (tempp==15) xv-=0.5;
-        else xv-=1.5;
-      } else if (dDown&&!aDown&&xv<tempp) {
-        if (tempp==5) xv+=0.5;
-        else if (tempp==15) xv+=0.5;
-        else xv+=1.5;
-      } else {
-        if (tempp==5) xv=Math.round(xv*500)/1000;
-        else if (tempp==15) xv=Math.round(xv*950)/1000;
-        else xv=Math.round(xv*700)/1000;
-      }
-    }
-    if (Math.abs(xv)<0.01) {
-      xv=0;
-      x=Math.round(x*1000)/1000;
-    }
-  }
-  if (getBlock(0,15)=="#") die(); /* ceiling */
-  else if (getBlock(0,15)=="+") die("win");
-  else if (collide.includes(getBlock(-10,15))||collide.includes(getBlock(10,15))) {
-    yv=-1;
-    y=Math.floor((y-5)/40)*40+10;
-  }
-  if (getBlock(-40,0)=="L") xv+=2;
-  if (getBlock(40,0)=="R") xv-=2;
-  if (getBlock(0,-40)=="B") yv+=2;
-  document.querySelector("#player").style.left=x+"px";
-  document.querySelector("#player").style.bottom=y+"px";
-};
-function getBlock(nx,ny) {
-  nx=Math.round((x+nx-5)/40);ny=Math.round((y+ny-5)/40);
-  var zzz=levels[lev][levels[lev].length-1-ny];
-  if (zzz===undefined) {
-    return "@";
-  } else {
-    return zzz[nx];
-  }
-}
-function setBlock(nx,ny,block) { // be sure to call render(); after this
-  nx=Math.round((x+nx-5)/40);ny=levels[lev].length-1-Math.round((y+ny-5)/40);
-  levels[lev][ny]=levels[lev][ny].slice(0,nx)+block+levels[lev][ny].slice(nx+1);
-}
-function foo(ox,oy) {
-  console.log(Math.round((x+ox-5)/40));
-  console.log(Math.round((y+oy-5)/40));
-  console.log(getBlock(ox,oy));
-}
-function die(type) {
-  var type;
-  document.querySelector("#message").innerHTML="";
-  if (!pausd) {
-    pausd=true;
-    clearInterval(wow);
-  }
-  if (type=="win") {
-    document.querySelector("#player").className="winner";
-  } else {
-    document.querySelector("#player").className="die";
-  }
-  setTimeout(function(){
-    xv=0,yv=0,x=cpx,y=cpy,power='';
-    if (document.querySelector("#player").className=="winner") {
-      lev++;render(lev);
-    }
-    play();
-    if (pausd) {
-      pausd=false;
-      wow=setInterval(play,33);
-    }
-    document.querySelector("#player").className="";
-  },500);
-}
-function rand(min,max) {
-  return Math.floor(Math.random()*(max-min+1))+min;
-}
-function createRandomLevel() {
-  var floorlength,level=[],k;
-  function build(dat,rev) {
-    var rev;
-    for (var i=0;i<6;i++) {
-      level[i]+=dat[i];
-      if (i==5&&level.length>6) {
-        var pos=dat[5].indexOf("#");
-        while (pos!==-1) {
-          var tem = level[6][40-pos] + level[7][40-pos] + level[8][40-pos] + level[9][40-pos] + level[10][40-pos] + level[11][40-pos];
-          if (tem=="     &") level[11] = level[11].slice(0,pos) + "^" + level[11].slice(pos+1);
-          pos=dat[5].indexOf('#',pos + 1);
-        }
-      }
-    }
-  }
-  for (var j=0;j<4;j++) {
-    level.splice(0,0,"","","","","","");
-    if (j==0) {
-      build(start);
-    } else {
-      build(upwards2);
-    }
-    floorlength=40;
-    var nextbit;
-    while (floorlength>9) {
-      k=rand(0,4);
-      floorlength-=k+4;
-      nextbit=parts[k][rand(0,parts[k].length-1)];
-      for (var i=0;i<5;i++) {
-        if ((nextbit[i][0]==" "||nextbit[i][0]=="w")&&(level[i][level[i].length-1]==" "||level[i][level[i].length-1]=="w")) {
-          break;
-        }
-      }
-      if (i==5) {
-        floorlength--;
-        for (var i=0;i<5;i++) {
-          level[i]+=" ";
-        }
-        level[5]+="@";
-      }
-      build(nextbit);
-    }
-    for (var i=0;i<5;i++) {
-      level[i]+=" ";
-    }
-    level[5]+="@";
-    floorlength--;
-    if (floorlength>3) {
-      build(parts[floorlength-4][rand(0,parts[floorlength-4].length-1)]);
-    } else {
-      for (var i=0;i<5;i++) {
-        level[i]+=" ".repeat(floorlength);
-      }
-      level[5]+="@".repeat(floorlength);
-    }
-    if (j==3) {
-      build(fin);
-    } else {
-      build(upwards1);
-    }
-    if (j%2==1) {
-      for (var i=0;i<6;i++) {
-        level[i]=level[i].split("").reverse().join("");
-        level[i]=level[i].replace(/</g,"~");
-        level[i]=level[i].replace(/>/g,"<");
-        level[i]=level[i].replace(/~/g,">");
-        level[i]=level[i].replace(/L/g,"~");
-        level[i]=level[i].replace(/R/g,"L");
-        level[i]=level[i].replace(/~/g,"R");
-      }
-    }
-  }
-  level.splice(0,0,"@".repeat(48));
-
-  level.splice(0,0,["This is a randomly generated level with 4 floors of mini-platformer-ness.","Next floor!","Almost there!"]);
-  levels=[level,["@@@","@ @","@@@",]];
-  lev=0;
-  render(0);
-  xv=0,yv=0,x=40,y=40;
-  window.scrollTo(0,document.body.scrollHeight);
-  if (pausd) {
-    pausd=false;
-    wow=setInterval(play,33);
-  }
-}
-document.querySelector("#load").onclick=function(){
-  levels=[JSON.parse(document.querySelector("textarea").value),[[],"@@@","@ @","@@@",]];
-  lev=0;
-  render(0);
-  xv=0,yv=0,x=40,y=40;
-  window.scrollTo(0,document.body.scrollHeight);
-  if (pausd) {
-    pausd=false;
-    wow=setInterval(play,33);
-  }
-}
-    </script>
+    <script src='random.js'></script>
   </body>
 </html>

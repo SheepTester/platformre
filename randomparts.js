@@ -123,10 +123,10 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "@@&@@"
     ],[
       "     ",
+      "     ",
       "    #",
       "   ##",
       "  ###",
-      " ####",
       "a####"
     ],
   ],[ // 6-wide levels
@@ -235,7 +235,7 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "       ",
       "       ",
       " vvvvv ",
-      " @www@ ",
+      " @w w@ ",
       "*@wCw@*"
     ],[
       "#######",
