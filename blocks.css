@@ -30,6 +30,9 @@
 .nopower {background:#424242;}
 .liquify {background:#0D47A1;background-image:url(icons/materialicon_local_drink.svg);background-position:center;background-repeat:no-repeat;}
 .pillar {background:#3F51B5;background-image:url(icons/materialicon_backup.svg);background-position:center;background-repeat:no-repeat;}
+.fire {background-image:url(icons/fire.svg);background-position:center;background-repeat:no-repeat;}
+.ladder {background-image:url(icons/ladder.svg);background-position:center;background-repeat:no-repeat;}
+.slam {background:#F57F17;background-image:url(icons/materialicon_file_download.svg);background-position:center;background-repeat:no-repeat;}
 .glitch {background-color:magenta;}
 
 .topOnly:before {

@@ -76,8 +76,8 @@ button {
   height: 20px;
   text-align: center;
   font-size: 20px;
-  color: #212121;
-  text-shadow: 0 0 15px white;
+  color: white;
+  text-shadow: 0 0 2px black;
 }
 textarea {
   display: block;
@@ -105,7 +105,7 @@ span:active {
     <p><b>Use the keys WAD to move the player around. Use the S key to swim downwards. Press p to pause, r to suicide, and space to brake and use powerups and checkpoints.</b><br>Scroll the page to access the off-screen parts of the level (shift+scroll wheel=horizontal scroll)</p>
     <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span> <span id="load">load</span> <a href="levelmaker.html">make a level</a>
     <textarea placeholder="Level data here" autofocus></textarea><br>
-    spawn <span onclick="setBlock(0,-40,'a');render();">lava to solid</span> <span onclick="setBlock(0,-40,'C');render();">checkpoint</span> <span onclick="setBlock(0,-40,'i');render();">liquification</span> <span onclick="setBlock(0,-40,'p');render();">pillar</span> powerup Remember to use space to active powerups and checkpoints.<br>
+    spawn <span onclick="setBlock(0,-40,'a');render();">lava to solid</span> <span onclick="setBlock(0,-40,'C');render();">checkpoint</span> <span onclick="setBlock(0,-40,'i');render();">liquification</span> <span onclick="setBlock(0,-40,'p');render();">pillar</span> <span onclick="setBlock(0,-40,';');render();">slammer</span> powerup Remember to use space to active powerups and checkpoints.<br>
     <div class="level" style="height: 0px;width: 0px;margin-top: 30px;">
       <div id="player"></div>
     </div>
