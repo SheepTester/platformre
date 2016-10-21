@@ -102,10 +102,40 @@ span:active {
     <link rel="stylesheet" type="text/css" href="blocks.css">
   </head>
   <body>
-    <p><b>Use the keys WAD to move the player around. Use the S key to swim downwards. Press p to pause, r to suicide, and space to brake and use powerups and checkpoints.</b><br>Scroll the page to access the off-screen parts of the level (shift+scroll wheel=horizontal scroll)</p>
-    <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span> <span id="load">load</span> <a href="levelmaker.html">make a level</a>
+    <p><b>Use the keys WAD to move the player around. Use the S key to swim or teleport downwards or slam. Press p to pause, r to suicide, and space to brake and use powerups and checkpoints.</b><br>Scroll to access the off-screen parts of large levels (shift+scroll wheel=horizontal scroll)</p>
+    <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span> <span id="load">load</span> <a href="levelmaker.html">make a level</a> <span onclick="var x=document.querySelector('#creds');window.z=!window.z;if(window.z)x.style.display='block';else x.style.display='none';">show credits/changelog</span>
     <textarea placeholder="Level data here" autofocus></textarea><br>
-    spawn <span onclick="setBlock(0,-40,'a');render();">lava to solid</span> <span onclick="setBlock(0,-40,'C');render();">checkpoint</span> <span onclick="setBlock(0,-40,'i');render();">liquification</span> <span onclick="setBlock(0,-40,'p');render();">pillar</span> <span onclick="setBlock(0,-40,';');render();">slammer</span> powerup Remember to use space to active powerups and checkpoints.<br>
+    spawn
+    <span onclick="setBlock(0,-40,'a');render();">lava to solid</span>
+    <span onclick="setBlock(0,-40,'C');render();">checkpoint</span>
+    <span onclick="setBlock(0,-40,'i');render();">liquification</span>
+    <span onclick="setBlock(0,-40,'p');render();">pillar</span>
+    <span onclick="setBlock(0,-40,';');render();">slammer</span>
+    <span onclick="setBlock(0,-40,'o');render();">rage/boss</span>
+    <span onclick="setBlock(0,-40,'m');render();">midas' touch</span>
+    <span onclick="setBlock(0,-40,'t');render();">transparent block</span>
+    powerup Remember to use space to active powerups and checkpoints.<br>
+    <div id="creds" style="display:none;">
+      <h1>Credits</h1>
+      <ul>
+        <li>Material Design for the colors and the icons used on the blocks.</li>
+        <li>Alex, Mateo, Zach, Steven, and me for testing this out and pointing out my mistakes.</li>
+        <li>Also them for ideas.</li>
+        <li>I am Sean. Nice to meat you.</li>
+      </ul>
+      <h1>Changelog</h1>
+      <p>Of commit 37:</p>
+      <ul>
+        <li>credits and changelog section</li>
+        <li>rage mode powerup - superspeed, higher jump, immunity to lava and fire (warning: collision glitches!)</li>
+        <li>midas touch powerup - turns collidables into gold</li>
+        <li>transparent powerup - teleports you through blocks (press s to tp down)</li>
+        <li>fixed ladders</li>
+        <li>recolored nojump</li>
+        <li>topOnly interactions work underwater</li>
+        <li>the "sun" level-bit now won't be impossible</li>
+      </ul>
+    </div>
     <div class="level" style="height: 0px;width: 0px;margin-top: 30px;">
       <div id="player"></div>
     </div>
@@ -114,5 +144,6 @@ span:active {
     <script src="../sheep.js"></script>
     <script src="randomparts.js"></script>
     <script src='random.js'></script>
+<!-- MADE BY SEAN -->
   </body>
 </html>

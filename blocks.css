@@ -12,7 +12,7 @@
 .win {background:#8BC34A;background-image:url(icons/materialicon_flag.svg);background-position:center;background-repeat:no-repeat;}
 .jump {background:#9C27B0;background-image:url(icons/materialicon_keyboard_arrow_up.svg);background-position:center;background-repeat:no-repeat;}
 .mud {background:#795548;}
-.nojump {background:#FFC107;background-image:url(icons/materialicon_block.svg);background-position:center;background-repeat:no-repeat;}
+.nojump {background:#FFEB3B;background-image:url(icons/materialicon_block.svg);background-position:center;background-repeat:no-repeat;}
 .ice {background:#00BCD4;background-image:url(icons/iceshine.svg);background-position:center;background-repeat:no-repeat;}
 .water {background:#2196F3;}
 .left {background-color:#009688;background-image:url(icons/materialicon_chevron_left.svg);background-position:center;background-repeat:no-repeat;}
@@ -33,6 +33,9 @@
 .fire {background-image:url(icons/fire.svg);background-position:center;background-repeat:no-repeat;}
 .ladder {background-image:url(icons/ladder.svg);background-position:center;background-repeat:no-repeat;}
 .slam {background:#F57F17;background-image:url(icons/materialicon_file_download.svg);background-position:center;background-repeat:no-repeat;}
+.rage {background:#c62828;background-image:url(icons/materialicon_accessibility.svg);background-position:center;background-repeat:no-repeat;}
+.midas {background:#FFC107;background-image:url(icons/materialicon_attach_money.svg);background-position:center;background-repeat:no-repeat;}
+.trans {background:#4DB6AC;background-image:url(icons/materialicon_swap_horiz.svg);background-position:center;background-repeat:no-repeat;}
 .glitch {background-color:magenta;}
 
 .topOnly:before {
@@ -40,3 +43,4 @@
   border-top: 5px solid rgba(0,0,0,0.2);
   display: block;
 }
+/* MADE BY SEAN */

@@ -57,7 +57,7 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "@  @",
       "@^^@"
     ],[
-      " ss ",
+      ".ss.",
       "sggs",
       "sggs",
       " ss ",
@@ -354,3 +354,4 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
   "@L  ",
   "@@ C",
 ];
+/* MADE BY SEAN */

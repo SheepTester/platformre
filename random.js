@@ -9,8 +9,8 @@ var levels=[ /* space=air, @=ground, #=lava, +=win, ^=jumpboost, v=nojumping, ==
   ],
 ];
 function render(level) {
-  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly"],
-  ids="@#+^=v*w<>CLRB&gsa`ipfe;",
+  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly"],
+  ids="@#+^=v*w<>CLRB&gsa`ipfe;omt",
   data="<div id='player'></div>",level;
   if (level===undefined) {
     level=lev;
@@ -20,7 +20,7 @@ function render(level) {
       var id=ids.indexOf(levels[level][i][j]);
       if (id!==-1) id=blockClasses[id];
       else if (/[0-9]/.test(levels[level][i][j])) id="text topOnly";
-      else if (levels[level][i][j]!=" ") id="glitch";
+      else if (![" ","."].includes(levels[level][i][j])) id="glitch";
       if (id!==-1) {
         data+="<div class='levelBlock "+id+"' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
       }
@@ -81,12 +81,12 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;".split(''),power="",powerupdelay=-1,play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omt".split(''),power="",powerupdelay=-1,play=function(){
   x+=xv;y+=yv;
   if (power) { /* powerups */
+    var anyChanges=false,tt;
     switch (power) {
       case "antilava":
-        var anyChanges=false,tt;
         for (var i=0;i<9;i++) {
           tt=getBlock(i%3*40-40,Math.floor(i/3)*40-40);
           if (tt=="#") {
@@ -98,10 +98,8 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
             anyChanges=true;
           }
         }
-        if (anyChanges) render();
         break;
       case "liquify":
-        var anyChanges=false,tt;
         for (var i=0;i<9;i++) {
           tt=getBlock(i%3*40-40,Math.floor(i/3)*40-40);
           if (tt=="@") {
@@ -115,10 +113,8 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
             anyChanges=true;
           }
         }
-        if (anyChanges) render();
         break;
       case "pillar":
-        var anyChanges=false,tt;
         for (var i=0;i<9;i++) {
           tt=getBlock(i%3*40-40,Math.floor(i/3)*40-40);
           if (i==1) {
@@ -132,29 +128,38 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
           }
         }
         if (anyChanges) {
-          render();
           cpx=x;
           cpy=y;
         };
         break;
       case "slam":
         if (sDown&&getBlock(0,-40)!=" ") {
-          var tt=getBlock(0,-40),order=["g","@","`","=","s"," ","&","^","*","w"," ","#","f"," "];
+          var tt=getBlock(0,-40),order="g@`=s &^*w #f ".split('');
           if (order.indexOf(tt)>-1) {
             setBlock(0,-40,order[order.indexOf(tt)+1]);
-            render();
+            anyChanges=true;
+          }
+        }
+        break;
+      case "midas":
+        for (var i=0;i<9;i++) {
+          tt=getBlock(i%3*40-40,Math.floor(i/3)*40-40);
+          if (collide.includes(tt)&&tt!="g") {
+            setBlock(i%3*40-40,Math.floor(i/3)*40-40,"g");
+            anyChanges=true;
           }
         }
         break;
     }
+    if (anyChanges) render();
   }
-  if (getBlock(0,0)=="f") die();
+  if (getBlock(0,0)=="f"&&power!="rage") die();
   else if (getBlock(0,0)=="e") {
     yv=0;
     if (wDown&&!sDown) y+=5;
     else if (!wDown&&sDown) y-=5;
   }
-  if (getBlock(-15,0)=="#") die(); /* left wall */
+  if (getBlock(-15,0)=="#"&&power!="rage") die(); /* left wall */
   else if (getBlock(-15,0)=="+") die("win");
   else if (collide.includes(getBlock(-15,0))) {
     if (aDown||dDown) {
@@ -166,8 +171,9 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     }
     else xv=0;
     x=Math.ceil((x-5)/40)*40;
+    if (power=="trans"&&getBlock(-71,0)==" ") x-=71;
   }
-  if (getBlock(15,0)=="#") die(); /* right wall */
+  if (getBlock(15,0)=="#"&&power!="rage") die(); /* right wall */
   else if (getBlock(15,0)=="+") die("win");
   else if (collide.includes(getBlock(15,0))) {
     if (aDown||dDown) {
@@ -179,13 +185,22 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     }
     else xv=0;
     x=Math.floor((x-5)/40)*40+10;
+    if (power=="trans"&&getBlock(71,0)==" ") x+=71;
   }
   var water;
   if (collide.includes(getBlock(0,-16))) {
     yv=0;
     y=Math.ceil((y-5)/40)*40;
   }
-  if ([getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("w")) { /* swimming */
+  var powerupPadId="aip;omt".split(''),powerupName=["antilava","liquify","pillar","slam","rage","midas","trans"],powerupLength=[5,2,1,5,3,3,3];
+  if (getBlock(0,0)=="e") { /* ladder */
+    water="climbing";
+    if (spaceDown) xv=Math.round(xv*300)/1000;
+    else if (aDown&&!dDown&&xv>-10) xv-=1.5;
+    else if (dDown&&!aDown&&xv<10) xv+=1.5;
+    else xv=Math.round(xv*700)/1000;
+  }
+  else if ([getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("w")) { /* swimming */
     water="swimming";
     if (spaceDown) {
       xv=Math.round(xv*800)/1000;
@@ -198,11 +213,11 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
       if(sDown)yv-=1;
       if(dDown)xv+=1;
     }
-  } else if (!(collide.includes(getBlock(-10,-16))||collide.includes(getBlock(10,-16)))&&getBlock(0,0)!="e") { /* falling */
+  } else if (!(collide.includes(getBlock(-10,-16))||collide.includes(getBlock(10,-16)))) { /* falling */
     yv-=1;
     water="falling";
   }
-  else if (getBlock(0,-16)=="#") die(); /* topOnly block interactions */
+  if (getBlock(0,-16)=="#"&&power!="rage") die(); /* topOnly block interactions */
   else if (getBlock(0,-16)=="+") die("win");
   else if (getBlock(0,-16)=="<") xv-=3;
   else if (getBlock(0,-16)==">") xv+=3;
@@ -213,39 +228,13 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     setBlock(0,-16,"`");
     render();
   }
-  else if (getBlock(0,-16)=="a"&&spaceDown) {
-    power="antilava";
+  else if (powerupPadId.includes(getBlock(0,-16))&&spaceDown) {
+    var powerupId=powerupPadId.indexOf(getBlock(0,-16));
+    power=powerupName[powerupId];
     clearTimeout(powerupdelay);
     powerupdelay=setTimeout(function(){
       power='';
-    },5000);
-    setBlock(0,-16,"`");
-    render();
-  }
-  else if (getBlock(0,-16)=="i"&&spaceDown) {
-    power="liquify";
-    clearTimeout(powerupdelay);
-    powerupdelay=setTimeout(function(){
-      power='';
-    },2000);
-    setBlock(0,-16,"`");
-    render();
-  }
-  else if (getBlock(0,-16)=="p"&&spaceDown) {
-    power="pillar";
-    clearTimeout(powerupdelay);
-    powerupdelay=setTimeout(function(){
-      power='';
-    },1000);
-    setBlock(0,-16,"`");
-    render();
-  }
-  else if (getBlock(0,-16)==";"&&spaceDown) {
-    power="slam";
-    clearTimeout(powerupdelay);
-    powerupdelay=setTimeout(function(){
-      power='';
-    },5000);
+    },powerupLength[powerupId]*1000);
     setBlock(0,-16,"`");
     render();
   }
@@ -255,18 +244,20 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
       document.querySelector("#message").style.display="block";
     }
   } else if (power) {
-    document.querySelector("#message").innerHTML={antilava:"Lava to solid",liquify:"Liquidification",pillar:"Pillar",slam:"Slammer"}[power]+" powerup active";
+    document.querySelector("#message").innerHTML={antilava:"Lava to solid",liquify:"Liquidification",pillar:"Pillar",slam:"Slammer",rage:"Rage/boss",midas:"Midas' Touch",trans:"Transparent blocks"}[power]+" powerup active";
     document.querySelector("#message").style.display="block";
   }
   else if (document.querySelector("#message").style.display=="block") document.querySelector("#message").style.display="none";
   var amIAboveAFan=(getBlock(0,-40)=="B"||getBlock(0,-80)=="B")&&water=="falling";
-  if (amIAboveAFan||water===undefined) { /* moving */
+  if ((amIAboveAFan||water===undefined)) { /* moving */
     if (wDown&&!amIAboveAFan) {
-      if (getBlock(0,-16)=="^") yv=20;
+      if (power=="rage") yv=30;
+      else if (getBlock(0,-16)=="^") yv=20;
       else if (getBlock(0,-16)!="v") yv=15;
     }
     var tempp;
-    if (getBlock(0,-16)=="=") tempp=5;
+    if (power=="rage") tempp=20;
+    else if (getBlock(0,-16)=="=") tempp=5;
     else if (getBlock(0,-16)=="*"||amIAboveAFan) tempp=15;
     else tempp=10;
     if (spaceDown&&collide.includes(getBlock(0,-16))) {
@@ -276,32 +267,31 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
       if (aDown&&!dDown&&xv>-tempp) {
         if (tempp==5) xv-=0.5;
         else if (tempp==15) xv-=0.5;
+        else if (tempp==20) xv-=3;
         else xv-=1.5;
       } else if (dDown&&!aDown&&xv<tempp) {
         if (tempp==5) xv+=0.5;
         else if (tempp==15) xv+=0.5;
+        else if (tempp==20) xv+=3;
         else xv+=1.5;
       } else {
         if (tempp==5) xv=Math.round(xv*500)/1000;
         else if (tempp==15) xv=Math.round(xv*950)/1000;
-        else xv=Math.round(xv*700)/1000;
+        else if (tempp!=20) xv=Math.round(xv*700)/1000;
       }
     }
     if (Math.abs(xv)<0.01) {
       xv=0;
       x=Math.round(x*1000)/1000;
     }
-  } else if (getBlock(0,0)=="e") {
-    if (spaceDown) xv=Math.round(xv*300)/1000;
-    else if (aDown&&!dDown&&xv>-10) xv-=1.5;
-    else if (dDown&&!aDown&&xv<10) xv+=1.5;
-    else xv=Math.round(xv*700)/1000;
+    if (power=="trans"&&sDown) y-=71;
   }
-  if (getBlock(0,15)=="#") die(); /* ceiling */
+  if (getBlock(0,15)=="#"&&power!="rage") die(); /* ceiling */
   else if (getBlock(0,15)=="+") die("win");
   else if (collide.includes(getBlock(-10,15))||collide.includes(getBlock(10,15))) {
     if (getBlock(0,0)!="w") yv=-1;
     y=Math.floor((y-5)/40)*40+10;
+    if (power=="trans"&&getBlock(0,71)==" ") y+=71;
   }
   if (getBlock(-40,0)=="L") xv+=2;
   if (getBlock(40,0)=="R") xv-=2;
@@ -456,3 +446,4 @@ document.querySelector("#load").onclick=function(){
     wow=setInterval(play,33);
   }
 }
+/* MADE BY SEAN */
