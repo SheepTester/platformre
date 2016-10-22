@@ -1,4 +1,4 @@
-var level=[ /* space=air, @=ground, #=lava */
+var level=[
   "@@@@@@@@@@@@@@@@@+@@",
   "@              @@w@@",
   "@               www@",
@@ -8,12 +8,22 @@ var level=[ /* space=air, @=ground, #=lava */
   "@v^@@###*>><<**@@@@@",
 ];
 var paletteIdToPaletteLabel={
-  space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",amp:"autojumppad",g:"gold",s:"sand",a:"lavatosolidpowerup",backtick:"usedpowerup",i:"liquificationpowerup",p:"pillarpowerup",f:"fire",e:"ladder",semi:"slammerpowerup",o:"ragepowerup",m:"midastouchpowerup",t:"transparentblockspowerup"
+  space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",amp:"autojumppad",g:"gold",s:"sand",a:"lavatosolidpowerup",backtick:"usedpowerup",i:"liquificationpowerup",p:"pillarpowerup",f:"fire",e:"ladder",semi:"slammerpowerup",o:"ragepowerup",m:"midastouchpowerup",t:"transparentblockspowerup",ý:"solidlava",á:"invisiblesolid",é:"dangeroussolid",í:"invisiblelava",ó:"transparentsold",ú:"transparentlava",y:"gravity"
 },paletteLabelToClassName={
-  air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB",autojumppad:"ajump topOnly",gold:"gold",sand:"sand",lavatosolidpowerup:"antilava topOnly",usedpowerup:"nopower",liquificationpowerup:"liquify topOnly",pillarpowerup:"pillar topOnly",fire:"fire",ladder:"ladder",slammerpowerup:"slam topOnly",ragepowerup:"rage topOnly",midastouchpowerup:"midas topOnly",transparentblockspowerup:"trans topOnly"
+  air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB",autojumppad:"ajump topOnly",gold:"gold",sand:"sand",lavatosolidpowerup:"antilava topOnly",usedpowerup:"nopower",liquificationpowerup:"liquify topOnly",pillarpowerup:"pillar topOnly",fire:"fire",ladder:"ladder",slammerpowerup:"slam topOnly",ragepowerup:"rage topOnly",midastouchpowerup:"midas topOnly",transparentblockspowerup:"trans topOnly",solidlava:"sl",invisiblesolid:"sa",dangeroussolid:"ls",invisiblelava:"la",transparentsold:"as",transparentlava:"al",gravity:"grav",text:"text topOnly"
 },paletteLabelToSymbol={
-  air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B",autojumppad:"&",gold:"g",sand:"s",lavatosolidpowerup:"a",usedpowerup:"`",liquificationpowerup:"i",pillarpowerup:"p",fire:"f",ladder:"e",slammerpowerup:";",ragepowerup:"o",midastouchpowerup:"m",transparentblockspowerup:"t"
+  air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B",autojumppad:"&",gold:"g",sand:"s",lavatosolidpowerup:"a",usedpowerup:"`",liquificationpowerup:"i",pillarpowerup:"p",fire:"f",ladder:"e",slammerpowerup:";",ragepowerup:"o",midastouchpowerup:"m",transparentblockspowerup:"t",solidlava:"ý",invisiblesolid:"á",dangeroussolid:"é",invisiblelava:"í",transparentsold:"ó",transparentlava:"ú",gravity:"y"
 };
+var inputStuff="",textStyle="";
+for (var i=0;i<10;i++) {
+  paletteIdToPaletteLabel["t"+i]="textblock"+i;
+  paletteLabelToClassName["textblock"+i]="text topOnly t"+i;
+  paletteLabelToSymbol["textblock"+i]=i.toString();
+  inputStuff+='textblock'+i+': <input type="text" placeholder="Text to display" id="i'+i+'"/><br>';
+  textStyle+=".t"+i+":after {content: 't"+i+"';}";
+}
+document.querySelector("#text").innerHTML=inputStuff;
+document.head.innerHTML+="<style>"+textStyle+"</style>";
 var innerht='',blockClasses=[],ids="";
 for (var span in paletteIdToPaletteLabel) {
   innerht+='<span class="blkTyp" id="'+span+'">'+paletteIdToPaletteLabel[span]+'</span> ';
@@ -104,7 +114,15 @@ function highlight(element) { // based off http://stackoverflow.com/questions/98
   }
 }
 document.querySelector("#done").onclick=function(){
-  document.querySelector("textarea").value="[[],\n\""+level.join("\",\n\"")+"\"\n]";
+  var texts=[],blankForever=-1;
+  for (var i=0;i<10;i++) {
+    texts.push("\""+document.querySelector("#i"+i).value+"\"");
+    if (document.querySelector("#i"+i).value) blankForever=i;
+  }
+  texts.splice(blankForever+1);
+  if (texts.length) texts="\n"+texts.join(",\n")+"\n";
+  else texts="";
+  document.querySelector("textarea").value="[["+texts+"],\n\""+level.join("\",\n\"")+"\"\n]";
   document.querySelector("textarea").select();
 }
 document.querySelector("#doneBit").onclick=function(){
@@ -113,6 +131,9 @@ document.querySelector("#doneBit").onclick=function(){
 }
 document.querySelector("#load").onclick=function(){
   level=JSON.parse(document.querySelector("textarea").value);
+  for (var i=0;i<level[0].length;i++) {
+    document.querySelector("#i"+i).value=level[0][i];
+  }
   render();
 }
 document.querySelector("#template").onclick=function(){

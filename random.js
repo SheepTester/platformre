@@ -9,8 +9,8 @@ var levels=[ /* space=air, @=ground, #=lava, +=win, ^=jumpboost, v=nojumping, ==
   ],
 ];
 function render(level) {
-  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly"],
-  ids="@#+^=v*w<>CLRB&gsa`ipfe;omt",
+  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","sa","ls","la","grav"],
+  ids="@#+^=v*w<>CLRB&gsa`ipfe;omtýáéíy",
   data="<div id='player'></div>",level;
   if (level===undefined) {
     level=lev;
@@ -20,7 +20,7 @@ function render(level) {
       var id=ids.indexOf(levels[level][i][j]);
       if (id!==-1) id=blockClasses[id];
       else if (/[0-9]/.test(levels[level][i][j])) id="text topOnly";
-      else if (![" ","."].includes(levels[level][i][j])) id="glitch";
+      else if (!" .óú".split('').includes(levels[level][i][j])) id="glitch";
       if (id!==-1) {
         data+="<div class='levelBlock "+id+"' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
       }
@@ -54,7 +54,7 @@ document.body.onkeydown=function(e){
       if (pausd) wow=setInterval(play,33);
       else {
         clearInterval(wow);
-        document.querySelector("#message").innerHTML="Paused";
+        document.querySelector("#message").textContent="Paused";
         document.querySelector("#message").style.display="block";
       }
       pausd=!pausd;
@@ -81,7 +81,7 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omt".split(''),power="",powerupdelay=-1,play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýá".split(''),danger="#éí",power="",powerupdelay=-1,play=function(){
   x+=xv;y+=yv;
   if (power) { /* powerups */
     var anyChanges=false,tt;
@@ -89,7 +89,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
       case "antilava":
         for (var i=0;i<9;i++) {
           tt=getBlock(i%3*40-40,Math.floor(i/3)*40-40);
-          if (tt=="#") {
+          if (danger.includes(tt)) {
             setBlock(i%3*40-40,Math.floor(i/3)*40-40,"@");
             anyChanges=true;
           }
@@ -105,11 +105,11 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
           if (tt=="@") {
             setBlock(i%3*40-40,Math.floor(i/3)*40-40,"*");
             anyChanges=true;
-          } else if (tt==" "||tt=="f") {
-            setBlock(i%3*40-40,Math.floor(i/3)*40-40,"w");
-            anyChanges=true;
-          } else if (tt=="#") {
+          } else if (danger.includes(tt)) {
             setBlock(i%3*40-40,Math.floor(i/3)*40-40,"`");
+            anyChanges=true;
+          } else if (!collide.includes(tt)||tt=="f") {
+            setBlock(i%3*40-40,Math.floor(i/3)*40-40,"w");
             anyChanges=true;
           }
         }
@@ -159,40 +159,11 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     if (wDown&&!sDown) y+=5;
     else if (!wDown&&sDown) y-=5;
   }
-  if (getBlock(-15,0)=="#"&&power!="rage") die(); /* left wall */
-  else if (getBlock(-15,0)=="+") die("win");
-  else if (collide.includes(getBlock(-15,0))) {
-    if (aDown||dDown) {
-      if (wDown&&getBlock(0,0)!="w"&&getBlock(0,0)!="e") {
-        yv=10;
-        xv*=-1;
-      }
-      else xv*=-0.5;
-    }
-    else xv=0;
-    x=Math.ceil((x-5)/40)*40;
-    if (power=="trans"&&getBlock(-71,0)==" ") x-=71;
-  }
-  if (getBlock(15,0)=="#"&&power!="rage") die(); /* right wall */
-  else if (getBlock(15,0)=="+") die("win");
-  else if (collide.includes(getBlock(15,0))) {
-    if (aDown||dDown) {
-      if (wDown&&getBlock(0,0)!="w"&&getBlock(0,0)!="e") {
-        yv=10;
-        xv*=-1;
-      }
-      else xv*=-0.5;
-    }
-    else xv=0;
-    x=Math.floor((x-5)/40)*40+10;
-    if (power=="trans"&&getBlock(71,0)==" ") x+=71;
-  }
-  var water;
+  var water, powerupPadId="aip;ot".split(''),powerupName=["antilava","liquify","pillar","slam","rage","trans"],powerupLength=[5,2,1,5,3,3],reverseGrav=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("y");
   if (collide.includes(getBlock(0,-16))) {
     yv=0;
     y=Math.ceil((y-5)/40)*40;
   }
-  var powerupPadId="aip;omt".split(''),powerupName=["antilava","liquify","pillar","slam","rage","midas","trans"],powerupLength=[5,2,1,5,3,3,3];
   if (getBlock(0,0)=="e") { /* ladder */
     water="climbing";
     if (spaceDown) xv=Math.round(xv*300)/1000;
@@ -213,11 +184,14 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
       if(sDown)yv-=1;
       if(dDown)xv+=1;
     }
-  } else if (!(collide.includes(getBlock(-10,-16))||collide.includes(getBlock(10,-16)))) { /* falling */
+  } else if (!(collide.includes(getBlock(-10,-16))||collide.includes(getBlock(10,-16)))&&!reverseGrav) { /* falling */
     yv-=1;
     water="falling";
+  } else if (reverseGrav&&!(collide.includes(getBlock(-10,15))||collide.includes(getBlock(10,15)))) {
+    yv+=1;
+    water="fallingup";
   }
-  if (getBlock(0,-16)=="#"&&power!="rage") die(); /* topOnly block interactions */
+  if (danger.includes(getBlock(0,-16))&&power!="rage") die(); /* topOnly block interactions */
   else if (getBlock(0,-16)=="+") die("win");
   else if (getBlock(0,-16)=="<") xv-=3;
   else if (getBlock(0,-16)==">") xv+=3;
@@ -225,6 +199,15 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   else if (getBlock(0,-16)=="C") {
     cpx=x;
     cpy=y;
+    setBlock(0,-16,"`");
+    render();
+  }
+  else if (getBlock(0,-16)=="m") {
+    power="midas";
+    clearTimeout(powerupdelay);
+    powerupdelay=setTimeout(function(){
+      power='';
+    },3000);
     setBlock(0,-16,"`");
     render();
   }
@@ -240,27 +223,33 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   }
   if (/[0-9]/.test(getBlock(0,-16))) { /* display text */
     if (levels[lev][0][Number(getBlock(0,-16))]!==undefined) {
-      document.querySelector("#message").innerHTML=levels[lev][0][Number(getBlock(0,-16))];
+      document.querySelector("#message").textContent=levels[lev][0][Number(getBlock(0,-16))];
       document.querySelector("#message").style.display="block";
     }
   } else if (power) {
-    document.querySelector("#message").innerHTML={antilava:"Lava to solid",liquify:"Liquidification",pillar:"Pillar",slam:"Slammer",rage:"Rage/boss",midas:"Midas' Touch",trans:"Transparent blocks"}[power]+" powerup active";
+    document.querySelector("#message").textContent={antilava:"Lava to solid",liquify:"Liquidification",pillar:"Pillar",slam:"Slammer",rage:"Rage/boss",midas:"Midas' Touch",trans:"Transparent blocks"}[power]+" powerup active";
     document.querySelector("#message").style.display="block";
   }
   else if (document.querySelector("#message").style.display=="block") document.querySelector("#message").style.display="none";
   var amIAboveAFan=(getBlock(0,-40)=="B"||getBlock(0,-80)=="B")&&water=="falling";
-  if ((amIAboveAFan||water===undefined)) { /* moving */
-    if (wDown&&!amIAboveAFan) {
+  if ((amIAboveAFan||water===undefined)) { /* MOVING */
+    if (wDown&&!amIAboveAFan&&!reverseGrav) {
       if (power=="rage") yv=30;
       else if (getBlock(0,-16)=="^") yv=20;
       else if (getBlock(0,-16)!="v") yv=15;
+    }
+    if (reverseGrav) {
+      if (sDown) {
+        if (power=="rage") yv=-30;
+        else yv=-15;
+      }
     }
     var tempp;
     if (power=="rage") tempp=20;
     else if (getBlock(0,-16)=="=") tempp=5;
     else if (getBlock(0,-16)=="*"||amIAboveAFan) tempp=15;
     else tempp=10;
-    if (spaceDown&&collide.includes(getBlock(0,-16))) {
+    if (spaceDown&&(collide.includes(getBlock(0,-16))||reverseGrav&&collide.includes(getBlock(0,15)))) {
       if (tempp==15) xv=Math.round(xv*700)/1000;
       else xv=Math.round(xv*300)/1000;
     } else {
@@ -286,12 +275,47 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     }
     if (power=="trans"&&sDown) y-=71;
   }
-  if (getBlock(0,15)=="#"&&power!="rage") die(); /* ceiling */
+  if (danger.includes(getBlock(0,15))&&power!="rage") die(); /* ceiling */
   else if (getBlock(0,15)=="+") die("win");
   else if (collide.includes(getBlock(-10,15))||collide.includes(getBlock(10,15))) {
-    if (getBlock(0,0)!="w") yv=-1;
+    if (getBlock(0,0)!="w"&&!reverseGrav) yv=-1;
     y=Math.floor((y-5)/40)*40+10;
-    if (power=="trans"&&getBlock(0,71)==" ") y+=71;
+    if (power=="trans"&&!collide.includes(getBlock(0,71))) y+=71;
+  }
+  if (danger.includes(getBlock(-15,0))&&power!="rage") die(); /* left wall */
+  else if (getBlock(-15,0)=="+") die("win");
+  else if (collide.includes(getBlock(-15,0))) {
+    x=Math.ceil((x-5)/40)*40;
+    if ((aDown||dDown)) {
+      if (wDown&&getBlock(0,0)!="w"&&getBlock(0,0)!="e"&&Math.abs(xv*100)>1) {
+        yv=10;
+        xv*=-1;
+      } else if (sDown&&getBlock(0,0)!="w"&&getBlock(0,0)!="e"&&Math.abs(xv*100)>1) {
+        yv=-10;
+        xv*=-1;
+      }
+      else xv*=-0.5;
+    }
+    else xv=0;
+    if (power=="trans"&&!collide.includes(getBlock(-71,0))) x-=71;
+  }
+  if (danger.includes(getBlock(14,0))&&power!="rage") die(); /* right wall */
+  else if (getBlock(14,0)=="+") die("win");
+  else if (collide.includes(getBlock(14,0))) {
+    x=Math.floor((x-5)/40)*40+10;
+    if ((aDown||dDown)&&Math.abs(xv*100)>1) {
+      if (wDown&&getBlock(0,0)!="w"&&getBlock(0,0)!="e") {
+        yv=10;
+        xv*=-1;
+      }
+      else if (sDown&&getBlock(0,0)!="w"&&getBlock(0,0)!="e") {
+        yv=-10;
+        xv*=-1;
+      }
+      else xv*=-0.5;
+    }
+    else xv=0;
+    if (power=="trans"&&!collide.includes(getBlock(71,0))) x+=71;
   }
   if (getBlock(-40,0)=="L") xv+=2;
   if (getBlock(40,0)=="R") xv-=2;
@@ -299,8 +323,10 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   document.querySelector("#player").style.left=x+"px";
   document.querySelector("#player").style.bottom=y+"px";
 };
-function getBlock(nx,ny) {
+function getBlock(nx,ny,getDebugInfo) {
+  var getDebugInfo;
   nx=Math.round((x+nx-5)/40);ny=Math.round((y+ny-5)/40);
+  if (getDebugInfo) console.log("X:"+nx+"Y:"+ny);
   var zzz=levels[lev][levels[lev].length-1-ny];
   if (zzz===undefined) {
     return "@";
@@ -321,7 +347,7 @@ function foo(ox,oy) {
 }
 function die(type) {
   var type;
-  document.querySelector("#message").innerHTML="";
+  document.querySelector("#message").textContent="";
   if (!pausd) {
     pausd=true;
     clearInterval(wow);
@@ -379,7 +405,7 @@ function createRandomLevel() {
       floorlength-=k+4;
       nextbit=parts[k][rand(0,parts[k].length-1)];
       for (var i=0;i<5;i++) {
-        if ((nextbit[i][0]==" "||nextbit[i][0]=="w")&&(level[i][level[i].length-1]==" "||level[i][level[i].length-1]=="w")) {
+        if ((!collide.includes(nextbit[i][0])||nextbit[i][0]=="w")&&(!collide.includes(level[i][level[i].length-1])||level[i][level[i].length-1]=="w")) {
           break;
         }
       }
@@ -437,6 +463,17 @@ function createRandomLevel() {
 }
 document.querySelector("#load").onclick=function(){
   levels=[JSON.parse(document.querySelector("textarea").value),[["Congrats!"],"`g`","g g","`0`",]];
+  lev=0;
+  render(0);
+  xv=0,yv=0,x=40,y=40;
+  window.scrollTo(0,document.body.scrollHeight);
+  if (pausd) {
+    pausd=false;
+    wow=setInterval(play,33);
+  }
+}
+document.querySelector("#exampleload").onclick=function(){
+  levels=[exampleLevels[0],[["Congrats!"],"`g`","g g","`0`",]];
   lev=0;
   render(0);
   xv=0,yv=0,x=40,y=40;

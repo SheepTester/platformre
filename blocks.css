@@ -1,5 +1,10 @@
+/* for fakes: [what it does]+[looks like] */
 .ground {background:#212121;}
+.as {background:#212126;}
+.ls {background:#262121;}
 .lava {background:#FF5722;/*animation: lava 2s linear infinite;*/}
+.sl {background:#ff430a;}
+.al {background:#FF5727;}
 /*
 @keyframes lava {
   0% {background:#FF6F00;}
@@ -36,6 +41,7 @@
 .rage {background:#c62828;background-image:url(icons/materialicon_accessibility.svg);background-position:center;background-repeat:no-repeat;}
 .midas {background:#FFC107;background-image:url(icons/materialicon_attach_money.svg);background-position:center;background-repeat:no-repeat;}
 .trans {background:#4DB6AC;background-image:url(icons/materialicon_swap_horiz.svg);background-position:center;background-repeat:no-repeat;}
+.grav {background:#64B5F6;}
 .glitch {background-color:magenta;}
 
 .topOnly:before {
