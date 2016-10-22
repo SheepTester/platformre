@@ -1,13 +1,27 @@
-var levels=[ /* space=air, @=ground, #=lava, +=win, ^=jumpboost, v=nojumping, ==mud, *=ice, w=water */
-  [
-    ["This is a randomly generated level with 4 floors of mini-platformer-ness."],
-  ],[
-    [],
-    "@@@", /* emergency last level */
-    "@ @",
-    "@@@",
-  ],
-];
+var levels=[[],[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
+if(!localStorage.getItem('level')) {
+  localStorage.setItem('level',JSON.stringify([[],
+    "@@@@@@@@@@@@@@@@@+@@",
+    "@              @@w@@",
+    "@               www@",
+    "@   @===@       www@",
+    "@     #         www@",
+    "@     #        @w@@@",
+    "@v^@@###*>><<**@@@@@",
+  ]));
+}
+levels[0]=JSON.parse(localStorage.getItem('level'));
+function startPlaying() {
+  lev=0;
+  render(0);
+  xv=0,yv=0,x=40,y=40;
+  window.scrollTo(0,document.body.scrollHeight);
+  if (pausd) {
+    pausd=false;
+    wow=setInterval(play,33);
+  }
+  time=Date.now();
+}
 function render(level) {
   var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","sa","ls","la","grav"],
   ids="@#+^=v*w<>CLRB&gsa`ipfe;omtýáéíy",
@@ -46,6 +60,10 @@ document.body.onkeydown=function(e){
       break;
     case 32:
       spaceDown=true;
+      if (e.target==document.body) {
+        e.preventDefault();
+        return false;
+      }
       break;
     case 82:
       die();
@@ -81,7 +99,7 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýá".split(''),danger="#éí",power="",powerupdelay=-1,play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýá".split(''),danger="#éí",power="",powerupdelay=-1,v,time,play=function(){
   x+=xv;y+=yv;
   if (power) { /* powerups */
     var anyChanges=false,tt;
@@ -153,8 +171,10 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     }
     if (anyChanges) render();
   }
+  var onALadder=false;
   if (getBlock(0,0)=="f"&&power!="rage") die();
-  else if (getBlock(0,0)=="e") {
+  else if ([getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("e")) {
+    onALadder=true;
     yv=0;
     if (wDown&&!sDown) y+=5;
     else if (!wDown&&sDown) y-=5;
@@ -164,7 +184,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     yv=0;
     y=Math.ceil((y-5)/40)*40;
   }
-  if (getBlock(0,0)=="e") { /* ladder */
+  if (onALadder) { /* ladder */
     water="climbing";
     if (spaceDown) xv=Math.round(xv*300)/1000;
     else if (aDown&&!dDown&&xv>-10) xv-=1.5;
@@ -286,11 +306,11 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   else if (getBlock(-15,0)=="+") die("win");
   else if (collide.includes(getBlock(-15,0))) {
     x=Math.ceil((x-5)/40)*40;
-    if ((aDown||dDown)) {
-      if (wDown&&getBlock(0,0)!="w"&&getBlock(0,0)!="e"&&Math.abs(xv*100)>1) {
+    if ((aDown||dDown)&&Math.abs(xv*100)>1) {
+      if (wDown&&getBlock(0,0)!="w"&&!onALadder&&!reverseGrav) {
         yv=10;
         xv*=-1;
-      } else if (sDown&&getBlock(0,0)!="w"&&getBlock(0,0)!="e"&&Math.abs(xv*100)>1) {
+      } else if (sDown&&getBlock(0,0)!="w"&&!onALadder&&reverseGrav) {
         yv=-10;
         xv*=-1;
       }
@@ -304,11 +324,11 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   else if (collide.includes(getBlock(14,0))) {
     x=Math.floor((x-5)/40)*40+10;
     if ((aDown||dDown)&&Math.abs(xv*100)>1) {
-      if (wDown&&getBlock(0,0)!="w"&&getBlock(0,0)!="e") {
+      if (wDown&&getBlock(0,0)!="w"&&!onALadder&&!reverseGrav) {
         yv=10;
         xv*=-1;
       }
-      else if (sDown&&getBlock(0,0)!="w"&&getBlock(0,0)!="e") {
+      else if (sDown&&getBlock(0,0)!="w"&&!onALadder&&reverseGrav) {
         yv=-10;
         xv*=-1;
       }
@@ -322,6 +342,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   if (getBlock(0,-40)=="B") yv+=2;
   document.querySelector("#player").style.left=x+"px";
   document.querySelector("#player").style.bottom=y+"px";
+  if (v) window.scrollTo(x-document.body.scrollWidth/3,document.body.scrollHeight-document.body.clientHeight-y);
 };
 function getBlock(nx,ny,getDebugInfo) {
   var getDebugInfo;
@@ -354,6 +375,7 @@ function die(type) {
   }
   if (type=="win") {
     document.querySelector("#player").className="winner";
+    console.log("Time for level "+lev+": "+((Date.now()-time)/1000)+" secs");
   } else {
     document.querySelector("#player").className="die";
   }
@@ -370,6 +392,7 @@ function die(type) {
       wow=setInterval(play,33);
     }
     document.querySelector("#player").className="";
+    time=Date.now();
   },500);
 }
 function rand(min,max) {
@@ -451,36 +474,16 @@ function createRandomLevel() {
   level.splice(0,0,"@".repeat(48));
 
   level.splice(0,0,["This is a randomly generated level with 4 floors of mini-platformer-ness.","Next floor!","Almost there!"]);
-  levels=[level,[["Congrats!"],"`g`","g g","`0`",]];
-  lev=0;
-  render(0);
-  xv=0,yv=0,x=40,y=40;
-  window.scrollTo(0,document.body.scrollHeight);
-  if (pausd) {
-    pausd=false;
-    wow=setInterval(play,33);
-  }
+  levels=[level,[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
+  startPlaying();
 }
 document.querySelector("#load").onclick=function(){
-  levels=[JSON.parse(document.querySelector("textarea").value),[["Congrats!"],"`g`","g g","`0`",]];
-  lev=0;
-  render(0);
-  xv=0,yv=0,x=40,y=40;
-  window.scrollTo(0,document.body.scrollHeight);
-  if (pausd) {
-    pausd=false;
-    wow=setInterval(play,33);
-  }
+  levels=[JSON.parse(document.querySelector("textarea").value),[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
+  startPlaying();
 }
 document.querySelector("#exampleload").onclick=function(){
-  levels=[exampleLevels[0],[["Congrats!"],"`g`","g g","`0`",]];
-  lev=0;
-  render(0);
-  xv=0,yv=0,x=40,y=40;
-  window.scrollTo(0,document.body.scrollHeight);
-  if (pausd) {
-    pausd=false;
-    wow=setInterval(play,33);
-  }
+  levels=[exampleLevels[0],[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
+  startPlaying();
 }
+startPlaying();
 /* MADE BY SEAN */

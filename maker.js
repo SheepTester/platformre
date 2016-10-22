@@ -1,12 +1,15 @@
-var level=[
-  "@@@@@@@@@@@@@@@@@+@@",
-  "@              @@w@@",
-  "@               www@",
-  "@   @===@       www@",
-  "@     #         www@",
-  "@     #        @w@@@",
-  "@v^@@###*>><<**@@@@@",
-];
+if(!localStorage.getItem('level')) {
+  localStorage.setItem('level',JSON.stringify([[],
+    "@@@@@@@@@@@@@@@@@+@@",
+    "@              @@w@@",
+    "@               www@",
+    "@   @===@       www@",
+    "@     #         www@",
+    "@     #        @w@@@",
+    "@v^@@###*>><<**@@@@@",
+  ]));
+}
+var level=JSON.parse(localStorage.getItem('level'));
 var paletteIdToPaletteLabel={
   space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",amp:"autojumppad",g:"gold",s:"sand",a:"lavatosolidpowerup",backtick:"usedpowerup",i:"liquificationpowerup",p:"pillarpowerup",f:"fire",e:"ladder",semi:"slammerpowerup",o:"ragepowerup",m:"midastouchpowerup",t:"transparentblockspowerup",ý:"solidlava",á:"invisiblesolid",é:"dangeroussolid",í:"invisiblelava",ó:"transparentsold",ú:"transparentlava",y:"gravity"
 },paletteLabelToClassName={
@@ -24,6 +27,9 @@ for (var i=0;i<10;i++) {
 }
 document.querySelector("#text").innerHTML=inputStuff;
 document.head.innerHTML+="<style>"+textStyle+"</style>";
+for (var i=0;i<level[0].length;i++) {
+  document.querySelector("#i"+i).value=level[0][i];
+}
 var innerht='',blockClasses=[],ids="";
 for (var span in paletteIdToPaletteLabel) {
   innerht+='<span class="blkTyp" id="'+span+'">'+paletteIdToPaletteLabel[span]+'</span> ';
@@ -124,6 +130,17 @@ document.querySelector("#done").onclick=function(){
   else texts="";
   document.querySelector("textarea").value="[["+texts+"],\n\""+level.join("\",\n\"")+"\"\n]";
   document.querySelector("textarea").select();
+}
+document.querySelector("#save").onclick=function(){
+  var texts=[],blankForever=-1,danewcode;
+  danewcode=level;
+  for (var i=0;i<10;i++) {
+    texts.push(document.querySelector("#i"+i).value);
+    if (document.querySelector("#i"+i).value) blankForever=i;
+  }
+  texts.splice(blankForever+1);
+  danewcode.splice(0,0,texts);
+  localStorage.setItem('level',JSON.stringify(danewcode));
 }
 document.querySelector("#doneBit").onclick=function(){
   document.querySelector("textarea").value="[\n  \""+level.join("\",\n  \"")+"\"\n],";
