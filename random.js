@@ -171,16 +171,20 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     }
     if (anyChanges) render();
   }
-  var onALadder=false;
+  var onALadder=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("e"),
+  collidingWithWall=collide.includes(getBlock(-15,0))||collide.includes(getBlock(14,0));
   if (getBlock(0,0)=="f"&&power!="rage") die();
-  else if ([getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("e")) {
-    onALadder=true;
+  else if (onALadder) {
     yv=0;
     if (wDown&&!sDown) y+=5;
     else if (!wDown&&sDown) y-=5;
   }
-  var water, powerupPadId="aip;ot".split(''),powerupName=["antilava","liquify","pillar","slam","rage","trans"],powerupLength=[5,2,1,5,3,3],reverseGrav=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("y");
-  if (collide.includes(getBlock(0,-16))) {
+  var water,
+  powerupPadId="aip;ot".split(''),
+  powerupName=["antilava","liquify","pillar","slam","rage","trans"],
+  powerupLength=[5,2,1,5,3,3],
+  reverseGrav=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("y");
+  if (collidingWithWall?collide.includes(getBlock(0,-16)):collide.includes(getBlock(-10,-16))||collide.includes(getBlock(10,-16))) {
     yv=0;
     y=Math.ceil((y-5)/40)*40;
   }
@@ -297,7 +301,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   }
   if (danger.includes(getBlock(0,15))&&power!="rage") die(); /* ceiling */
   else if (getBlock(0,15)=="+") die("win");
-  else if (collide.includes(getBlock(-10,15))||collide.includes(getBlock(10,15))) {
+  else if (collidingWithWall?collide.includes(getBlock(0,15)):collide.includes(getBlock(-10,15))||collide.includes(getBlock(10,15))) {
     if (getBlock(0,0)!="w"&&!reverseGrav) yv=-1;
     y=Math.floor((y-5)/40)*40+10;
     if (power=="trans"&&!collide.includes(getBlock(0,71))) y+=71;
