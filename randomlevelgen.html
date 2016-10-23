@@ -9,7 +9,7 @@ body {
 }
 #player {
   position: absolute;
-  background: #E91E63;
+  background: #212121;
   height: 30px;
   width: 30px;
   border-radius: 50%;
@@ -143,6 +143,14 @@ textarea:focus {
         <li>I am Sean. Nice to meat you.</li>
       </ul>
       <h1>Changelog</h1>
+      <p>Of commit 41 and 42:</p>
+      <ul>
+        <li>added block icons to editor</li>
+        <li>added <a href="mspaint.html">ms paint</a></li>
+        <li>player doesn't show anymore until a level is rendered</li>
+        <li>fixed the air/solid/lava cycled blocks' textures</li>
+        <li>recolored player to black</li>
+      </ul>
       <p>Of commit 40:</p>
       <ul>
         <li>fixed collisions</li>
@@ -178,7 +186,6 @@ textarea:focus {
       </ul>
     </div>
     <div class="level" style="height: 0px;width: 0px;margin-top: 30px;">
-      <div id="player"></div>
     </div>
     <p id="message" style="display: none;"></p>
 
