@@ -107,29 +107,6 @@ var level=[
   "0     0     0",
   "0000000000000",
 ];
-render();
-function startPlaying() {
-  render();
-  tags=["",[40,80,0,0],[450,80,0,0]];
-  window.scrollTo(0,document.body.scrollHeight);
-  wow=setInterval(function(){
-    play(1);
-    play(2);
-  },33);
-}
-function render() {
-  var blockClasses=["black","red","blue"],
-  ids="012",
-  data='<div id="red" class="red"></div><div id="blue" class="blue"></div>';
-  for (var i=0;i<level.length;i++) {
-    for (var j=0;j<level[i].length;j++) {
-      var id=ids.indexOf(level[i][j]);
-      if (id!==-1) data+="<div class='levelBlock "+blockClasses[id]+"' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
-    }
-  }
-  document.querySelector(".level").innerHTML=data;
-  document.querySelector(".level").style.height=(level.length*40)+"px";
-}
 var wDown=false,aDown=false,dDown=false,sDown=false,tDown=false,lDown=false,rDown=false,bDown=false;
 document.body.onkeydown=function(e){
   switch (e.keyCode) {
@@ -158,7 +135,7 @@ document.body.onkeyup=function(e){
     case 40:bDown=false;break;
   }
 };
-var tags,collide="012".split(''),play=function(player){
+var tags=[,[0,0],[0,0]],collide="012".split(''),play=function(player){
   var tag=tags[player];
   tag[0]+=tag[2];
   tag[1]+=tag[3];
@@ -177,7 +154,6 @@ var tags,collide="012".split(''),play=function(player){
   else { /* MOVING */
     if (player-1?tDown:wDown) {
       tag[3]=15;
-      console.log("Player "+player+" jumping");
     }
     if ((player-1?bDown:sDown)&&collide.includes(getBlock(0,-16,player))) tag[2]=Math.round(tag[2]*300)/1000;
     else {
@@ -236,6 +212,35 @@ document.querySelector("#load").onclick=function(){
   }
   level=lev;
   render();
+}
+render();
+function startPlaying() {
+  render();
+  tags=["",[40,80,0,0],[450,80,0,0]];
+  window.scrollTo(0,document.body.scrollHeight);
+  wow=setInterval(function(){
+    play(1);
+    play(2);
+  },33);
+}
+function render() {
+  var blockClasses=["black","red","blue"],
+  ids="012",
+  data='<div id="red" class="red"></div><div id="blue" class="blue"></div>';
+  for (var i=0;i<level.length;i++) {
+    for (var j=0;j<level[i].length;j++) {
+      var id=ids.indexOf(level[i][j]);
+      if (id!==-1) data+="<div class='levelBlock "+blockClasses[id]+"' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
+    }
+  }
+  document.querySelector(".level").innerHTML=data;
+  document.querySelector(".level").style.height=(level.length*40)+"px";
+  var avatar=document.querySelector("#red");
+  avatar.style.left=tags[1][0]+"px";
+  avatar.style.bottom=tags[1][1]+"px";
+  avatar=document.querySelector("#blue");
+  avatar.style.left=tags[2][0]+"px";
+  avatar.style.bottom=tags[2][1]+"px";
 }
     </script>
 <!-- MADE BY SEAN -->

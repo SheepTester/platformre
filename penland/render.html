@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Penland Rendering test</title>
+    <meta charset="UTF-8">
+    <style>
+body {
+  font-family: monospace;
+  background: black;
+  color: white;
+}
+#stage {
+  height: 360px;
+  width: 480px;
+  position: fixed;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+}
+#stage .block {
+  position: absolute;
+  border: 1px solid red;
+}
+    </style>
+  </head>
+  <body>
+    <p>The red borders demonstrate how the blocks are grouped together horizontally when they are the same. P to pause.</p>
+    <div id="stage"></div>
+
+    <script src="../../sheep.js"></script>
+    <script>
+var level,loop,mX=0,mY=0,lW=300,lH=300,sX=lW*8-240,sY=lH*8-180,pausd=false;
+document.body.onkeydown=function(e){
+  switch (e.keyCode) {
+    case 80:
+      if (pausd) loop=setInterval(draw,33);
+      else clearInterval(loop);
+      pausd=!pausd;
+      break;
+  }
+};
+function init() {
+  level=[];
+  for (var i=0;i<lH;i++) {
+    level.push("");
+    for (var j=0;j<lW;j++) {
+      if (i>0&&Math.floor(Math.random()*3)==0) level[i]+=level[i-1][j];
+      else if (j>0&&Math.floor(Math.random()*2)==0) level[i]+=level[i][j-1];
+      else if (Math.floor(Math.random()*2)==0) level[i]+=Math.floor(Math.random()*2)+1;
+      else level[i]+=0;
+    }
+  }
+}
+init();
+loop=setInterval(draw,33);
+function draw() {
+  sX+=mX*0.2;
+  sY+=mY*0.2;
+  if (sX<0) sX=0;
+  if (sX>lW*16-480) sX=lW*16-480;
+  if (sY<0) sY=0;
+  if (sY>lH*16-360) sY=lH*16-360;
+  function renderBlock(col,xpos,ypos,width) {
+    var height=16;
+    if (ypos<0) {
+      height+=ypos;
+      ypos=0;
+    }
+    if (xpos<0) {
+      width+=xpos;
+      xpos=0;
+    }
+    if (ypos+height>360) {
+      if (ypos>360) return "";
+      height=360-ypos;
+    }
+    if (xpos+width>480) {
+      if (xpos>480) return "";
+      width=480-xpos;
+    }
+    return "<div class='block' style='background:"+col+";bottom:"+ypos+"px;left:"+xpos+"px;height:"+height+"px;width:"+width+"px;'></div>";
+  }
+  var tempX=-sX%16,tempY=-sY%16,destX,destY,stuff="",color;
+  destY=Math.floor(sY/16)+360/16+1;
+  for (var i=Math.floor(sY/16);i<destY;i++) {
+    if (i>level.length-1) {break;}
+    var t=level[i][0],c=Math.floor(sX/16);
+    destX=Math.floor(sX/16)+480/16+1;
+    for (var j=c;j<destX;j++) {
+      if (t!=level[i][j]) {
+        if (t>0) {
+          if (t==1) color="#C96D31";
+          else color="#5CB712";
+          stuff+=renderBlock(color,tempX,tempY,(j-c)*16);
+        }
+        tempX+=(j-c)*16;
+        c=j;
+        t=level[i][j];
+      }
+    }
+    if (t>0) {
+      if (t==1) color="#C96D31";
+      else color="#5CB712";
+      stuff+=renderBlock(color,tempX,tempY,(j-c)*16);
+    }
+    tempX+=(j-c)*16-496;
+    tempY+=16;
+  }
+  document.querySelector("#stage").innerHTML=stuff;
+}
+document.onmousemove=function(e){
+  mX=e.clientX-window.innerWidth/2;
+  mY=-e.clientY+window.innerHeight/2;
+}
+// https://scratch.mit.edu/projects/89298748/
+    </script>
+<!-- MADE BY SEAN -->
+  </body>
+</html>

@@ -27,11 +27,10 @@ body {
   position: absolute;
 }
 @keyframes diePainfully {
-  from {background:#E91E63;opacity:1;transform:scale(1);}
-  to {background:#212121;opacity:0;transform:scale(0);}
+  from {opacity:1;transform:scale(1);}
+  to {opacity:0;transform:scale(0);}
 }
 .die {
-  background: #212121;
   opacity: 0;
   transform: scale(0);
   animation: diePainfully 0.5s;
@@ -112,10 +111,10 @@ span:active {
 .atoscrol span:hover{background:rgba(0,0,0,0.5);}
 .atoscrol span:active{background:black;}
 textarea {
-  border: 1px solid #ccc;
+  border: 1px solid #ccc !important;
 }
 textarea:focus {
-  border-color: blue;
+  border-color: blue !important;
 }
     </style>
     <link rel="stylesheet" type="text/css" href="blocks.css">
@@ -137,12 +136,23 @@ textarea:focus {
       <h1>Credits</h1>
       <ul>
         <li>Material Design for the colors and the icons used on the blocks.</li>
-        <li>Alex, Mateo, Zach, Steven, and me for testing this out and pointing out my mistakes.</li>
+        <li>Alex, Mateo, Zach, Steven, Alan, and me for testing this out and pointing out my mistakes.</li>
         <li>Also them for ideas.</li>
         <li><a href="https://scratch.mit.edu/users/Yllie/">Yllie</a> for block ideas from their Ultimate Game Creator.</li>
         <li>I am Sean. Nice to meat you.</li>
       </ul>
       <h1>Changelog</h1>
+      <p>Of commit 43:</p>
+      <ul>
+        <li>bug fixes</li>
+        <li>growing level in editor now uses current block</li>
+        <li>autosave level when test level is clicked in editor</li>
+        <li>more distinguishable cycled blocks</li>
+        <li>undo/redo in editor</li>
+        <li>confusion block that messes up controls</li>
+        <li>+ other betterifications</li>
+        <li>added penland5's <a href="penland/render.html">rendering engine</a></li>
+      </ul>
       <p>Of commit 41 and 42:</p>
       <ul>
         <li>added block icons to editor</li>

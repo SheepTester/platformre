@@ -23,8 +23,8 @@ function startPlaying() {
   time=Date.now();
 }
 function render(level) {
-  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav"],
-  ids="@#+^=v*w<>CLRB&gsa`ipfe;omtýéóúy",
+  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav","conf"],
+  ids="@#+^=v*w<>CLRB&gsa`ipfe;omtýéóúyu",
   data="<div id='player'></div>",level;
   if (level===undefined) {
     level=lev;
@@ -101,6 +101,17 @@ document.body.onkeyup=function(e){
 /* plattformre script based off those from Scratch */
 var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýá".split(''),danger="#éí",power="",powerupdelay=-1,v,time,play=function(){
   x+=xv;y+=yv;
+  var nearBys=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)],
+  onALadder=nearBys.includes("e"),
+  collidingWithWall=collide.includes(getBlock(-15,0))||collide.includes(getBlock(14,0)),
+  water,
+  powerupPadId="aip;ot".split(''),
+  powerupName=["antilava","liquify","pillar","slam","rage","trans"],
+  powerupLength=[5,2,1,5,3,5],
+  reverseGrav=nearBys.includes("y"),
+  confYes=nearBys.includes("u"),
+  sD=confYes?dDown:sDown,dD=confYes?wDown:dDown,wD=confYes?aDown:wDown,aD=confYes?sDown:aDown,
+  amIAboveAFan=(getBlock(0,-40)=="B"||getBlock(0,-80)=="B")&&water=="falling";
   if (power) { /* powerups */
     var anyChanges=false,tt;
     switch (power) {
@@ -151,10 +162,10 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
         };
         break;
       case "slam":
-        if (sDown&&getBlock(0,-40)!=" ") {
-          var tt=getBlock(0,-40),order="g@`=s &^*w #f ".split('');
+        if (sD&&getBlock(0,-16)!=" "&&y>40) {
+          var tt=getBlock(0,-16),order="g@`=s &^*w #f ".split('');
           if (order.indexOf(tt)>-1) {
-            setBlock(0,-40,order[order.indexOf(tt)+1]);
+            setBlock(0,-16,order[order.indexOf(tt)+1]);
             anyChanges=true;
           }
         }
@@ -171,19 +182,12 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     }
     if (anyChanges) render();
   }
-  var onALadder=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("e"),
-  collidingWithWall=collide.includes(getBlock(-15,0))||collide.includes(getBlock(14,0));
   if (getBlock(0,0)=="f"&&power!="rage") die();
   else if (onALadder) {
     yv=0;
-    if (wDown&&!sDown) y+=5;
-    else if (!wDown&&sDown) y-=5;
+    if (wD&&!sD) y+=5;
+    else if (!wD&&sD) y-=5;
   }
-  var water,
-  powerupPadId="aip;ot".split(''),
-  powerupName=["antilava","liquify","pillar","slam","rage","trans"],
-  powerupLength=[5,2,1,5,3,3],
-  reverseGrav=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("y");
   if (collidingWithWall?collide.includes(getBlock(0,-16)):collide.includes(getBlock(-10,-16))||collide.includes(getBlock(10,-16))) {
     yv=0;
     y=Math.ceil((y-5)/40)*40;
@@ -191,11 +195,11 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   if (onALadder) { /* ladder */
     water="climbing";
     if (spaceDown) xv=Math.round(xv*300)/1000;
-    else if (aDown&&!dDown&&xv>-10) xv-=1.5;
-    else if (dDown&&!aDown&&xv<10) xv+=1.5;
+    else if (aD&&!dD&&xv>-10) xv-=1.5;
+    else if (dD&&!aD&&xv<10) xv+=1.5;
     else xv=Math.round(xv*700)/1000;
   }
-  else if ([getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)].includes("w")) { /* swimming */
+  else if (nearBys.includes("w")) { /* swimming */
     water="swimming";
     if (spaceDown) {
       xv=Math.round(xv*800)/1000;
@@ -203,10 +207,10 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     } else {
       xv=Math.round(xv*950)/1000;
       yv=Math.round(yv*950)/1000;
-      if(wDown)yv+=1;
-      if(aDown)xv-=1;
-      if(sDown)yv-=1;
-      if(dDown)xv+=1;
+      if(wD)yv+=1;
+      if(aD)xv-=1;
+      if(sD)yv-=1;
+      if(dD)xv+=1;
     }
   } else if (!(collide.includes(getBlock(-10,-16))||collide.includes(getBlock(10,-16)))&&!reverseGrav) { /* falling */
     yv-=1;
@@ -255,15 +259,14 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     document.querySelector("#message").style.display="block";
   }
   else if (document.querySelector("#message").style.display=="block") document.querySelector("#message").style.display="none";
-  var amIAboveAFan=(getBlock(0,-40)=="B"||getBlock(0,-80)=="B")&&water=="falling";
   if ((amIAboveAFan||water===undefined)) { /* MOVING */
-    if (wDown&&!amIAboveAFan&&!reverseGrav) {
+    if (wD&&!amIAboveAFan&&!reverseGrav) {
       if (power=="rage") yv=30;
       else if (getBlock(0,-16)=="^") yv=20;
       else if (getBlock(0,-16)!="v") yv=15;
     }
     if (reverseGrav) {
-      if (sDown) {
+      if (sD) {
         if (power=="rage") yv=-30;
         else yv=-15;
       }
@@ -277,12 +280,12 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
       if (tempp==15) xv=Math.round(xv*700)/1000;
       else xv=Math.round(xv*300)/1000;
     } else {
-      if (aDown&&!dDown&&xv>-tempp) {
+      if (aD&&!dD&&xv>-tempp) {
         if (tempp==5) xv-=0.5;
         else if (tempp==15) xv-=0.5;
         else if (tempp==20) xv-=3;
         else xv-=1.5;
-      } else if (dDown&&!aDown&&xv<tempp) {
+      } else if (dD&&!aD&&xv<tempp) {
         if (tempp==5) xv+=0.5;
         else if (tempp==15) xv+=0.5;
         else if (tempp==20) xv+=3;
@@ -297,7 +300,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
       xv=0;
       x=Math.round(x*1000)/1000;
     }
-    if (power=="trans"&&sDown) y-=71;
+    if (power=="trans"&&sD) y-=71;
   }
   if (danger.includes(getBlock(0,15))&&power!="rage") die(); /* ceiling */
   else if (getBlock(0,15)=="+") die("win");
@@ -310,11 +313,11 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   else if (getBlock(-15,0)=="+") die("win");
   else if (collide.includes(getBlock(-15,0))) {
     x=Math.ceil((x-5)/40)*40;
-    if ((aDown||dDown)&&Math.abs(xv*100)>1) {
-      if (wDown&&getBlock(0,0)!="w"&&!onALadder&&!reverseGrav) {
+    if ((aD||dD)&&Math.abs(xv*100)>1) {
+      if (wD&&getBlock(0,0)!="w"&&!onALadder&&!reverseGrav) {
         yv=10;
         xv*=-1;
-      } else if (sDown&&getBlock(0,0)!="w"&&!onALadder&&reverseGrav) {
+      } else if (sD&&getBlock(0,0)!="w"&&!onALadder&&reverseGrav) {
         yv=-10;
         xv*=-1;
       }
@@ -327,12 +330,12 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   else if (getBlock(14,0)=="+") die("win");
   else if (collide.includes(getBlock(14,0))) {
     x=Math.floor((x-5)/40)*40+10;
-    if ((aDown||dDown)&&Math.abs(xv*100)>1) {
-      if (wDown&&getBlock(0,0)!="w"&&!onALadder&&!reverseGrav) {
+    if ((aD||dD)&&Math.abs(xv*100)>1) {
+      if (wD&&getBlock(0,0)!="w"&&!onALadder&&!reverseGrav) {
         yv=10;
         xv*=-1;
       }
-      else if (sDown&&getBlock(0,0)!="w"&&!onALadder&&reverseGrav) {
+      else if (sD&&getBlock(0,0)!="w"&&!onALadder&&reverseGrav) {
         yv=-10;
         xv*=-1;
       }
@@ -388,6 +391,7 @@ function die(type) {
       lev++;render(lev);
       cpx=40;
       cpy=40;
+      time=Date.now();
     }
     xv=0,yv=0,x=cpx,y=cpy,power='';
     play();
@@ -396,7 +400,6 @@ function die(type) {
       wow=setInterval(play,33);
     }
     document.querySelector("#player").className="";
-    time=Date.now();
   },500);
 }
 function rand(min,max) {

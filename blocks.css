@@ -42,6 +42,7 @@
 .midas {background:#FFC107;background-image:url(icons/materialicon_attach_money.svg);background-position:center;background-repeat:no-repeat;}
 .trans {background:#4DB6AC;background-image:url(icons/materialicon_swap_horiz.svg);background-position:center;background-repeat:no-repeat;}
 .grav {background:#64B5F6;}
+.conf {background:#F57F17;}
 .glitch {background-color:magenta;}
 
 .topOnly:before {

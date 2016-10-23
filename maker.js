@@ -9,13 +9,13 @@ if(!localStorage.getItem('level')) {
     "@v^@@###*>><<**@@@@@",
   ]));
 }
-var level=JSON.parse(localStorage.getItem('level'));
+var level=JSON.parse(localStorage.getItem('level')),hist=[JSON.parse(JSON.stringify(level)).slice(1)],redoHist=[];
 var paletteIdToPaletteLabel={
-  space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",amp:"autojumppad",g:"gold",s:"sand",a:"lavatosolidpowerup",backtick:"usedpowerup",i:"liquificationpowerup",p:"pillarpowerup",f:"fire",e:"ladder",semi:"slammerpowerup",o:"ragepowerup",m:"midastouchpowerup",t:"transparentblockspowerup",ý:"solidlava",á:"invisiblesolid",é:"dangeroussolid",í:"invisiblelava",ó:"transparentsold",ú:"transparentlava",y:"gravity"
+  space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",amp:"autojumppad",g:"gold",s:"sand",a:"lavatosolidpowerup",backtick:"usedpowerup",i:"liquificationpowerup",p:"pillarpowerup",f:"fire",e:"ladder",semi:"slammerpowerup",o:"ragepowerup",m:"midastouchpowerup",t:"transparentblockspowerup",ý:"solidlava",á:"invisiblesolid",é:"dangeroussolid",í:"invisiblelava",ó:"transparentsolid",ú:"transparentlava",y:"gravity",u:"confusion"
 },paletteLabelToClassName={
-  air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB",autojumppad:"ajump topOnly",gold:"gold",sand:"sand",lavatosolidpowerup:"antilava topOnly",usedpowerup:"nopower",liquificationpowerup:"liquify topOnly",pillarpowerup:"pillar topOnly",fire:"fire",ladder:"ladder",slammerpowerup:"slam topOnly",ragepowerup:"rage topOnly",midastouchpowerup:"midas topOnly",transparentblockspowerup:"trans topOnly",solidlava:"sl",invisiblesolid:"sa",dangeroussolid:"ls",invisiblelava:"la",transparentsold:"as",transparentlava:"al",gravity:"grav",text:"text topOnly"
+  air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB",autojumppad:"ajump topOnly",gold:"gold",sand:"sand",lavatosolidpowerup:"antilava topOnly",usedpowerup:"nopower",liquificationpowerup:"liquify topOnly",pillarpowerup:"pillar topOnly",fire:"fire",ladder:"ladder",slammerpowerup:"slam topOnly",ragepowerup:"rage topOnly",midastouchpowerup:"midas topOnly",transparentblockspowerup:"trans topOnly",solidlava:"sl",invisiblesolid:"sa",dangeroussolid:"ls",invisiblelava:"la",transparentsolid:"as",transparentlava:"al",gravity:"grav",text:"text topOnly",confusion:"conf"
 },paletteLabelToSymbol={
-  air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B",autojumppad:"&",gold:"g",sand:"s",lavatosolidpowerup:"a",usedpowerup:"`",liquificationpowerup:"i",pillarpowerup:"p",fire:"f",ladder:"e",slammerpowerup:";",ragepowerup:"o",midastouchpowerup:"m",transparentblockspowerup:"t",solidlava:"ý",invisiblesolid:"á",dangeroussolid:"é",invisiblelava:"í",transparentsold:"ó",transparentlava:"ú",gravity:"y"
+  air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B",autojumppad:"&",gold:"g",sand:"s",lavatosolidpowerup:"a",usedpowerup:"`",liquificationpowerup:"i",pillarpowerup:"p",fire:"f",ladder:"e",slammerpowerup:";",ragepowerup:"o",midastouchpowerup:"m",transparentblockspowerup:"t",solidlava:"ý",invisiblesolid:"á",dangeroussolid:"é",invisiblelava:"í",transparentsolid:"ó",transparentlava:"ú",gravity:"y",confusion:"u"
 };
 var inputStuff="",textStyle="";
 for (var i=0;i<10;i++) {
@@ -55,6 +55,7 @@ function render() {
   document.querySelector(".level").innerHTML=data;
   document.querySelector("#width").innerHTML=level[0].length;
   document.querySelector("#height").innerHTML=level.length;
+  document.querySelector(".level").style.width=(level[0].length*40)+"px";
   document.querySelector(".level").style.height=(level.length*40)+"px";
 }
 render();
@@ -69,25 +70,28 @@ var mD=false;
 document.querySelector(".level").onmousedown=function(e){
   mD=true;
   if (e.target.className.slice(0,10)=="levelBlock") {
-    e.target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
-    var row=Number(e.target.parentNode.id.slice(1));
-    var col=Number(e.target.id.slice(1));
-    level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
+    var row=Number(e.target.parentNode.id.slice(1)),col=Number(e.target.id.slice(1));
+    if (!(row==level.length-2&&col==1)) {
+      e.target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
+      level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
+    }
   }
 }
-document.querySelector(".level").onmouseup=function(){mD=false;}
+document.querySelector(".level").onmouseup=function(){mD=false;if(level!=hist[hist.length-1]){hist.push(JSON.parse(JSON.stringify(level)));redoHist=[];}}
 document.querySelector(".level").onmouseover=function(e){
   if (e.target.className.slice(0,10)=="levelBlock"&&mD) {
-    e.target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
     var row=Number(e.target.parentNode.id.slice(1));
     var col=Number(e.target.id.slice(1));
-    level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
+    if (!(row==level.length-2&&col==1)) {
+      e.target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
+      level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
+    }
   }
 }
 document.body.onkeydown=function(e){
   switch (e.keyCode) {
     case 37:
-      if (level[0].length>1) {
+      if (level[0].length>3) {
         for (var i=0;i<level.length;i++) {
           level[i]=level[i].slice(0,-1);
         }
@@ -95,19 +99,23 @@ document.body.onkeydown=function(e){
       break;
     case 39:
       for (var i=0;i<level.length;i++) {
-        level[i]+="@";
+        level[i]+=paletteLabelToSymbol[document.querySelector("#current").innerHTML];
       }
       break;
     case 40:
-      if (level.length>1) {
+      if (level.length>3) {
         level.splice(0,1);
       }
       break;
     case 38:
-      level.splice(0,0,"@".repeat(level[0].length));
+      level.splice(0,0,paletteLabelToSymbol[document.querySelector("#current").innerHTML].repeat(level[0].length));
       break;
   }
-  render();
+  if(level!=hist[hist.length-1]){
+    hist.push(JSON.parse(JSON.stringify(level)));
+    redoHist=[];
+    render();
+  }
 };
 function highlight(element) { // based off http://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse
   if (document.body.createTextRange) {
@@ -132,8 +140,11 @@ document.querySelector("#done").onclick=function(){
   document.querySelector("textarea").value="[["+texts+"],\n\""+level.join("\",\n\"")+"\"\n]";
   document.querySelector("textarea").select();
 }
-document.querySelector("#save").onclick=function(){
+function save() {
   var texts=[],blankForever=-1,danewcode;
+  if (typeof level[0]=="object") {
+    level.splice(0,1);
+  }
   danewcode=level;
   for (var i=0;i<10;i++) {
     texts.push(document.querySelector("#i"+i).value);
@@ -143,6 +154,7 @@ document.querySelector("#save").onclick=function(){
   danewcode.splice(0,0,texts);
   localStorage.setItem('level',JSON.stringify(danewcode));
 }
+document.querySelector("#save").onclick=save;
 document.querySelector("#doneBit").onclick=function(){
   document.querySelector("textarea").value="[\n  \""+level.join("\",\n  \"")+"\"\n],";
   document.querySelector("textarea").select();
@@ -154,6 +166,11 @@ document.querySelector("#load").onclick=function(){
   }
   render();
 }
+document.querySelector("#test").onclick=function(){
+  save();
+  window.location.href=window.location.href.slice(0,window.location.href.lastIndexOf("/")+1)+"randomlevelgen.html";
+  return false;
+}
 document.querySelector("#template").onclick=function(){
   if (level.length>6) {
     level.splice(0,level.length-6);
@@ -164,6 +181,20 @@ document.querySelector("#template").onclick=function(){
     }
   }
   render();
+}
+document.querySelector("#undo").onclick=function(){
+  if (hist.length-1) {
+    redoHist.push(hist.pop());
+    level=hist[hist.length-1];
+    render();
+  }
+}
+document.querySelector("#redo").onclick=function(){
+  if (redoHist.length) {
+    hist.push(redoHist.pop());
+    level=hist[hist.length-1];
+    render();
+  }
 }
 /*
 [[],
