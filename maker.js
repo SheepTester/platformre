@@ -32,6 +32,7 @@ for (var i=0;i<level[0].length;i++) {
 }
 var innerht='',blockClasses=[],ids="";
 for (var span in paletteIdToPaletteLabel) {
+  innerht+='<div class="icon"><div class="'+paletteLabelToClassName[paletteIdToPaletteLabel[span]]+'"></div></div>';
   innerht+='<span class="blkTyp" id="'+span+'">'+paletteIdToPaletteLabel[span]+'</span> ';
   blockClasses.push(paletteLabelToClassName[paletteIdToPaletteLabel[span]]);
   ids+=paletteLabelToSymbol[paletteIdToPaletteLabel[span]];

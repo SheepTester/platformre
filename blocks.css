@@ -1,10 +1,10 @@
-/* for fakes: [what it does]+[looks like] */
+/* for fakes: [what it does]+[looks like] a=bluer, l=redder, s=darker */
 .ground {background:#212121;}
 .as {background:#212126;}
 .ls {background:#262121;}
 .lava {background:#FF5722;/*animation: lava 2s linear infinite;*/}
-.sl {background:#ff430a;}
-.al {background:#FF5727;}
+.sl {background:#F85320;}
+.al {background:#FF572c;}
 /*
 @keyframes lava {
   0% {background:#FF6F00;}

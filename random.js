@@ -23,8 +23,8 @@ function startPlaying() {
   time=Date.now();
 }
 function render(level) {
-  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","sa","ls","la","grav"],
-  ids="@#+^=v*w<>CLRB&gsa`ipfe;omtýáéíy",
+  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav"],
+  ids="@#+^=v*w<>CLRB&gsa`ipfe;omtýéóúy",
   data="<div id='player'></div>",level;
   if (level===undefined) {
     level=lev;
@@ -34,7 +34,7 @@ function render(level) {
       var id=ids.indexOf(levels[level][i][j]);
       if (id!==-1) id=blockClasses[id];
       else if (/[0-9]/.test(levels[level][i][j])) id="text topOnly";
-      else if (!" .óú".split('').includes(levels[level][i][j])) id="glitch";
+      else if (!" .áí".split('').includes(levels[level][i][j])) id="glitch";
       if (id!==-1) {
         data+="<div class='levelBlock "+id+"' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
       }

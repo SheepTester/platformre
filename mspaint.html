@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ms. Paint</title>
+    <meta charset="UTF-8">
+    <style>
+body {
+  font-family: monospace;
+}
+#red, #blue {
+  position: absolute;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  bottom: 80px;
+  left: 40px;
+  z-index: 100;
+}
+.level {
+  position: absolute;
+  left: 0;
+  margin-top: 50px;
+  height: 0;
+  width: 0;
+}
+.levelBlock {
+  height: 40px;
+  width: 40px;
+  position: absolute;
+}
+button, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+textarea {
+  display: block;
+  width: 200px;
+  height: 200px;
+}
+#message {
+  margin: auto;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+  height: 20px;
+  text-align: center;
+  font-size: 40px;
+  color: white;
+  -webkit-text-fill-color: white;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;
+}
+textarea {
+  display: block;
+  font-family: inherit;
+  font-size: inherit;
+  width: 200px;
+  height: 200px;
+  border: 1px solid #333;
+}
+span {
+  cursor: pointer;
+  background: #eee;
+}
+span:hover {
+  background: gray;
+}
+span:active {
+  background: black;
+  color: white;
+}
+input {
+  border: 1px solid #ccc;
+}
+input:focus {
+  border-color: blue;
+}
+.black {background:#212121;}
+.red {background:#f44336;}
+.blue {background:#2196F3;}
+    </style>
+  </head>
+  <body>
+    <b>Player 1:</b> WAD<br>
+    <b>Player 2:</b> arrow keys<br>
+    <span onclick="startPlaying()" style="font-size: 2em;">start</span> <span id="load">load (indev)</span>
+    <input placeholder="Level data here" type="text" id="decimal"/><br>
+    <div class="level">
+    </div>
+    <p id="message" style="display: none;"></p>
+
+    <script src="../sheep.js"></script>
+    <script>
+var level=[
+  "0000000000000",
+  "0     0     0",
+  "0     0     0",
+  "0           0",
+  "0000     0000",
+  "0           0",
+  "0    000    0",
+  "0           0",
+  "0000     0000",
+  "0           0",
+  "0     0     0",
+  "0     0     0",
+  "0000000000000",
+];
+render();
+function startPlaying() {
+  render();
+  tags=["",[40,80,0,0],[450,80,0,0]];
+  window.scrollTo(0,document.body.scrollHeight);
+  wow=setInterval(function(){
+    play(1);
+    play(2);
+  },33);
+}
+function render() {
+  var blockClasses=["black","red","blue"],
+  ids="012",
+  data='<div id="red" class="red"></div><div id="blue" class="blue"></div>';
+  for (var i=0;i<level.length;i++) {
+    for (var j=0;j<level[i].length;j++) {
+      var id=ids.indexOf(level[i][j]);
+      if (id!==-1) data+="<div class='levelBlock "+blockClasses[id]+"' style='top:"+(i*40-40)+"px;left:"+(j*40)+"px;'></div>";
+    }
+  }
+  document.querySelector(".level").innerHTML=data;
+  document.querySelector(".level").style.height=(level.length*40)+"px";
+}
+var wDown=false,aDown=false,dDown=false,sDown=false,tDown=false,lDown=false,rDown=false,bDown=false;
+document.body.onkeydown=function(e){
+  switch (e.keyCode) {
+    case 87:wDown=true;break;
+    case 65:aDown=true;break;
+    case 83:sDown=true;break;
+    case 68:dDown=true;break;
+    case 38:tDown=true;break;
+    case 37:lDown=true;break;
+    case 39:rDown=true;break;
+    case 40:bDown=true;break;
+  }
+  if([32,37,38,39,40].indexOf(e.keyCode)>-1) {
+    e.preventDefault();
+  }
+};
+document.body.onkeyup=function(e){
+  switch (e.keyCode) {
+    case 87:wDown=false;break;
+    case 65:aDown=false;break;
+    case 83:sDown=false;break;
+    case 68:dDown=false;break;
+    case 38:tDown=false;break;
+    case 37:lDown=false;break;
+    case 39:rDown=false;break;
+    case 40:bDown=false;break;
+  }
+};
+var tags,collide="012".split(''),play=function(player){
+  var tag=tags[player];
+  tag[0]+=tag[2];
+  tag[1]+=tag[3];
+  var tt,i=Math.floor(Math.random()*9);
+  tt=getBlock(i%3*40-40,Math.floor(i/3)*40-40,player);
+  if (tt!=player.toString()&&tt!=" ") {
+    setBlock(i%3*40-40,Math.floor(i/3)*40-40,player,player.toString());
+    render();
+  }
+  var collidingWithWall=collide.includes(getBlock(-15,0,player))||collide.includes(getBlock(14,0,player)),left=player-1?lDown:aDown,right=player-1?rDown:dDown;
+  if (collidingWithWall?collide.includes(getBlock(0,-16,player)):collide.includes(getBlock(-10,-16,player))||collide.includes(getBlock(10,-16,player))) {
+    tag[3]=0;
+    tag[1]=Math.ceil((tag[1]-5)/40)*40;
+  }
+  if (!(collide.includes(getBlock(-10,-16,player))||collide.includes(getBlock(10,-16,player)))) tag[3]-=1;
+  else { /* MOVING */
+    if (player-1?tDown:wDown) {
+      tag[3]=15;
+      console.log("Player "+player+" jumping");
+    }
+    if ((player-1?bDown:sDown)&&collide.includes(getBlock(0,-16,player))) tag[2]=Math.round(tag[2]*300)/1000;
+    else {
+      if (left&&!right&&tag[2]>-10) tag[2]-=1.5;
+      else if (right&&!left&&tag[2]<10) tag[2]+=1.5;
+      else tag[2]=Math.round(tag[2]*700)/1000;
+    }
+    if (Math.abs(tag[2])<0.01) {
+      tag[2]=0;
+      tag[0]=Math.round(tag[0]*1000)/1000;
+    }
+  }
+  if (collidingWithWall?collide.includes(getBlock(0,15,player)):collide.includes(getBlock(-10,15,player))||collide.includes(getBlock(10,15,player))) {
+    tag[3]=-1;
+    tag[1]=Math.floor((tag[1]-5)/40)*40+10;
+  }
+  if (collide.includes(getBlock(-15,0,player))) tag[0]=Math.ceil((tag[0]-5)/40)*40;
+  if (collide.includes(getBlock(14,0,player))) tag[0]=Math.floor((tag[0]-5)/40)*40+10;
+  if (collidingWithWall) {
+    if ((left||right)&&Math.abs(tag[2]*100)>1) {
+      if (player-1?tDown:wDown) {
+        tag[3]=10;
+        tag[2]*=-1;
+      }
+      else tag[2]*=-0.5;
+    }
+    else tag[2]=0;
+  }
+  tags[player]=tag;
+  var avatar=document.querySelector("#"+(player-1?"blue":"red"));
+  avatar.style.left=tag[0]+"px";
+  avatar.style.bottom=tag[1]+"px";
+};
+function getBlock(nx,ny,pl) {
+  var getDebugInfo;
+  nx=Math.round((tags[pl][0]+nx-5)/40);ny=Math.round((tags[pl][1]+ny-5)/40);
+  if (getDebugInfo) console.log("X:"+nx+"Y:"+ny);
+  var zzz=level[level.length-ny];
+  if (zzz===undefined) {
+    return "0";
+  } else {
+    return zzz[nx];
+  }
+}
+function setBlock(nx,ny,pl,block) {
+  nx=Math.round((tags[pl][0]+nx-5)/40);
+  ny=level.length-Math.round((tags[pl][1]+ny-5)/40);
+  if (level[ny]!==undefined) {
+    level[ny]=level[ny].slice(0,nx)+block+level[ny].slice(nx+1);
+  }
+}
+document.querySelector("#load").onclick=function(){
+  var lev=JSON.parse(document.querySelector("#decimal").value);
+  for (var i=0;i<lev.length;i++) {
+    lev[i]=lev[i].toString(2).replace(/0/g," ").replace(/1/g,"0");
+  }
+  level=lev;
+  render();
+}
+    </script>
+<!-- MADE BY SEAN -->
+  </body>
+</html>
