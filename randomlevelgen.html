@@ -147,6 +147,20 @@ textarea:focus {
   right: 55px;
   bottom: 220px;
 }
+span:hover:after {
+  background: white;
+  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+  position: absolute;
+  transform: translateX(-75px) translateY(-12px);
+}
+#thing>span:nth-child(2):hover:after {content:'turn lava into solid';}
+#thing>span:nth-child(3):hover:after {content:'summon water';}
+#thing>span:nth-child(4):hover:after {content:'zoom upwards';}
+#thing>span:nth-child(5):hover:after {content:'diggy diggy hole';}
+#thing>span:nth-child(6):hover:after {content:'super speed';}
+#thing>span:nth-child(7):hover:after {content:'make gold';}
+#thing>span:nth-child(8):hover:after {content:'teleport through blocks';}
+#thing>span:nth-child(9):hover:after {content:'save yourself';}
     </style>
     <link rel="stylesheet" type="text/css" href="blocks.css">
   </head>
@@ -155,14 +169,14 @@ textarea:focus {
     <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span> <span id="exampleload">load featured level (by Steven)</span> <span id="load">load</span> <a href="levelmaker.html">edit level</a> <span onclick="var x=document.querySelector('#creds');z=!window.z;if(z)x.style.display='block';else x.style.display='none';">show/hide credits/changelog</span> <span id="joystick">enable joystick</span>
     <textarea placeholder="Level data here"></textarea><br>
     <div id="thing"><span onclick="var c=document.querySelector('#thing');v=!window.v;if(v)c.className='atoscrol';else c.className='';">toggle autoscroll</span> spawn
-    <span onclick="setBlock(0,-40,'a');render();">lava to solid (command lava!)</span>
-    <span onclick="setBlock(0,-40,'i');render();">liquification (spawn water!)</span>
-    <span onclick="setBlock(0,-40,'p');render();">pillar (build up!)</span>
-    <span onclick="setBlock(0,-40,';');render();">slammer (dig dig!)</span>
-    <span onclick="setBlock(0,-40,'o');render();">rage (speed speed!)</span>
-    <span onclick="setBlock(0,-40,'m');render();">midas' touch (make gold)</span>
-    <span onclick="setBlock(0,-40,'t');render();">transparent block (teleport!)</span>
-    powerup or <span onclick="setBlock(0,-40,'C');render();">checkpoint (save yourself!)</span></div><br>
+    <span onclick="setBlock(0,-40,'a');render();">lava to solid</span>
+    <span onclick="setBlock(0,-40,'i');render();">liquification</span>
+    <span onclick="setBlock(0,-40,'p');render();">pillar</span>
+    <span onclick="setBlock(0,-40,';');render();">slammer</span>
+    <span onclick="setBlock(0,-40,'o');render();">rage</span>
+    <span onclick="setBlock(0,-40,'m');render();">midas' touch</span>
+    <span onclick="setBlock(0,-40,'t');render();">transparent block</span>
+    powerup or <span onclick="setBlock(0,-40,'C');render();">checkpoint</span></div><br>
     <div id="joistik" class="notactive">
       <img src="icons/joystick.svg" id="move"/>
       <img src="icons/brake.svg" id="brake"/>
