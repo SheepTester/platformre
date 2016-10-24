@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Penland World Generation test</title>
+    <meta charset="UTF-8">
+    <style>
+body {
+  font-family: monospace;
+  background: black;
+  color: white;
+}
+#stage, #cover {
+  height: 360px;
+  width: 480px;
+  position: fixed;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #CEECFF;
+}
+.block {
+  position: absolute;
+  height: 16px;
+}
+#cover {
+  box-shadow: 0 0 0 99999px black;
+  background: none;
+}
+.grass {background: #866247;border-top: 4px solid #1F9D06;height: 12px;}
+.dirt {background: #866247;}
+.stone {background: #919596;}
+.reinforceddiamond {background: #212121;}
+.tallgrass {background-image: url(tallgrass.svg);}
+.oaktrunk {background: #5D4037;}
+.oaktreaves {background: #7CB342;}
+.oakleaves {background: #8BC34A;}
+.pinetrunk {background: #4E342E;}
+.pinetreaves {background: #558B2F;}
+.pineleaves {background: #689F38;}
+    </style>
+  </head>
+  <body>
+    <p></p>
+    <div id="stage"></div>
+    <div id="cover"></div>
+
+    <script src="../../sheep.js"></script>
+    <script>
+var level,loop,mX=0,mY=0,lW=300,lH=200,sX=lW*8-240,sY=lH*8-180,pausd=false;
+document.body.onkeydown=function(e){
+  switch (e.keyCode) {
+    case 80:
+      if (pausd) loop=setInterval(draw,33);
+      else clearInterval(loop);
+      pausd=!pausd;
+      break;
+  }
+};
+function init() {
+  level=[];
+  var heights=[Math.floor(Math.random()*10)+40];
+  for (var i=0;i<lH;i++) {
+    level.push([]);
+    if (i>0) heights.push(heights[heights.length-1]+Math.floor(Math.random()*5)-2);
+    for (var j=0;j<lW;j++) {
+      // if (i>0&&Math.floor(Math.random()*3)==0) level[i].push(level[i-1][j]);
+      // else if (j>0&&Math.floor(Math.random()*2)==0) level[i].push(level[i][j-1]);
+      // else if (Math.floor(Math.random()*2)==0) level[i].push(["grass","dirt","stone","reinforceddiamond"][Math.floor(Math.random()*4)]);
+      // else level[i].push("");
+      if (j==0) level[i].push("reinforceddiamond");
+      else if (j<=heights[i]-Math.floor(Math.random()*7)-2) level[i].push("stone");
+      else if (j<heights[i]) level[i].push("dirt");
+      else if (j==heights[i]) level[i].push("grass");
+      else if (j==heights[i]+1) {
+        if (Math.floor(Math.random()*2)) level[i].push("tallgrass");
+        else if (Math.floor(Math.random()*9)<6) level[i].push(["oak","pine"][Math.floor(Math.random()*2)]+"make");
+        else level[i].push("");
+      }
+      else level[i].push("");
+    }
+  }
+  for (var i=0;i<lH;i++) {
+    for (var j=0;j<lW;j++) {
+      switch (level[i][j]) {
+        case "oakmake":
+          level[i][j]="oaktrunk";
+          level[i][j+1]="oaktrunk";
+          break;
+      }
+    }
+  }
+}
+init();
+loop=setInterval(draw,33);
+function draw() {
+  sX+=mX*0.2;
+  sY+=mY*0.2;
+  if (sX<0) sX=0;
+  if (sX>lW*16-480) sX=lW*16-480;
+  if (sY<0) sY=0;
+  if (sY>lH*16-360) sY=lH*16-360;
+  function renderBlock(col,xpos,ypos,width) {
+    if (ypos>360) return "";
+    if (xpos>480) return "";
+    return "<div class='block "+col+"' style='bottom:"+ypos+"px;left:"+xpos+"px;width:"+width+"px;'></div>";
+  }
+  var tempX=-sX%16,tempY=-sY%16,destX=Math.floor(sX/16)+480/16+1,destY=Math.floor(sY/16)+360/16+1,stuff="";
+  for (var i=Math.floor(sY/16);i<destY;i++) {
+    if (i>level.length-1) {break;}
+    var t=level[0][i],c=Math.floor(sX/16);
+    for (var j=c;j<destX;j++) {
+      if (t!=level[j][i]) {
+        if (t) {
+          stuff+=renderBlock(t,tempX,tempY,(j-c)*16);
+        }
+        tempX+=(j-c)*16;
+        c=j;
+        t=level[j][i];
+      }
+    }
+    if (t) {
+      stuff+=renderBlock(t,tempX,tempY,(j-c)*16);
+    }
+    tempX+=(j-c)*16-496;
+    tempY+=16;
+  }
+  document.querySelector("#stage").innerHTML=stuff;
+}
+document.onmousemove=function(e){
+  mX=e.clientX-window.innerWidth/2;
+  mY=-e.clientY+window.innerHeight/2;
+}
+    </script>
+<!-- MADE BY SEAN -->
+  </body>
+</html>

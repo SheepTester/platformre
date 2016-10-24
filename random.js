@@ -532,6 +532,7 @@ document.querySelector("#joystick").onclick=function(){
     document.querySelector("#plause").src=pausd?"icons/pause.svg":"icons/play.svg";
     pausd=!pausd;
   }
+  document.querySelector("#sheepmenu").style.display="none";
 }
 startPlaying();
 /* MADE BY SEAN */
