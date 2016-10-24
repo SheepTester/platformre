@@ -116,12 +116,43 @@ textarea {
 textarea:focus {
   border-color: blue !important;
 }
+.notactive {
+  display: none;
+}
+#joistik img {
+  position: fixed;
+  z-index: 200;
+  opacity: 0.5;
+}
+#joistik img:hover {
+  opacity: 1;
+}
+#move {
+  height: 200px;
+  left: 30px;
+  bottom: 30px;
+}
+#brake {
+  height: 100px;
+  right: 30px;
+  bottom: 30px;
+}
+#restart {
+  height: 50px;
+  right: 55px;
+  bottom: 150px;
+}
+#plause {
+  height: 50px;
+  right: 55px;
+  bottom: 220px;
+}
     </style>
     <link rel="stylesheet" type="text/css" href="blocks.css">
   </head>
   <body>
     <b>Use the keys WAD to move the player around. Use the S key to swim or teleport downwards or slam or jump downwards. Press p to pause, r to suicide, and space to brake and use powerups.</b><br>
-    <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span> <span id="exampleload">load featured level (by Steven)</span> <span id="load">load</span> <a href="levelmaker.html">edit level</a> <span onclick="var x=document.querySelector('#creds');z=!window.z;if(z)x.style.display='block';else x.style.display='none';">show/hide credits/changelog</span>
+    <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span> <span id="exampleload">load featured level (by Steven)</span> <span id="load">load</span> <a href="levelmaker.html">edit level</a> <span onclick="var x=document.querySelector('#creds');z=!window.z;if(z)x.style.display='block';else x.style.display='none';">show/hide credits/changelog</span> <span id="joystick">enable joystick</span>
     <textarea placeholder="Level data here"></textarea><br>
     <div id="thing"><span onclick="var c=document.querySelector('#thing');v=!window.v;if(v)c.className='atoscrol';else c.className='';">toggle autoscroll</span> spawn
     <span onclick="setBlock(0,-40,'a');render();">lava to solid</span>
@@ -132,6 +163,12 @@ textarea:focus {
     <span onclick="setBlock(0,-40,'m');render();">midas' touch</span>
     <span onclick="setBlock(0,-40,'t');render();">transparent block</span>
     powerup or <span onclick="setBlock(0,-40,'C');render();">checkpoint</span></div><br>
+    <div id="joistik" class="notactive">
+      <img src="icons/joystick.svg" id="move"/>
+      <img src="icons/brake.svg" id="brake"/>
+      <img src="icons/materialicon_refresh.svg" id="restart"/>
+      <img src="icons/pause.svg" id="plause"/>
+    </div>
     <div id="creds" style="display:none;">
       <h1>Credits</h1>
       <ul>
@@ -142,6 +179,10 @@ textarea:focus {
         <li>I am Sean. Nice to meat you.</li>
       </ul>
       <h1>Changelog</h1>
+      <p>Of commit 44:</p>
+      <ul>
+        <li>joystick for touchscreens</li>
+        <li>gave credit to griffpatch_tutor</li>
       <p>Of commit 43:</p>
       <ul>
         <li>bug fixes</li>

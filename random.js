@@ -492,5 +492,46 @@ document.querySelector("#exampleload").onclick=function(){
   levels=[exampleLevels[0],[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
   startPlaying();
 }
+document.querySelector("#joystick").onclick=function(){
+  document.body.removeChild(document.querySelector("#joystick"));
+  document.body.onkeyup = document.body.onkeydown = "";
+  document.querySelector("#joistik").className="";
+  var joy=function(e) {
+    var xDiff=e.changedTouches[0].clientX-130,yDiff=e.changedTouches[0].clientY-document.querySelector("#joistik img").getBoundingClientRect().top-100;
+    wDown=false;aDown=false;dDown=false;sDown=false;
+    if (xDiff>50) dDown=true;
+    else if (xDiff<-50) aDown=true;
+    if (yDiff<-50) wDown=true;
+    else if (yDiff>50) sDown=true;
+    e.preventDefault();
+  }
+  document.querySelector("#move").ontouchstart=joy;
+  document.querySelector("#move").ontouchmove=joy;
+  document.querySelector("#move").ontouchend=function(e) {
+    wDown=false;aDown=false;dDown=false;sDown=false;
+    e.preventDefault();
+  }
+  document.querySelector("#brake").ontouchstart=function(e) {
+    spaceDown=true;
+    e.preventDefault();
+  }
+  document.querySelector("#brake").ontouchend=function(e) {
+    spaceDown=false;
+    e.preventDefault();
+  }
+  document.querySelector("#restart").onclick=function() {
+    die();
+  }
+  document.querySelector("#plause").onclick=function() {
+    if (pausd) wow=setInterval(play,33);
+    else {
+      clearInterval(wow);
+      document.querySelector("#message").textContent="Paused";
+      document.querySelector("#message").style.display="block";
+    }
+    document.querySelector("#plause").src=pausd?"icons/pause.svg":"icons/play.svg";
+    pausd=!pausd;
+  }
+}
 startPlaying();
 /* MADE BY SEAN */
