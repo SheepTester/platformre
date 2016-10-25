@@ -61,13 +61,14 @@ p {
     </style>
   </head>
   <body>
-    <p>World generation; based off <a href="https://scratch.mit.edu/projects/112971638/">my project on Scratch</a>. <a href="gotamoveitmoveit.html">Next</a></p>
+    <p>Platformer script based off the <a href="https://sheeptester.github.io/platformre/randomlevelgen.html">Platformre</a>. <a href="">Next</a></p>
     <div id="stage"></div>
+    <div id="player"></div>
     <div id="cover"></div>
 
     <script src="../../sheep.js"></script>
     <script>
-var level,loop,mX=0,mY=0,lW=300,lH=200,sX=lW*8-240,sY=30*16,pausd=false,wDown=false,aDown=false,dDown=false,sDown=false,xv=0,yv=0,x=40,y=40,blockData={
+var level,loop,mX=0,mY=0,lW=300,lH=200,sX=lW*8-240,sY=30*16,pausd=false,wD=false,aD=false,dD=false,sD=false,xv=50,yv=1130,x=40,y=40,blockData={
   air:{trnsp:true,},
   grass:{trnsp:false,},
   dirt:{trnsp:false,},
@@ -93,10 +94,10 @@ var level,loop,mX=0,mY=0,lW=300,lH=200,sX=lW*8-240,sY=30*16,pausd=false,wDown=fa
 };
 document.body.onkeydown=function(e){
   switch (e.keyCode) {
-    case 87:wDown=true;break;
-    case 65:aDown=true;break;
-    case 83:sDown=true;break;
-    case 68:dDown=true;break;
+    case 87:wD=true;break;
+    case 65:aD=true;break;
+    case 83:sD=true;break;
+    case 68:dD=true;break;
     case 80:
       if (pausd) loop=setInterval(draw,33);
       else clearInterval(loop);
@@ -106,10 +107,10 @@ document.body.onkeydown=function(e){
 };
 document.body.onkeyup=function(e){
   switch (e.keyCode) {
-    case 87:wDown=false;break;
-    case 65:aDown=false;break;
-    case 83:sDown=false;break;
-    case 68:dDown=false;break;
+    case 87:wD=false;break;
+    case 65:aD=false;break;
+    case 83:sD=false;break;
+    case 68:dD=false;break;
   }
 };
 function init() {
@@ -240,6 +241,73 @@ function update() {
     }
   }
 }
+function play() {
+  x+=xv;y+=yv; // level[i][j]
+  var collidingWithWall=collide.includes(getBlock(-15,0))||collide.includes(getBlock(14,0)),
+  water=false,
+  j=Math.floor((x+240)/16),
+  i=Math.floor((y+180)/16);
+  if (collidingWithWall?collide.includes(getBlock(0,-16)):collide.includes(getBlock(-10,-16))||collide.includes(getBlock(10,-16))) {
+    yv=0;
+    y=Math.ceil((y-5)/40)*40;
+  }
+  if (nearBys.includes("w")) { /* swimming */
+    water=true;
+    if (spaceDown) {
+      xv=Math.round(xv*800)/1000;
+      yv=Math.round(yv*800)/1000;
+    } else {
+      xv=Math.round(xv*950)/1000;
+      yv=Math.round(yv*950)/1000;
+      if(wD)yv+=1;
+      if(aD)xv-=1;
+      if(sD)yv-=1;
+      if(dD)xv+=1;
+    }
+  } else if (!(collide.includes(getBlock(-10,-16))||collide.includes(getBlock(10,-16)))&&!reverseGrav) { /* falling */
+    yv-=1;
+  } else { /* MOVING */
+    if (wD) {
+      yv=15;
+    }
+    if (spaceDown&&(collide.includes(getBlock(0,-16)))) xv=Math.round(xv*300)/1000;
+    else if (aD&&!dD&&xv>-10) xv-=1.5;
+    else if (dD&&!aD&&xv<10) xv+=1.5;
+    else xv=Math.round(xv*700)/1000;
+    if (Math.abs(xv)<0.01) {
+      xv=0;
+      x=Math.round(x*1000)/1000;
+    }
+  }
+  if (collidingWithWall?collide.includes(getBlock(0,15)):collide.includes(getBlock(-10,15))||collide.includes(getBlock(10,15))) {
+    if (!water) yv=-1;
+    y=Math.floor((y-5)/40)*40+10;
+  }
+  if (collide.includes(getBlock(-15,0))) {
+    x=Math.ceil((x-5)/40)*40;
+    if ((aD||dD)&&Math.abs(xv*100)>1) {
+      if (wD&&!water) {
+        yv=10;
+        xv*=-1;
+      }
+      else xv*=-0.5;
+    }
+    else xv=0;
+  }
+  if (collide.includes(getBlock(14,0))) {
+    x=Math.floor((x-5)/40)*40+10;
+    if ((aD||dD)&&Math.abs(xv*100)>1) {
+      if (wD&&!water) {
+        yv=10;
+        xv*=-1;
+      }
+      else xv*=-0.5;
+    }
+    else xv=0;
+  }
+  document.querySelector("#player").style.left=x+"px";
+  document.querySelector("#player").style.bottom=y+"px";
+};
 document.onmousemove=function(e){
   mX=e.clientX-window.innerWidth/2;
   mY=-e.clientY+window.innerHeight/2;

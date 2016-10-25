@@ -110,8 +110,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   powerupLength=[5,2,1,5,3,5],
   reverseGrav=nearBys.includes("y"),
   confYes=nearBys.includes("u"),
-  sD=confYes?dDown:sDown,dD=confYes?wDown:dDown,wD=confYes?aDown:wDown,aD=confYes?sDown:aDown,
-  amIAboveAFan=(getBlock(0,-40)=="B"||getBlock(0,-80)=="B")&&water=="falling";
+  sD=confYes?dDown:sDown,dD=confYes?wDown:dDown,wD=confYes?aDown:wDown,aD=confYes?sDown:aDown;
   if (power) { /* powerups */
     var anyChanges=false,tt;
     switch (power) {
@@ -259,6 +258,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
     document.querySelector("#message").style.display="block";
   }
   else if (document.querySelector("#message").style.display=="block") document.querySelector("#message").style.display="none";
+  var amIAboveAFan=(getBlock(0,-40)=="B"||getBlock(0,-80)=="B")&&water=="falling"
   if ((amIAboveAFan||water===undefined)) { /* MOVING */
     if (wD&&!amIAboveAFan&&!reverseGrav) {
       if (power=="rage") yv=30;

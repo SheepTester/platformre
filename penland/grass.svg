@@ -1,3 +1,3 @@
 <svg fill="#1F9D06" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-  <path d="M0 0v4h16V0z"/>
+  <path d="M0 0 v2 l1 -1 l1 3 l1-1 l1 1 l1 -4 l1 2 l1 -1 l1 4 l1 -3 l1 2 l1 -3 l1 4 l1 -2 l1 1 l1 -4 L16 2 V0 z"/>
 </svg>
