@@ -314,7 +314,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   else if (collide.includes(getBlock(-15,0))) {
     x=Math.ceil((x-5)/40)*40;
     if ((aD||dD)&&Math.abs(xv*100)>1) {
-      if (wD&&getBlock(0,0)!="w"&&!onALadder&&!reverseGrav) {
+      if (wD&&getBlock(0,0)!="w"&&!onALadder&&!reverseGrav&&getBlock(0,-16)!="v") {
         yv=10;
         xv*=-1;
       } else if (sD&&getBlock(0,0)!="w"&&!onALadder&&reverseGrav) {
@@ -331,7 +331,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   else if (collide.includes(getBlock(14,0))) {
     x=Math.floor((x-5)/40)*40+10;
     if ((aD||dD)&&Math.abs(xv*100)>1) {
-      if (wD&&getBlock(0,0)!="w"&&!onALadder&&!reverseGrav) {
+      if (wD&&getBlock(0,0)!="w"&&!onALadder&&!reverseGrav&&getBlock(0,-16)!="v") {
         yv=10;
         xv*=-1;
       }
@@ -499,16 +499,18 @@ document.querySelector("#joystick").onclick=function(){
   var joy=function(e) {
     var xDiff=e.changedTouches[0].clientX-130,yDiff=e.changedTouches[0].clientY-document.querySelector("#joistik img").getBoundingClientRect().top-100;
     wDown=false;aDown=false;dDown=false;sDown=false;
-    if (xDiff>50) dDown=true;
-    else if (xDiff<-50) aDown=true;
+    if (xDiff>0) dDown=true;
+    else if (xDiff<0) aDown=true;
     if (yDiff<-50) wDown=true;
     else if (yDiff>50) sDown=true;
+    document.querySelector("#move").style.transform="perspective(100px) rotateY("+(aDown?-5:(dDown?5:0))+"deg) rotateX("+(sDown?-5:(wDown?5:0))+"deg)";
     e.preventDefault();
   }
   document.querySelector("#move").ontouchstart=joy;
   document.querySelector("#move").ontouchmove=joy;
   document.querySelector("#move").ontouchend=function(e) {
     wDown=false;aDown=false;dDown=false;sDown=false;
+    document.querySelector("#move").style.transform="none";
     e.preventDefault();
   }
   document.querySelector("#brake").ontouchstart=function(e) {

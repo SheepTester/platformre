@@ -13,7 +13,7 @@ p {
   position: fixed;
   z-index: 100;
 }
-#stage, #cover, #player {
+#stage, #cover, #player, #cursor {
   height: 360px;
   width: 480px;
   position: fixed;
@@ -22,6 +22,8 @@ p {
   bottom: 0;
   left: 0;
   right: 0;
+}
+#stage {
   background: #CEECFF;
 }
 .block {
@@ -30,11 +32,15 @@ p {
 }
 #cover {
   box-shadow: 0 0 0 99999px black;
-  background: none;
+  cursor: none;
 }
 #player {
   background: #673AB7;
   height: 32px;
+  width: 16px;
+}
+#cursor {
+  height: 16px;
   width: 16px;
 }
 .grass {background: #866247;background-image: url(grass.svg);}
@@ -61,36 +67,44 @@ p {
     </style>
   </head>
   <body>
-    <p>Platformer script based off the <a href="https://sheeptester.github.io/platformre/randomlevelgen.html">Platformre</a>. <a href="editingworld.html">Next</a></p>
+    <p>Mining script based off <a href="https://scratch.mit.edu/projects/112971638/">Penland</a>. <a href="">Next</a></p>
     <div id="stage"></div>
+    <img id="cursor" src="cursor.svg"/>
     <div id="player"></div>
     <div id="cover"></div>
 
     <script src="../../sheep.js"></script>
     <script>
-var level,loop,mX=0,mY=0,lW=300,lH=200,sX=lW*8-240,sY=30*16,pausd=false,wD=false,aD=false,dD=false,sD=false,spD=false,xv=0,yv=0,x=134,y=1000,blockData={
-  air:{trnsp:true,},
-  grass:{trnsp:false,},
-  dirt:{trnsp:false,},
-  stone:{trnsp:false,},
-  reinforceddiamond:{trnsp:false,},
-  tallgrass:{trnsp:true,},
-  oaktrunk:{trnsp:false,},
-  oaktreaves:{trnsp:false,},
-  oakleaves:{trnsp:false,},
-  pinetrunk:{trnsp:false,},
-  pinetreaves:{trnsp:false,},
-  pineleaves:{trnsp:false,},
-  sand:{trnsp:false,},
-  water:{trnsp:false,},
-  gravel:{trnsp:false,},
-  rose:{trnsp:true,},
-  goldenrod:{trnsp:true,},
-  myosotis:{trnsp:true,},
-  feore:{trnsp:false,},
-  auore:{trnsp:false,},
-  cuore:{trnsp:false,},
-  poore:{trnsp:false,},
+var level,loop,
+mX=0,mY=0, // cursor pos
+lW=300,lH=200, // level size
+sX=lW*8-240,sY=lH*8-240, // scroll
+pausd=false,mineInfo=[],
+wD=false,aD=false,dD=false,sD=false,spD=false,qD=false,eD=false,
+xv=0,yv=0,x=sX,y=sY,
+blockData={ // trnsp=transparent mineTime=time it takes to mine in seconds w/o tools liquid grainy=affected by gravity
+  air:{trnsp:true,mineTime:-1},
+  grass:{mineTime:0.5,grainy:true},
+  dirt:{mineTime:0.5,grainy:true},
+  stone:{mineTime:3},
+  reinforceddiamond:{mineTime:-1},
+  tallgrass:{trnsp:true,mineTime:0.1},
+  oaktrunk:{mineTime:1},
+  oaktreaves:{mineTime:0.5},
+  oakleaves:{mineTime:0.5},
+  pinetrunk:{mineTime:1},
+  pinetreaves:{mineTime:0.5},
+  pineleaves:{mineTime:0.5},
+  sand:{mineTime:0.5,grainy:true},
+  water:{mineTime:5,liquid:true},
+  gravel:{mineTime:0.5,grainy:true},
+  rose:{trnsp:true,mineTime:0.1},
+  goldenrod:{trnsp:true,mineTime:0.1},
+  myosotis:{trnsp:true,mineTime:0.1},
+  feore:{mineTime:3},
+  auore:{mineTime:3},
+  cuore:{mineTime:3},
+  poore:{mineTime:3},
 };
 document.body.onkeydown=function(e){
   switch (e.keyCode) {
@@ -99,9 +113,12 @@ document.body.onkeydown=function(e){
     case 83:sD=true;break;
     case 68:dD=true;break;
     case 32:spD=true;break;
+    case 81:qD=true;break;
+    case 69:eD=true;break;
     case 80:
       if (pausd) loop=setInterval(mainloop,33);
       else clearInterval(loop);
+      document.querySelector("#cover").style.cursor=pausd?"none":"auto";
       pausd=!pausd;
       break;
   }
@@ -113,6 +130,8 @@ document.body.onkeyup=function(e){
     case 83:sD=false;break;
     case 68:dD=false;break;
     case 32:spD=false;break;
+    case 81:qD=false;break;
+    case 69:eD=false;break;
   }
 };
 function init() {
@@ -129,7 +148,7 @@ function init() {
     for (var j=0;j<lW;j++) {
       if (i==0) level[i][j]="reinforceddiamond";
       else if (i<=heights[j]-Math.floor(Math.random()*7)-2) {
-        if (Math.floor(Math.random()*10)==0) level[i][j]=["fe","au","cu","po"][Math.floor(Math.random()*4)]+"ore";
+        if (Math.floor(Math.random()*100)==0) level[i][j]="make"+["fe","au","cu","po"][Math.floor(Math.random()*4)]+"ore";
         else level[i][j]="stone";
       }
       else if (i<=heights[j]) {
@@ -142,6 +161,13 @@ function init() {
         else if (Math.floor(Math.random()*9)<8) level[i][j]=["rose","goldenrod","myosotis"][Math.floor(Math.random()*3)];
       }
       else if (40>=heights[j]&&i<=40) level[i][j]="water";
+    }
+  }
+  function ore(size,whereX,whereY,wat) {
+    level[whereY][whereX]=wat;
+    for (var k=0;k<size;k++) {
+      if (level[whereY+k][whereX]=="stone") level[whereY+k][whereX]=wat;
+      for (var l=-Math.floor(Math.random()*size);l<Math.floor(Math.random()*size);l++) {if (level[whereY+k][whereX+l]=="stone") level[whereY+k][whereX+l]=wat;}
     }
   }
   for (var i=0;i<lH;i++) {
@@ -171,6 +197,18 @@ function init() {
           }
           level[i+hite][j]="pineleaves";
           break;
+        case "makefeore":
+          ore(6,j,i,level[i][j].slice(4));
+          break;
+        case "makeauore":
+          ore(3,j,i,level[i][j].slice(4));
+          break;
+        case "makecuore":
+          ore(5,j,i,level[i][j].slice(4));
+          break;
+        case "makepoore":
+          ore(4,j,i,level[i][j].slice(4));
+          break;
       }
     }
   }
@@ -179,7 +217,7 @@ init();
 loop=setInterval(mainloop,33);
 function mainloop() {
   draw();
-  // interact();
+  interact();
   play();
   // inv();
   update();
@@ -231,24 +269,50 @@ function draw() {
 }
 function update() {
   var destX=Math.floor(sX/16)+480/16+1,destY=Math.floor(sY/16)+360/16+1;
+  function getBlock(xx,yy) {
+    var block;
+    block=level[yy];
+    if (block===undefined) return blockData["reinforceddiamond"];
+    block=block[xx];
+    if (block===undefined) return blockData["reinforceddiamond"];
+    block=blockData[block];
+    if (block===undefined) return blockData["reinforceddiamond"];
+    else return block;
+  }
   for (var i=Math.floor(sY/16);i<destY;i++) {
     if (i>level.length-1) {break;}
     for (var j=Math.floor(sX/16);j<destX;j++) {
+      if (getBlock(j,i).grainy) {
+        if (level[i][j]=="grass") level[i][j]="dirt";
+        if (getBlock(j,i-1).trnsp) {
+          level[i-1][j]=level[i][j];
+          level[i][j]="air";
+        } else if (getBlock(j,i-1).liquid) {
+          var tempp=level[i-1][j]
+          level[i-1][j]=level[i][j];
+          level[i][j]=tempp;
+        }
+      }
+      if (getBlock(j,i).liquid) {
+        var k=(Math.floor(Math.random()*2)-0.5)*2,tempp=level[i][j];
+        level[i][j]="air";
+        if (getBlock(j,i-1).trnsp) level[i-1][j]=tempp;
+        else if (getBlock(j+1,i-1).trnsp&&getBlock(j+1,i).trnsp) level[i-1][j+1]=tempp;
+        else if (getBlock(j-1,i-1).trnsp&&getBlock(j-1,i)) level[i-1][j-1]=tempp;
+        else if (getBlock(j+k,i).trnsp) level[i][j+k]=tempp;
+        else level[i][j]=tempp;
+      }
+      if (getBlock(j,i).trnsp) {
+        if (getBlock(j,i-1).trnsp) {
+          level[i][j]="air";
+        }
+      }
       switch (level[i][j]) {
         case "dirt":
-          if (blockData[level[i+1][j]].trnsp) level[i][j]="grass";
+          if (getBlock(j,i+1).trnsp) level[i][j]="grass";
           break;
         case "grass":
-          if (!blockData[level[i+1][j]].trnsp) level[i][j]="dirt";
-          break;
-        case "water":
-          var k=(Math.floor(Math.random()*2)-0.5)*2;
-          level[i][j]="air";
-          if (blockData[level[i-1][j]].trnsp) level[i-1][j]="water";
-          else if (blockData[level[i-1][j+1]].trnsp&&blockData[level[i][j+1]].trnsp) level[i-1][j+1]="water";
-          else if (blockData[level[i-1][j-1]].trnsp&&blockData[level[i][j-1]].trnsp) level[i-1][j-1]="water";
-          else if (blockData[level[i][j+k]].trnsp) level[i][j+k]="water";
-          else level[i][j]="water";
+          if (!getBlock(j,i+1).trnsp) level[i][j]="dirt";
           break;
       }
     }
@@ -260,9 +324,13 @@ function foo(xo,yo) { // in px
 function play() {
   x+=xv;y+=yv;
   function collideable(xOff,yOff) { // in px
-    var block=level[Math.floor((y+180+yOff)/16)][Math.floor((x+240+xOff)/16)];
-    if (block=="water") return false;
-    else return !blockData[block].trnsp;
+    var leX=Math.floor((x+240+xOff)/16),leY=Math.floor((y+180+yOff)/16),block=level[leY][leX];
+    if (block===undefined)
+      return true;
+    else {
+      if (block=="water") return false;
+      else return !blockData[block].trnsp;
+    }
   }
   var colLWall=collideable(-8,0)||collideable(-8,-16),
   colRWall=collideable(7,0)||collideable(7,-16),
@@ -296,7 +364,7 @@ function play() {
     }
   } else if (!(collideable(-8,-17)||collideable(7,-17))) yv-=1;
   else { /* MOVING */
-    if (wD) yv=10;
+    if (wD) yv=7;
     if (spD&&(collideable(-8,-17)||collideable(7,-17))) xv=Math.round(xv*300)/1000;
     else if (aD&&!dD&&xv>-10) xv-=1;
     else if (dD&&!aD&&xv<10) xv+=1;
@@ -306,7 +374,7 @@ function play() {
       x=Math.round(x*1000)/1000;
     }
   }
-  if (collidingWithWall?collideable(0,8):collideable(7,8)||collideable(-8,8)) {
+  if (collidingWithWall?collideable(0,16):collideable(7,16)||collideable(-8,16)) {
     if (!water) yv=-1;
     y=Math.floor((y-12)/16)*16+12;
   }
@@ -327,6 +395,52 @@ function play() {
   if (y<-172) y=-172;
   if (x>lW*16) x=lW*16;
   if (y>lH*16) y=lH*16;
+}
+function interact() {
+  var selX,selY,styX,styY;
+  if (sX>lW*16-480) {
+    styX=Math.round((mX+(lW*16-480)%16-8)/16)*16-(lW*16-480)%16+8;
+    selX=Math.floor((lW*16-240+mX)/16);
+  } else if (sX<0) {
+    styX=Math.round((mX-8)/16)*16+8;
+    selX=Math.floor((240+mX)/16);
+  } else {
+    styX=Math.round((mX+sX%16-8)/16)*16-sX%16+8;
+    selX=Math.floor((sX+240+mX)/16);
+  }
+  if (sY>lH*16-360) {
+    styY=Math.round((mY+(lH*16-360)%16-4)/16)*16-(lH*16-360)%16+8;
+    selY=Math.floor((lH*16-180+mY)/16);
+  } else if (sY<0) {
+    styY=Math.round((mY-4)/16)*16+4;
+    selY=Math.floor((180+mY)/16);
+  } else {
+    styY=Math.round((mY+sY%16-4)/16)*16-sY%16+4;
+    selY=Math.floor((sY+180+mY)/16);
+  }
+  if (eD&&blockData[level[selY][selX]].trnsp) {
+    level[selY][selX]="gravel";
+  }
+  if (qD) {
+    if (mineInfo.length>0) {
+      if (level[selY][selX]!=mineInfo[0]) mineInfo=[];
+      else if (Date.now()>=mineInfo[1]+mineInfo[2]) {
+        if (mineInfo[0].slice(-7)=="treaves") level[selY][selX]=mineInfo[0].slice(0,-7)+"trunk";
+        else level[selY][selX]="air";
+        mineInfo=[];
+      }
+      else document.querySelector("#cursor").style.background="rgba(0, 0, 0,"+((Date.now()-mineInfo[2])/mineInfo[1])+")";
+    } else {
+      var time=blockData[level[selY][selX]].mineTime;
+      if (time!=-1) mineInfo=[level[selY][selX],time*1000,Date.now()];
+    }
+  }
+  else if (mineInfo.length>0) mineInfo=[];
+  else if (document.querySelector("#cursor").style.background!="none") document.querySelector("#cursor").style.background="none";
+  document.querySelector("#cursor").style.left=styX+"px";
+  document.querySelector("#cursor").style.right=-styX+"px";
+  document.querySelector("#cursor").style.bottom=styY+"px";
+  document.querySelector("#cursor").style.top=-styY+"px";
 }
 document.onmousemove=function(e){
   mX=e.clientX-window.innerWidth/2;
