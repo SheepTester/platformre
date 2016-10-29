@@ -13,7 +13,7 @@ p {
   position: fixed;
   z-index: 100;
 }
-#stage, #cover, #player, #cursor {
+#stage, #cover, #player, #cursor, #inv {
   height: 360px;
   width: 480px;
   position: fixed;
@@ -43,6 +43,34 @@ p {
   height: 16px;
   width: 16px;
 }
+#inv ul {
+  margin: 0;
+  padding: 0;
+}
+#inv .invSlot {
+  background: rgba(255,255,255,0.3);
+  display: block;
+  height: 40px;
+  width: 40px;
+  border-radius: 20px;
+  float: left;
+  margin: 2.5px;
+  -webkit-text-fill-color: white;
+  -webkit-text-stroke-width: 0.5px;
+  -webkit-text-stroke-color: black;
+  text-align: center;
+  font-size: 13px;
+}
+#inv .invSlot:hover {
+  background: rgba(255,255,255,0.8);
+}
+#inv .block {
+  width: 16px;
+  top: 4px;
+  transform: scale(1.5);
+  left: 12px;
+  position: relative;
+}
 .grass {background: #866247;background-image: url(grass.svg);}
 .dirt {background: #866247;}
 .stone {background: #919596;}
@@ -64,6 +92,7 @@ p {
 .auore {background: #D2A70B;background-image: url(ore.svg);}
 .cuore {background: #558674;background-image: url(ore.svg);}
 .poore {background: #AC584B;background-image: url(ore.svg);}
+.assembler {background-image: url(items/assembler.svg);}
     </style>
   </head>
   <body>
@@ -72,6 +101,7 @@ p {
     <img id="cursor" src="cursor.svg"/>
     <div id="player"></div>
     <div id="cover"></div>
+    <div id="inv"></div>
 
     <script src="../../sheep.js"></script>
     <script>
@@ -82,30 +112,52 @@ sX=lW*8-240,sY=lH*8-240, // scroll
 pausd=false,mineInfo=[],
 wD=false,aD=false,dD=false,sD=false,spD=false,qD=false,eD=false,
 xv=0,yv=0,x=sX,y=sY,
-blockData={ // trnsp=transparent mineTime=time it takes to mine in seconds w/o tools liquid grainy=affected by gravity
-  air:{trnsp:true,mineTime:-1},
-  grass:{mineTime:0.5,grainy:true},
-  dirt:{mineTime:0.5,grainy:true},
-  stone:{mineTime:3},
-  reinforceddiamond:{mineTime:-1},
-  tallgrass:{trnsp:true,mineTime:0.1},
-  oaktrunk:{mineTime:1},
-  oaktreaves:{mineTime:0.5},
-  oakleaves:{mineTime:0.5},
-  pinetrunk:{mineTime:1},
-  pinetreaves:{mineTime:0.5},
-  pineleaves:{mineTime:0.5},
-  sand:{mineTime:0.5,grainy:true},
-  water:{mineTime:5,liquid:true},
-  gravel:{mineTime:0.5,grainy:true},
-  rose:{trnsp:true,mineTime:0.1},
-  goldenrod:{trnsp:true,mineTime:0.1},
-  myosotis:{trnsp:true,mineTime:0.1},
-  feore:{mineTime:3},
-  auore:{mineTime:3},
-  cuore:{mineTime:3},
-  poore:{mineTime:3},
-};
+blockData={ // trnsp=transparent, mineTime=time it takes to mine in seconds w/o tools, liquid, grainy=affected by gravity, drops=items added to inventory when mined, furn=furniture
+  air:{trnsp:1,mineTime:-1,drops:{}},
+  grass:{mineTime:0.5,grainy:1,drops:{dirt:1,grass:1}},
+  dirt:{mineTime:0.5,grainy:1,drops:{dirt:1}},
+  stone:{mineTime:3,drops:{rock:4}},
+  reinforceddiamond:{mineTime:-1,drops:{}},
+  tallgrass:{trnsp:1,mineTime:0.1,groundCover:1,drops:{grass:"1-3"}},
+  oaktrunk:{mineTime:1,drops:{wood:"1-4"}},
+  oaktreaves:{mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oakmake:"0-1"}},
+  oakleaves:{mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oakmake:"0-1"}},
+  pinetrunk:{mineTime:1,drops:{wood:"1-4"}},
+  pinetreaves:{mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinemake:"0-1"}},
+  pineleaves:{mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinemake:"0-1"}},
+  sand:{mineTime:0.5,grainy:1,drops:{sand:1}},
+  water:{mineTime:5,liquid:1,drops:{}},
+  gravel:{mineTime:0.5,grainy:1,drops:{rock:1}},
+  rose:{trnsp:1,mineTime:0.1,groundCover:1,drops:{rose:1}},
+  goldenrod:{trnsp:1,mineTime:0.1,groundCover:1,drops:{goldenrod:1}},
+  myosotis:{trnsp:1,mineTime:0.1,groundCover:1,drops:{myosotis:1}},
+  feore:{mineTime:3,drops:{rock:4,feore:"1-3"}},
+  auore:{mineTime:3,drops:{rock:4,auore:"1-3"}},
+  cuore:{mineTime:3,drops:{rock:4,cuore:"1-3"}},
+  poore:{mineTime:3,drops:{rock:4,poore:"1-3"}},
+  assembler:{mineTime:1,drops:{assembler:1},trnsp:1,groundCover:1,furn:1},
+},itemData={ // texture=url of svg texture, ingrid=crafting recipe
+  dirt:{texture:"items/dirt.svg"},
+  grass:{texture:"items/grass.svg"},
+  rock:{texture:"items/rock.svg"},
+  wood:{texture:"items/wood.svg"},
+  stick:{texture:"items/stick.svg"},
+  leaf:{texture:"items/leaf.svg"},
+  pineneedle:{texture:"items/needle.svg"},
+  oakmake:{texture:"items/oaksap.svg"},
+  pinemake:{texture:"items/pinesap.svg"},
+  feore:{texture:"items/feore.svg"},
+  auore:{texture:"items/auore.svg"},
+  cuore:{texture:"items/cuore.svg"},
+  poore:{texture:"items/poore.svg"},
+  sand:{texture:"items/sand.svg"},
+  rose:{texture:"rose.svg"},
+  goldenrod:{texture:"goldenrod.svg"},
+  myosotis:{texture:"myosotis.svg"},
+  myosotis:{texture:"myosotis.svg"},
+  assembler:{texture:"items/assembler.svg",ingrid:{wood:3}},
+},
+inv={},invMode=false;
 document.body.onkeydown=function(e){
   switch (e.keyCode) {
     case 87:wD=true;break;
@@ -118,8 +170,18 @@ document.body.onkeydown=function(e){
     case 80:
       if (pausd) loop=setInterval(mainloop,33);
       else clearInterval(loop);
-      document.querySelector("#cover").style.cursor=pausd?"none":"auto";
+      document.querySelector("#cover").style.cursor=pausd&&!invMode?"none":"auto";
       pausd=!pausd;
+      break;
+    case 51:
+      document.querySelector("#cover").style.cursor=invMode?"none":"auto";
+      document.querySelector("#inv").style.display=invMode?"none":"block";
+      if (invMode) invMode=false;
+      else {
+        heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe();
+        invMode="inv";
+      }
+      document.querySelector("#cursor").style.display=invMode?"none":"block";
       break;
   }
 };
@@ -216,11 +278,13 @@ function init() {
 init();
 loop=setInterval(mainloop,33);
 function mainloop() {
-  draw();
-  interact();
-  play();
-  // inv();
-  update();
+  if (invMode) inventory();
+  else {
+    draw();
+    interact();
+    play();
+    update();
+  }
 }
 function draw() {
   sX+=Math.round((x-sX)*20)/100;
@@ -302,8 +366,9 @@ function update() {
         else if (getBlock(j+k,i).trnsp) level[i][j+k]=tempp;
         else level[i][j]=tempp;
       }
-      if (getBlock(j,i).trnsp) {
+      if (getBlock(j,i).groundCover) {
         if (getBlock(j,i-1).trnsp) {
+          addToInv(level[i][j]);
           level[i][j]="air";
         }
       }
@@ -414,6 +479,19 @@ function play() {
   if (x>lW*16-240) x=lW*16-240;
   if (y>lH*16-180) y=lH*16-180;
 }
+function addToInv(blockName) {
+  var items=blockData[blockName].drops;
+  for (var item in items) {
+    var count=items[item];
+    if (typeof count=="string") {
+      var min=Number(count.slice(0,count.indexOf("-"))),max=Number(count.slice(count.indexOf("-")+1));
+      count=Math.floor(Math.random()*(max-min+1))+min;
+      if (count===0) break;
+    }
+    if (!inv.hasOwnProperty(item)) inv[item]=0;
+    inv[item]+=count;
+  }
+}
 function interact() {
   var selX,selY,styX,styY;
   if (sX>lW*16-480) {
@@ -440,6 +518,7 @@ function interact() {
     if (qD) {
       if (selX!=mineInfo[3]||selY!=mineInfo[4]) mineInfo=[];
       else if (Date.now()>=mineInfo[1]+mineInfo[2]) {
+        addToInv(level[mineInfo[4]][mineInfo[3]]);
         if (mineInfo[0].slice(-7)=="treaves") level[mineInfo[4]][mineInfo[3]]=mineInfo[0].slice(0,-7)+"trunk";
         else level[mineInfo[4]][mineInfo[3]]="air";
         mineInfo=[];
@@ -448,7 +527,8 @@ function interact() {
     }
     else mineInfo=[];
   } else {
-    if (eD&&blockData[level[selY][selX]].trnsp) {
+    if (eD&&blockData[level[selY][selX]].trnsp&&!blockData[level[selY][selX]].furn) {
+      if (level[selY][selX]!="air") addToInv(level[selY][selX]);
       level[selY][selX]="pineleaves";
     }
     if (qD) {
@@ -461,6 +541,28 @@ function interact() {
   document.querySelector("#cursor").style.right=-styX+"px";
   document.querySelector("#cursor").style.bottom=styY+"px";
   document.querySelector("#cursor").style.top=-styY+"px";
+}
+function heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe() {
+  var items=[];
+  for (var item in inv) items.push(item);
+  var leShtoof='<ul>';
+  for (var i=0;i<8;i++) {
+    for (var j=0;j<5;j++) {
+      var n="",b="";
+      if (i*5+j<items.length) {
+        n=inv[items[i*5+j]];
+        b="background-image:url('"+itemData[items[i*5+j]].texture+"');";
+      }
+      leShtoof+='<li style="'+(j===0?"clear:both;":"")+b+'" class="invSlot">'+n+'</li>';
+    }
+  }
+  leShtoof+="</ul>"
+  document.querySelector("#inv").innerHTML=leShtoof;
+}
+function inventory() {
+  if (invMode=="inv") {
+    //
+  }
 }
 document.onmousemove=function(e){
   mX=e.clientX-window.innerWidth/2;
