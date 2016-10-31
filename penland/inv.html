@@ -48,21 +48,26 @@ p {
   padding: 0;
 }
 #inv .invSlot {
-  background: rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.1);
   display: block;
   height: 40px;
   width: 40px;
   border-radius: 20px;
   float: left;
   margin: 2.5px;
+}
+#inv .invSlot, .hand, .handd {
   -webkit-text-fill-color: white;
   -webkit-text-stroke-width: 0.5px;
   -webkit-text-stroke-color: black;
   text-align: center;
   font-size: 13px;
+  background-size: 40px;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 #inv .invSlot:hover {
-  background: rgba(255,255,255,0.8);
+  background: rgba(0,0,0,0.3);
 }
 #inv .block {
   width: 16px;
@@ -71,6 +76,68 @@ p {
   left: 12px;
   position: relative;
 }
+#inv #info {
+  background: rgba(0,0,0,0.1);
+  right: 0;
+  height: 290px;
+  width: 220px;
+  margin: 10px;
+  border-radius: 5px;
+  position: absolute;
+}
+#inv #info #tabs {
+  display:-webkit-flex;
+  -webkit-justify-content:center;
+  display:flex;
+  justify-content:center;
+}
+#inv #info:hover {
+  background: rgba(0,0,0,0.3);
+}
+#inv #info #tabs li {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  height: 40px;
+  -webkit-flex:1;
+  flex: 1;
+  background-size: 40px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+#inv #info #tabs li:hover, #inv #info #tabs .active {
+  background: rgba(255,255,255,0.5);
+  background-size: 40px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+#inv #info #tabs #inf {background-image: url(materialicon_info_outline.svg);border-top-left-radius: 5px;}
+#inv #info #tabs #craft {background-image: url(materialicon_build.svg);}
+#inv #info #tabs #clothes {background-image: url(shirt.svg);}
+#inv #info #tabs #menu {background-image: url(materialicon_view_list.svg);border-top-right-radius: 5px;}
+#inv #info #content {
+  background: rgba(0,0,0,0.1);
+  background-size: 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+#inv #info #content h1 {margin: 0;}
+#inv #info #content img {width: 100%;}
+.hand, .handd {
+  background-color: rgba(0,0,0,0.1);
+  bottom: 0;
+  height: 40px;
+  width: 40px;
+  margin: 10px;
+  border-radius: 5px;
+  position: absolute;
+}
+.hand {
+  width: 105px;
+}
+/*#inv .hand:hover {background-color: rgba(0,0,0,0.3);}*/
+#uno {right: 45px;}
+#one {right: 115px;}
+#two {right: 0;}
 .grass {background: #866247;background-image: url(grass.svg);}
 .dirt {background: #866247;}
 .stone {background: #919596;}
@@ -101,7 +168,7 @@ p {
     <img id="cursor" src="cursor.svg"/>
     <div id="player"></div>
     <div id="cover"></div>
-    <div id="inv"></div>
+    <div id="inv"><div class='handd' id='uno'></div><div class='handd' id='two'></div></div>
 
     <script src="../../sheep.js"></script>
     <script>
@@ -118,7 +185,7 @@ blockData={ // trnsp=transparent, mineTime=time it takes to mine in seconds w/o 
   dirt:{mineTime:0.5,grainy:1,drops:{dirt:1}},
   stone:{mineTime:3,drops:{rock:4}},
   reinforceddiamond:{mineTime:-1,drops:{}},
-  tallgrass:{trnsp:1,mineTime:0.1,groundCover:1,drops:{grass:"1-3"}},
+  tallgrass:{trnsp:1,mineTime:0.1,groundCover:1,drops:{grass:"1-2"}},
   oaktrunk:{mineTime:1,drops:{wood:"1-4"}},
   oaktreaves:{mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oakmake:"0-1"}},
   oakleaves:{mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oakmake:"0-1"}},
@@ -136,28 +203,28 @@ blockData={ // trnsp=transparent, mineTime=time it takes to mine in seconds w/o 
   cuore:{mineTime:3,drops:{rock:4,cuore:"1-3"}},
   poore:{mineTime:3,drops:{rock:4,poore:"1-3"}},
   assembler:{mineTime:1,drops:{assembler:1},trnsp:1,groundCover:1,furn:1},
-},itemData={ // texture=url of svg texture, ingrid=crafting recipe
-  dirt:{texture:"items/dirt.svg"},
-  grass:{texture:"items/grass.svg"},
-  rock:{texture:"items/rock.svg"},
-  wood:{texture:"items/wood.svg"},
-  stick:{texture:"items/stick.svg"},
-  leaf:{texture:"items/leaf.svg"},
-  pineneedle:{texture:"items/needle.svg"},
-  oakmake:{texture:"items/oaksap.svg"},
-  pinemake:{texture:"items/pinesap.svg"},
-  feore:{texture:"items/feore.svg"},
-  auore:{texture:"items/auore.svg"},
-  cuore:{texture:"items/cuore.svg"},
-  poore:{texture:"items/poore.svg"},
-  sand:{texture:"items/sand.svg"},
-  rose:{texture:"rose.svg"},
-  goldenrod:{texture:"goldenrod.svg"},
-  myosotis:{texture:"myosotis.svg"},
-  myosotis:{texture:"myosotis.svg"},
-  assembler:{texture:"items/assembler.svg",ingrid:{wood:3}},
+},itemData={ // texture=url of svg texture, ingrid=crafting recipe, desc=description in inventory, place=name of block to place
+  dirt:{texture:"items/dirt.svg",desc:"Useless inflammable brown stuff.",place:"dirt"},
+  grass:{texture:"items/grass.svg",desc:"Icky green stuff.",place:"tallgrass"},
+  rock:{texture:"items/rock.svg",desc:"More abundant grey dirt.",place:"gravel"},
+  wood:{texture:"items/wood.svg",desc:"Tree bones."},
+  stick:{texture:"items/stick.svg",desc:"Thinner tree bones."},
+  leaf:{texture:"items/leaf.svg",desc:"Tree hair."},
+  pineneedle:{texture:"items/needle.svg",desc:"Thinner tree hair."},
+  oakmake:{texture:"items/oaksap.svg",desc:"Makes 1 oak tree."},
+  pinemake:{texture:"items/pinesap.svg",desc:"Makes 1 pine tree."},
+  feore:{texture:"items/feore.svg",desc:"Iron and stone contaminants."},
+  auore:{texture:"items/auore.svg",desc:"Gold and stone contaminants."},
+  cuore:{texture:"items/cuore.svg",desc:"Copper and stone contaminants."},
+  poore:{texture:"items/poore.svg",desc:"Some red contaminant in the stone."},
+  sand:{texture:"items/sand.svg",desc:"Not ideal for making castles.",place:"sand"},
+  rose:{texture:"rose.svg",desc:"Red semicircles.",place:"rose"},
+  goldenrod:{texture:"goldenrod.svg",desc:"Yellow isosceles triangles.",place:"goldenrod"},
+  myosotis:{texture:"myosotis.svg",desc:"Blue pentagons. Also known as a forget-me-not.",place:"myosotis"},
+  assembler:{texture:"items/assembler.svg",ingrid:{wood:3},desc:"Making things on a table like a civilized person should do.",place:"assembler"},
 },
-inv={},invMode=false;
+inv={},invMode=false,invPage="inf",
+hand1="",hand2="",lel;
 document.body.onkeydown=function(e){
   switch (e.keyCode) {
     case 87:wD=true;break;
@@ -165,8 +232,8 @@ document.body.onkeydown=function(e){
     case 83:sD=true;break;
     case 68:dD=true;break;
     case 32:spD=true;break;
-    case 81:qD=true;break;
-    case 69:eD=true;break;
+    case 81:qD=true;if(!invMode)document.querySelector("#uno").style.transform="perspective(100px) rotateX(10deg)";break;
+    case 69:eD=true;if(!invMode)document.querySelector("#two").style.transform="perspective(100px) rotateX(10deg)";break;
     case 80:
       if (pausd) loop=setInterval(mainloop,33);
       else clearInterval(loop);
@@ -175,9 +242,12 @@ document.body.onkeydown=function(e){
       break;
     case 51:
       document.querySelector("#cover").style.cursor=invMode?"none":"auto";
-      document.querySelector("#inv").style.display=invMode?"none":"block";
-      if (invMode) invMode=false;
-      else {
+      if (invMode) {
+        invMode=false;
+        document.querySelector("#inv").removeChild(document.querySelector("#slotes"));
+        document.querySelector("#inv").removeChild(document.querySelector("#info"));
+        document.querySelector("#inv").innerHTML=document.querySelector("#inv").innerHTML.replace(/class="hand"/g,"class='handd'").replace("one","uno");
+      } else {
         heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe();
         invMode="inv";
       }
@@ -192,8 +262,8 @@ document.body.onkeyup=function(e){
     case 83:sD=false;break;
     case 68:dD=false;break;
     case 32:spD=false;break;
-    case 81:qD=false;break;
-    case 69:eD=false;break;
+    case 81:qD=false;if(!invMode)document.querySelector("#uno").style.transform="none";break;
+    case 69:eD=false;if(!invMode)document.querySelector("#two").style.transform="none";break;
   }
 };
 function init() {
@@ -490,7 +560,10 @@ function addToInv(blockName) {
     }
     if (!inv.hasOwnProperty(item)) inv[item]=0;
     inv[item]+=count;
+    if (!hand1&&hand2!=item) hand1=item;
+    else if (!hand2&&hand1!=item) hand2=item;
   }
+  if (items.hasOwnProperty(hand1)||items.hasOwnProperty(hand2)) renderHands();
 }
 function interact() {
   var selX,selY,styX,styY;
@@ -515,7 +588,7 @@ function interact() {
     selY=Math.floor((sY+180+mY)/16);
   }
   if (mineInfo.length>0) {
-    if (qD) {
+    if (qD||eD) {
       if (selX!=mineInfo[3]||selY!=mineInfo[4]) mineInfo=[];
       else if (Date.now()>=mineInfo[1]+mineInfo[2]) {
         addToInv(level[mineInfo[4]][mineInfo[3]]);
@@ -527,11 +600,22 @@ function interact() {
     }
     else mineInfo=[];
   } else {
-    if (eD&&blockData[level[selY][selX]].trnsp&&!blockData[level[selY][selX]].furn) {
-      if (level[selY][selX]!="air") addToInv(level[selY][selX]);
-      level[selY][selX]="pineleaves";
-    }
-    if (qD) {
+    var item;
+    if (qD) item=hand1;
+    else if (eD) item=hand2;
+    if (item&&itemData[item].place) {
+      if (blockData[level[selY][selX]].trnsp&&!blockData[level[selY][selX]].furn) {
+        if (level[selY][selX]!="air") addToInv(level[selY][selX]);
+        level[selY][selX]=itemData[item].place;
+        inv[item]--;
+        if (!inv[item]) {
+          delete inv[item];
+          if (item==hand1) hand1='';
+          else hand2='';
+        }
+        renderHands();
+      }
+    } else if (qD||eD) {
       var time=blockData[level[selY][selX]].mineTime;
       if (time!=-1) mineInfo=[level[selY][selX],time*1000,Date.now(),selX,selY];
     }
@@ -545,7 +629,7 @@ function interact() {
 function heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe() {
   var items=[];
   for (var item in inv) items.push(item);
-  var leShtoof='<ul>';
+  var leShtoof='<ul id="slotes">';
   for (var i=0;i<8;i++) {
     for (var j=0;j<5;j++) {
       var n="",b="";
@@ -556,12 +640,94 @@ function heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe() {
       leShtoof+='<li style="'+(j===0?"clear:both;":"")+b+'" class="invSlot">'+n+'</li>';
     }
   }
-  leShtoof+="</ul>"
+  leShtoof+="</ul><div id='info'><ul id='tabs'><li id='inf'></li><li id='craft'></li><li id='clothes'></li><li id='menu'></li></ul><div id='content'></div></div><div class='hand' id='one'></div><div class='hand' id='two'></div>";
   document.querySelector("#inv").innerHTML=leShtoof;
+  document.querySelector("#"+invPage).className="active";
+  if (hand1) {
+    document.querySelector("#one").style.backgroundImage="url("+itemData[hand1].texture+")";
+    document.querySelector("#one").innerHTML=inv[hand1];
+  }
+  if (hand2) {
+    document.querySelector("#two").style.backgroundImage="url("+itemData[hand2].texture+")";
+    document.querySelector("#two").innerHTML=inv[hand2];
+  }
+  var lol=function(e){
+    var temp;
+    if (e.keyCode==81) {
+      hand1=lel;
+      temp=document.querySelector('#one');
+    } else if (e.keyCode==69) {
+      hand2=lel;
+      temp=document.querySelector('#two');
+    } else if (e.keyCode==51) {
+      document.body.removeEventListener("keydown",lol);;
+    }
+    if (temp!==undefined) {
+      if (lel==='') {
+        temp.style.backgroundImage="none";
+        temp.innerHTML='';
+      } else {
+        temp.style.backgroundImage="url("+itemData[lel].texture+")";
+        temp.innerHTML=inv[lel];
+      }
+    }
+  }
+  document.querySelector("#slotes").onmouseover=function(e){
+    if (e.target.tagName=="LI") {
+      var back=e.target.style.backgroundImage,name='',inner='';
+      if (back!=='') {
+        back=back.slice(back.indexOf('"')+1,back.lastIndexOf('"'));
+        for (name in itemData) {
+          if (itemData[name].texture==back) break;
+        }
+      }
+      lel=name;
+      document.body.addEventListener("keydown",lol);
+      if (e.target.innerHTML&&invPage=="inf") {
+        inner+="<h1>"+name+"</h1><br>"+itemData[name].desc;
+        document.querySelector('#content').style.backgroundImage="url("+back+")";
+        document.querySelector('#content').innerHTML=inner;
+      }
+    }
+  };
+  document.querySelector("#slotes").onmouseout=function(e){
+    if (document.querySelector('#content').innerHTML&&invPage=="inf") {
+      document.querySelector('#content').innerHTML="";
+      document.querySelector('#content').style.backgroundImage="none";
+    }
+    document.body.removeEventListener("keydown",lol);
+  };
+  document.querySelector("#tabs").onclick=function(e){
+    if (e.target.tagName=="LI") invPage=e.target.id;
+    document.querySelector(".active").className="";
+    document.querySelector("#"+invPage).className="active";
+    document.querySelector("#content").innerHTML="";
+  };
 }
 function inventory() {
   if (invMode=="inv") {
-    //
+    if (invPage=="craft"&&!document.querySelector("#content").innerHTML) {
+      if (inv.wood>=3) {
+        document.querySelector("#content").innerHTML="<h1>assembler</h1><br>"+itemData.assembler.desc;
+        document.querySelector('#content').style.backgroundImage="url("+itemData.assembler.texture+")";
+      }
+    }
+  }
+}
+function renderHands() {
+  if (hand1) {
+    document.querySelector("#uno").style.backgroundImage="url("+itemData[hand1].texture+")";
+    document.querySelector("#uno").innerHTML=inv[hand1];
+  } else {
+    document.querySelector("#uno").style.backgroundImage="none";
+    document.querySelector("#uno").innerHTML='';
+  }
+  if (hand2) {
+    document.querySelector("#two").style.backgroundImage="url("+itemData[hand2].texture+")";
+    document.querySelector("#two").innerHTML=inv[hand2];
+  } else {
+    document.querySelector("#two").style.backgroundImage="none";
+    document.querySelector("#two").innerHTML='';
   }
 }
 document.onmousemove=function(e){
