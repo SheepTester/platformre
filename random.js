@@ -488,9 +488,11 @@ document.querySelector("#load").onclick=function(){
   levels=[JSON.parse(document.querySelector("textarea").value),[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
   startPlaying();
 }
-document.querySelector("#exampleload").onclick=function(){
-  levels=[exampleLevels[0],[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
-  startPlaying();
+function example(id) {
+  if (id!=-1) {
+    levels=[exampleLevels[id],[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
+    startPlaying();
+  }
 }
 document.querySelector("#joystick").onclick=function(){
   document.body.removeChild(document.querySelector("#joystick"));
