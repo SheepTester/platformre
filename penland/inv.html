@@ -163,7 +163,7 @@ p {
     </style>
   </head>
   <body>
-    <p><a href="#lolnotyet">Next</a></p>
+    <p>WASD to move. Q is left hand, E is right hand. Mouse to select blocks. 3 opens inventories. 2 to interact with objects.<a href="#lolnotyet">Next</a></p>
     <div id="stage"></div>
     <img id="cursor" src="cursor.svg"/>
     <div id="player"></div>
@@ -177,7 +177,7 @@ mX=0,mY=0, // cursor pos
 lW=300,lH=200, // level size
 sX=lW*8-240,sY=lH*8-240, // scroll
 pausd=false,mineInfo=[],
-wD=false,aD=false,dD=false,sD=false,spD=false,qD=false,eD=false,
+wD=false,aD=false,dD=false,sD=false,spD=false,qD=false,eD=false,twoD=false,
 xv=0,yv=0,x=sX,y=sY,
 blockData={ // trnsp=transparent, mineTime=time it takes to mine in seconds w/o tools, liquid, grainy=affected by gravity, drops=items added to inventory when mined, furn=furniture
   air:{trnsp:1,mineTime:-1,drops:{}},
@@ -186,12 +186,12 @@ blockData={ // trnsp=transparent, mineTime=time it takes to mine in seconds w/o 
   stone:{mineTime:3,drops:{rock:4}},
   reinforceddiamond:{mineTime:-1,drops:{}},
   tallgrass:{trnsp:1,mineTime:0.1,groundCover:1,drops:{grass:"1-2"}},
-  oaktrunk:{mineTime:1,drops:{wood:"1-4"}},
-  oaktreaves:{mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oakmake:"0-1"}},
-  oakleaves:{mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oakmake:"0-1"}},
-  pinetrunk:{mineTime:1,drops:{wood:"1-4"}},
-  pinetreaves:{mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinemake:"0-1"}},
-  pineleaves:{mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinemake:"0-1"}},
+  oaktrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"}},
+  oaktreaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oakmake:"0-1"}},
+  oakleaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oakmake:"0-1"}},
+  pinetrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"}},
+  pinetreaves:{grainy:"treaves",mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinemake:"0-1"}},
+  pineleaves:{grainy:"leaves",mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinemake:"0-1"}},
   sand:{mineTime:0.5,grainy:1,drops:{sand:1}},
   water:{mineTime:5,liquid:1,drops:{}},
   gravel:{mineTime:0.5,grainy:1,drops:{rock:1}},
@@ -253,6 +253,7 @@ document.body.onkeydown=function(e){
       }
       document.querySelector("#cursor").style.display=invMode?"none":"block";
       break;
+    case 50:twoD=true;break;
   }
 };
 document.body.onkeyup=function(e){
@@ -264,6 +265,7 @@ document.body.onkeyup=function(e){
     case 32:spD=false;break;
     case 81:qD=false;if(!invMode)document.querySelector("#uno").style.transform="none";break;
     case 69:eD=false;if(!invMode)document.querySelector("#two").style.transform="none";break;
+    case 50:twoD=false;break;
   }
 };
 function init() {
@@ -416,7 +418,13 @@ function update() {
   for (var i=Math.floor(sY/16);i<destY;i++) {
     if (i>level.length-1) {break;}
     for (var j=Math.floor(sX/16);j<destX;j++) {
-      if (getBlock(j,i).grainy) {
+      function nearTreaf(xx,yy) {
+        for (var i=-5;i<=5;i++) {
+          if (getBlock(xx+i,yy).grainy=="treaves") return true;
+        }
+        return false;
+      }
+      if (getBlock(j,i).grainy&&!(getBlock(j,i).grainy=="leaves"&&nearTreaf(j,i))) {
         if (level[i][j]=="grass") level[i][j]="dirt";
         if (getBlock(j,i-1).trnsp) {
           level[i-1][j]=level[i][j];
@@ -464,7 +472,7 @@ function play() {
       return true;
     else {
       if (block=="water") return false;
-      else return !blockData[block].trnsp;
+      else return !(blockData[block].trnsp||blockData[block].grainy=="leaves");
     }
   }
   var colLWall=collideable(-8,0)||collideable(-8,-15),
@@ -560,8 +568,8 @@ function addToInv(blockName) {
     }
     if (!inv.hasOwnProperty(item)) inv[item]=0;
     inv[item]+=count;
-    if (!hand1&&hand2!=item) hand1=item;
-    else if (!hand2&&hand1!=item) hand2=item;
+    if (!hand1&&hand2!=item&&!qD) hand1=item;
+    else if (!hand2&&hand1!=item&&!eD) hand2=item;
   }
   if (items.hasOwnProperty(hand1)||items.hasOwnProperty(hand2)) renderHands();
 }
@@ -703,6 +711,31 @@ function heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe() {
     document.querySelector("#"+invPage).className="active";
     document.querySelector("#content").innerHTML="";
   };
+  document.querySelector("#content").onclick=function(e){
+    if (invPage=="craft") {
+      if (inv.wood>=3) {
+        inv.wood-=3;
+        if (!inv.wood) {
+          delete inv.wood;
+          if ("wood"==hand1) hand1='';
+          else if ("wood"==hand2) hand2='';
+        }
+        if (!inv.hasOwnProperty("assembler")) inv.assembler=1;
+        else inv.assembler++;
+        if (!hand1&&hand2!=item) hand1=item;
+        else if (!hand2&&hand1!=item) hand2=item;
+        heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe();
+      }
+    }
+  };
+  /*
+  inv[item]--;
+  if (!inv[item]) {
+    delete inv[item];
+    if (item==hand1) hand1='';
+    else hand2='';
+  }
+  */
 }
 function inventory() {
   if (invMode=="inv") {
