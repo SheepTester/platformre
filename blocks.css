@@ -43,6 +43,11 @@
 .trans {background:#4DB6AC;background-image:url(icons/materialicon_swap_horiz.svg);background-position:center;background-repeat:no-repeat;}
 .grav {background:#64B5F6;}
 .conf {background:#F57F17;}
+.fade {animation:fade 1s linear infinite alternate;}
+@keyframes fade {
+  from {background:#1B5E20;}
+  to {background:#388E3C;}
+}
 .glitch {background-color:magenta;}
 
 .topOnly:before {

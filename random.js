@@ -23,8 +23,8 @@ function startPlaying() {
   time=Date.now();
 }
 function render(level) {
-  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav","conf"],
-  ids="@#+^=v*w<>CLRB&gsa`ipfe;omtýéóúyu",
+  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav","conf","fade"],
+  ids="@#+^=v*w<>CLRB&gsa`ipfe;omtýéóúyud",
   data="<div id='player'></div>",level;
   if (level===undefined) {
     level=lev;
@@ -99,8 +99,9 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýá".split(''),danger="#éí",power="",powerupdelay=-1,v,time,play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýád".split(''),danger="#éí",power="",powerupdelay=-1,v,time,play=function(){
   x+=xv;y+=yv;
+  updateLevel();
   var nearBys=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)],
   onALadder=nearBys.includes("e"),
   collidingWithWall=collide.includes(getBlock(-15,0))||collide.includes(getBlock(14,0)),
@@ -154,6 +155,11 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
             setBlock(i%3*40-40,Math.floor(i/3)*40-40," ");
             anyChanges=true;
           }
+        }
+        tt=getBlock(0,-80);
+        if (tt!="d"&&x>40){
+          setBlock(0,-80,"d");
+          anyChanges=true;
         }
         if (anyChanges) {
           cpx=x;
@@ -537,6 +543,22 @@ document.querySelector("#joystick").onclick=function(){
     pausd=!pausd;
   }
   document.querySelector("#sheepmenu").style.display="none";
+}
+function updateLevel() {
+  var changes=0;
+  for (var i=1;i<levels[lev].length;i++) {
+    for (var j=0;j<levels[lev][i].length;j++) {
+      changes++;
+      switch (levels[lev][i][j]) {
+        case 'd':
+          if (!Math.floor(Math.random()*60)) levels[lev][i]=levels[lev][i].slice(0,j)+' '+levels[lev][i].slice(j+1);
+          break;
+        default:
+          changes--;
+      }
+    }
+  }
+  if (changes) render();
 }
 startPlaying();
 /* MADE BY SEAN */
