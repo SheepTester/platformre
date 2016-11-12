@@ -23,8 +23,8 @@ function startPlaying() {
   time=Date.now();
 }
 function render(level) {
-  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav","conf","fade"],
-  ids="@#+^=v*w<>CLRB&gsa`ipfe;omtýéóúyud",
+  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav","conf","fade","unes","unet"],
+  ids="@#+^=v*w<>CLRB&gsa`ipfe;omtýéóúyudnq",
   data="<div id='player'></div>",level;
   if (level===undefined) {
     level=lev;
@@ -99,7 +99,7 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýád".split(''),danger="#éí",power="",powerupdelay=-1,v,time,play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýádn".split(''),danger="#éí",power="",powerupdelay=-1,v,time,play=function(){
   x+=xv;y+=yv;
   updateLevel();
   var nearBys=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)],
@@ -546,12 +546,21 @@ document.querySelector("#joystick").onclick=function(){
 }
 function updateLevel() {
   var changes=0;
+  function set(i,j,block) {
+    levels[lev][i]=levels[lev][i].slice(0,j)+block+levels[lev][i].slice(j+1);
+  }
   for (var i=1;i<levels[lev].length;i++) {
     for (var j=0;j<levels[lev][i].length;j++) {
       changes++;
       switch (levels[lev][i][j]) {
         case 'd':
-          if (!Math.floor(Math.random()*60)) levels[lev][i]=levels[lev][i].slice(0,j)+' '+levels[lev][i].slice(j+1);
+          if (!Math.floor(Math.random()*60)) set(i,j,' ');
+          break;
+        case 'n':
+          if (!Math.floor(Math.random()*30)) set(i,j,'q');
+          break;
+        case 'q':
+          if (!Math.floor(Math.random()*30)) set(i,j,'n');
           break;
         default:
           changes--;

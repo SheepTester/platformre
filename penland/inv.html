@@ -76,7 +76,7 @@ p {
   left: 12px;
   position: relative;
 }
-#inv #info {
+#inv #info, #inv #availables {
   background: rgba(0,0,0,0.1);
   right: 0;
   height: 290px;
@@ -91,7 +91,7 @@ p {
   display:flex;
   justify-content:center;
 }
-#inv #info:hover {
+#inv #info:hover, #inv #availables:hover {
   background: rgba(0,0,0,0.3);
 }
 #inv #info #tabs li {
@@ -114,13 +114,13 @@ p {
 #inv #info #tabs #craft {background-image: url(materialicon_build.svg);}
 #inv #info #tabs #clothes {background-image: url(shirt.svg);}
 #inv #info #tabs #menu {background-image: url(materialicon_view_list.svg);border-top-right-radius: 5px;}
-#inv #info #content {
+#inv #info #content, #inv #availables li {
   background: rgba(0,0,0,0.1);
   background-size: 100%;
   background-repeat: no-repeat;
   background-position: center;
 }
-#inv #info #content h1 {margin: 0;}
+#inv #info #content h1, #inv #availables h1 {margin: 0;}
 #inv #info #content img {width: 100%;}
 .hand, .handd {
   background-color: rgba(0,0,0,0.1);
@@ -133,6 +133,15 @@ p {
 }
 .hand {
   width: 105px;
+}
+#inv #availables li {display:block;}
+#inv #availables li:first-child {
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+#inv #availables li:last-child {
+  border-bottom-left-radius: 5px;
+  border-bottom-right-radius: 5px;
 }
 /*#inv .hand:hover {background-color: rgba(0,0,0,0.3);}*/
 #uno {right: 45px;}
@@ -160,6 +169,9 @@ p {
 .cuore {background: #558674;background-image: url(ore.svg);}
 .poore {background: #AC584B;background-image: url(ore.svg);}
 .assembler {background-image: url(items/assembler.svg);}
+.grasspile {background: #1B8505;}
+.grassblock {background: #166C04;}
+.toughgrass {background: #105203;}
     </style>
   </head>
   <body>
@@ -203,6 +215,9 @@ blockData={ // trnsp=transparent, mineTime=time it takes to mine in seconds w/o 
   cuore:{mineTime:3,drops:{rock:4,cuore:"1-3"}},
   poore:{mineTime:3,drops:{rock:4,poore:"1-3"}},
   assembler:{mineTime:1,drops:{assembler:1},trnsp:1,groundCover:1,furn:1},
+  grasspile:{mineTime:0.5,grainy:1,drops:{grasspile:1}},
+  grassblock:{mineTime:1,drops:{grassblock:1}},
+  toughgrass:{mineTime:3,drops:{toughergrassblock:1}},
 },itemData={ // texture=url of svg texture, ingrid=crafting recipe, desc=description in inventory, place=name of block to place
   dirt:{texture:"items/dirt.svg",desc:"Useless inflammable brown stuff.",place:"dirt"},
   grass:{texture:"items/grass.svg",desc:"Icky green stuff.",place:"tallgrass"},
@@ -222,6 +237,9 @@ blockData={ // trnsp=transparent, mineTime=time it takes to mine in seconds w/o 
   goldenrod:{texture:"goldenrod.svg",desc:"Yellow isosceles triangles.",place:"goldenrod"},
   myosotis:{texture:"myosotis.svg",desc:"Blue pentagons. Also known as a forget-me-not.",place:"myosotis"},
   assembler:{texture:"items/assembler.svg",ingrid:{wood:3},desc:"Making things on a table like a civilized person should do.",place:"assembler"},
+  grasspile:{texture:"items/grasspile.svg",ingrid:{grass:50},desc:"Grass smushed together.",place:"grasspile"},
+  grassblock:{texture:"items/grassblock.svg",ingrid:{grasspile:50},desc:"Lots of grass smushed together.",place:"grassblock"},
+  toughergrassblock:{texture:"items/toughgrass.svg",ingrid:{grassblock:50},desc:"Tons of grass smushed together.",place:"toughgrass"},
 },
 inv={},invMode=false,invPage="inf",
 hand1="",hand2="",lel;
@@ -243,10 +261,11 @@ document.body.onkeydown=function(e){
     case 51:
       document.querySelector("#cover").style.cursor=invMode?"none":"auto";
       if (invMode) {
-        invMode=false;
         document.querySelector("#inv").removeChild(document.querySelector("#slotes"));
-        document.querySelector("#inv").removeChild(document.querySelector("#info"));
+        if (invMode=='inv') document.querySelector("#inv").removeChild(document.querySelector("#info"));
+        if (invMode=='assemble') document.querySelector("#inv").removeChild(document.querySelector("#availables"));
         document.querySelector("#inv").innerHTML=document.querySelector("#inv").innerHTML.replace(/class="hand"/g,"class='handd'").replace("one","uno");
+        invMode=false;
       } else {
         heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe();
         invMode="inv";
@@ -611,7 +630,14 @@ function interact() {
     var item;
     if (qD) item=hand1;
     else if (eD) item=hand2;
-    if (item&&itemData[item].place) {
+    if (twoD) {
+      if (level[selY][selX]=="assembler") {
+        document.querySelector("#cover").style.cursor="auto";
+        document.querySelector("#cursor").style.display="none";
+        plsMakeCraftingUIAppearForMe();
+        invMode="assemble";
+      }
+    } else if (item&&itemData[item].place) {
       if (blockData[level[selY][selX]].trnsp&&!blockData[level[selY][selX]].furn) {
         if (level[selY][selX]!="air") addToInv(level[selY][selX]);
         level[selY][selX]=itemData[item].place;
@@ -634,7 +660,9 @@ function interact() {
   document.querySelector("#cursor").style.bottom=styY+"px";
   document.querySelector("#cursor").style.top=-styY+"px";
 }
-function heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe() {
+function prepareInventoryMagicness(extras) {
+  var extras;
+  if (!extras) extras='';
   var items=[];
   for (var item in inv) items.push(item);
   var leShtoof='<ul id="slotes">';
@@ -648,9 +676,8 @@ function heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe() {
       leShtoof+='<li style="'+(j===0?"clear:both;":"")+b+'" class="invSlot">'+n+'</li>';
     }
   }
-  leShtoof+="</ul><div id='info'><ul id='tabs'><li id='inf'></li><li id='craft'></li><li id='clothes'></li><li id='menu'></li></ul><div id='content'></div></div><div class='hand' id='one'></div><div class='hand' id='two'></div>";
+  leShtoof+="</ul>"+extras+"<div class='hand' id='one'></div><div class='hand' id='two'></div>";
   document.querySelector("#inv").innerHTML=leShtoof;
-  document.querySelector("#"+invPage).className="active";
   if (hand1) {
     document.querySelector("#one").style.backgroundImage="url("+itemData[hand1].texture+")";
     document.querySelector("#one").innerHTML=inv[hand1];
@@ -691,20 +718,50 @@ function heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe() {
       }
       lel=name;
       document.body.addEventListener("keydown",lol);
-      if (e.target.innerHTML&&invPage=="inf") {
-        inner+="<h1>"+name+"</h1><br>"+itemData[name].desc;
-        document.querySelector('#content').style.backgroundImage="url("+back+")";
-        document.querySelector('#content').innerHTML=inner;
+      if (invMode=="inv") {
+        if (e.target.innerHTML&&invPage=="inf") {
+          inner+="<h1>"+name+"</h1><br>"+itemData[name].desc;
+          document.querySelector('#content').style.backgroundImage="url("+back+")";
+          document.querySelector('#content').innerHTML=inner;
+        }
       }
     }
   };
   document.querySelector("#slotes").onmouseout=function(e){
-    if (document.querySelector('#content').innerHTML&&invPage=="inf") {
-      document.querySelector('#content').innerHTML="";
-      document.querySelector('#content').style.backgroundImage="none";
+    if (invMode=="inv") {
+      if (document.querySelector('#content').innerHTML&&invPage=="inf") {
+        document.querySelector('#content').innerHTML="";
+        document.querySelector('#content').style.backgroundImage="none";
+      }
     }
     document.body.removeEventListener("keydown",lol);
   };
+}
+function plsMakeCraftingUIAppearForMe() {
+  prepareInventoryMagicness("<ul id='availables'></ul>");
+  document.querySelector("#availables").onclick=function(e){
+    if (e.target.tagName!="UL") {
+      if (e.target.tagName=="LI") var item=e.target.querySelector('h1').innerHTML;
+      else if (e.target.tagName=="H1") var item=e.target.innerHTML;
+      for (var ingridient in itemData[item].ingrid) {
+        inv[ingridient]-=itemData[item].ingrid[ingridient];
+        if (!inv[ingridient]) {
+          delete inv[ingridient];
+          if (ingridient==hand1) hand1='';
+          else if (ingridient==hand2) hand2='';
+        }
+      }
+      if (!inv.hasOwnProperty(item)) inv[item]=1;
+      else inv[item]++;
+      if (!hand1&&hand2!=item) hand1=item;
+      else if (!hand2&&hand1!=item) hand2=item;
+      plsMakeCraftingUIAppearForMe();
+    }
+  };
+}
+function heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe() {
+  prepareInventoryMagicness("<div id='info'><ul id='tabs'><li id='inf'></li><li id='craft'></li><li id='clothes'></li><li id='menu'></li></ul><div id='content'></div></div>");
+  document.querySelector("#"+invPage).className="active";
   document.querySelector("#tabs").onclick=function(e){
     if (e.target.tagName=="LI") invPage=e.target.id;
     document.querySelector(".active").className="";
@@ -722,8 +779,8 @@ function heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe() {
         }
         if (!inv.hasOwnProperty("assembler")) inv.assembler=1;
         else inv.assembler++;
-        if (!hand1&&hand2!=item) hand1=item;
-        else if (!hand2&&hand1!=item) hand2=item;
+        if (!hand1&&hand2!='assembler') hand1='assembler';
+        else if (!hand2&&hand1!='assembler') hand2='assembler';
         heyCodeCanYouMakeTheInventoryAppearOnTheScreenForMe();
       }
     }
@@ -745,6 +802,26 @@ function inventory() {
         document.querySelector('#content').style.backgroundImage="url("+itemData.assembler.texture+")";
       }
     }
+  }
+  if (invMode=="assemble") {
+    /*if (inv.wood>=3) {
+      document.querySelector("#content").innerHTML="<li><h1>assembler</h1><br>"+itemData.assembler.desc+"</li>";
+      document.querySelector('#content').style.backgroundImage="url("+itemData.assembler.texture+")";
+    }*/
+    var tempList='';
+    for (var item in itemData) {
+      if (itemData[item].ingrid) {
+        var ingridients=itemData[item].ingrid,allGood=true;
+        for (var ingridient in ingridients) {
+          if (!(inv[ingridient]>=ingridients[ingridient])) {
+            allGood=false;
+            break;
+          }
+        }
+        if (allGood) tempList+='<li style="background-image:url(\''+itemData[item].texture+'\');"><h1>'+item+'</h1><br>'+itemData[item].desc+'</li>';
+      }
+    }
+    if (tempList!=document.querySelector("#availables").innerHTML) document.querySelector("#availables").innerHTML=tempList;
   }
 }
 function renderHands() {
