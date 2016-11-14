@@ -190,6 +190,12 @@ p {
 .grassblock {background: #166C04;}
 .toughgrass {background: #105203;}
 .melter {background-image: url(items/melter.svg);}
+.lava {background: #FF6015;}
+.acid {background: #00FF00;}
+.heal {background: #F06292;}
+.oaksapling {background-image: url(items/oaksap.svg);}
+.pinesapling {background-image: url(items/pinesap.svg);}
+.autumnsapling {background-image: url(items/autsap.svg);}
     </style>
   </head>
   <body>
@@ -219,18 +225,18 @@ blockData={
   reinforceddiamond:{mineTime:-1,drops:{}},
   tallgrass:{trnsp:1,mineTime:0.1,groundCover:1,drops:{grass:"1-2"},tool:4},
   oaktrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3},
-  oaktreaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oakmake:"0-1"},tool:4},
-  oakleaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oakmake:"0-1"},trnsp:1,tool:4},
+  oaktreaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oaksapling:"0-1"},tool:4},
+  oakleaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oaksapling:"0-1"},trnsp:1,tool:4},
   pinetrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3},
-  pinetreaves:{grainy:"treaves",mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinemake:"0-1"},tool:4},
-  pineleaves:{grainy:"leaves",mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinemake:"0-1"},trnsp:1,tool:4},
+  pinetreaves:{grainy:"treaves",mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinesapling:"0-1"},tool:4},
+  pineleaves:{grainy:"leaves",mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinesapling:"0-1"},trnsp:1,tool:4},
   auttrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3},
-  aut1treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autmake:"0-1"},tool:4},
-  aut1leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autmake:"0-1"},trnsp:1,tool:4},
-  aut2treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autmake:"0-1"},tool:4},
-  aut2leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autmake:"0-1"},trnsp:1,tool:4},
-  aut3treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autmake:"0-1"},tool:4},
-  aut3leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autmake:"0-1"},trnsp:1,tool:4},
+  aut1treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},tool:4},
+  aut1leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},trnsp:1,tool:4},
+  aut2treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},tool:4},
+  aut2leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},trnsp:1,tool:4},
+  aut3treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},tool:4},
+  aut3leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},trnsp:1,tool:4},
   sand:{mineTime:0.5,grainy:1,drops:{sand:1},tool:2},
   water:{mineTime:5,liquid:1,drops:{water:1},tool:2},
   gravel:{mineTime:0.5,grainy:1,drops:{rock:1},tool:5},
@@ -247,6 +253,10 @@ blockData={
   grasspile:{mineTime:0.5,grainy:1,drops:{grasspile:1},tool:4},
   grassblock:{mineTime:1,drops:{grassblock:1},tool:5},
   toughgrass:{mineTime:3,drops:{toughergrassblock:1},tool:1},
+  lava:{mineTime:5,liquid:1,drops:{lava:1},tool:2},
+  acid:{mineTime:-1,liquid:1,drops:{}},
+  heal:{mineTime:5,liquid:1,drops:{healingliquid:1},tool:2},
+  oaksapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{oaksapling:1},tool:4},
 },itemData={ /* texture=url of svg texture, ingrid=assembling recipe, desc=description in inventory, place=name of block to place, metals=melting recipe,
   tool:1-drill 2-bucket 3-saw 4-scissors 5-shovel, toolspeed:coefficient enhancing minespeed of correct block */
   dirt:{texture:"items/dirt.svg",desc:"Useless inflammable brown stuff.",place:"dirt"},
@@ -256,9 +266,9 @@ blockData={
   stick:{texture:"items/stick.svg",desc:"Thinner tree bones."},
   leaf:{texture:"items/leaf.svg",desc:"Tree hair."},
   pineneedle:{texture:"items/needle.svg",desc:"Thinner tree hair."},
-  oakmake:{texture:"items/oaksap.svg",desc:"Makes 1 oak tree."},
-  pinemake:{texture:"items/pinesap.svg",desc:"Makes 1 pine tree. Perfect for snowy places."},
-  autmake:{texture:"items/autsap.svg",desc:"Makes 1 autumn tree. Perfect for fall-themed places."},
+  oaksapling:{texture:"items/oaksap.svg",desc:"Makes 1 oak tree.",place:"oaksapling"},
+  pinesapling:{texture:"items/pinesap.svg",desc:"Makes 1 pine tree. Perfect for snowy places.",place:"pinesapling"},
+  autumnsapling:{texture:"items/autsap.svg",desc:"Makes 1 autumn tree. Perfect for fall-themed places.",place:"autumnsapling"},
   iron:{texture:"items/feore.svg",desc:"A boring but useful metal that rusts."},
   gold:{texture:"items/auore.svg",desc:"A reddish-yellow soft metal that only looks pretty."},
   copper:{texture:"items/cuore.svg",desc:"A reddish-orange metal that patinates."},
@@ -279,6 +289,10 @@ blockData={
   scissors:{texture:"items/scissors.svg",ingrid:{blade:2},desc:"Two blades put together to chop things.",tool:4,toolspeed:3},
   saw:{texture:"items/saw.svg",ingrid:{blade:1,stick:2},desc:"A stick made for destroying tree bones.",tool:3,toolspeed:15},
   water:{texture:"items/water.svg",desc:"A very delicous liquid.",place:"water"},
+  lava:{texture:"items/lava.svg",desc:"A very hot liquid.",place:"lava"},
+  acid:{texture:"items/acid.svg",desc:"A very dangeorous liquid.",place:"acid"},
+  healingliquid:{texture:"items/healingliquid.svg",desc:"A first aid kit in a bucket.",place:"heal"},
+  drill:{texture:"items/drill.svg",metals:{blade:3,powerpowder:2,iron:1},desc:"A pointy object that destroys hard stuff for you.",tool:1,toolspeed:30},
 },
 inv={},invMode=false,invPage="inf",
 hand1="",hand2="",lel;
@@ -341,8 +355,9 @@ function init() {
     for (var j=0;j<lW;j++) {
       if (i==0) level[i][j]="reinforceddiamond";
       else if (i<=heights[j]-Math.floor(Math.random()*7)-2) {
-        if (Math.floor(Math.random()*100)==0) level[i][j]="make"+["fe","au","cu","po"][Math.floor(Math.random()*4)]+"ore";
-        else if (Math.floor(Math.random()*200)==0) level[i][j]="makecoal";
+        if (i<=heights[j]-20&&!Math.floor(Math.random()*400)) level[i][j]="makelava";
+        else if (!Math.floor(Math.random()*100)) level[i][j]="make"+["fe","au","cu","po"][Math.floor(Math.random()*4)]+"ore";
+        else if (!Math.floor(Math.random()*200)) level[i][j]="makecoal";
         else level[i][j]="stone";
       }
       else if (i<=heights[j]) {
@@ -351,7 +366,7 @@ function init() {
       }
       else if (i==heights[j]+1&&40<heights[j]) {
         if (Math.floor(Math.random()*2)) level[i][j]="tallgrass";
-        else if (Math.floor(Math.random()*5)==0) level[i][j]=["oak","pine","aut"][Math.floor(Math.random()*3)]+"make";
+        else if (Math.floor(Math.random()*5)==0) level[i][j]=["oak","pine","autumn"][Math.floor(Math.random()*3)]+"sapling";
         else if (Math.floor(Math.random()*9)<8) level[i][j]=["rose","goldenrod","myosotis"][Math.floor(Math.random()*3)];
       }
       else if (40>=heights[j]&&i<=40) level[i][j]="water";
@@ -367,42 +382,6 @@ function init() {
   for (var i=0;i<lH;i++) {
     for (var j=0;j<lW;j++) {
       switch (level[i][j]) {
-        case "oakmake":
-          var hite=Math.floor(Math.random()*5)+5;
-          for (var k=0;k<hite;k++) {
-            if (k<hite/3) level[i+k][j]="oaktrunk";
-            else {
-              level[i+k][j]="oaktreaves";
-              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j+l]="oakleaves";
-              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j-l]="oakleaves";
-            }
-          }
-          level[i+hite][j]="oakleaves";
-          break;
-        case "pinemake":
-          var hite=Math.floor(Math.random()*5)+7;
-          for (var k=0;k<hite;k++) {
-            if (k<hite/3) level[i+k][j]="pinetrunk";
-            else {
-              level[i+k][j]="pinetreaves";
-              for (var l=1;l<(hite-k)/(Math.random()*2+1.5);l++) level[i+k][j+l]="pineleaves";
-              for (var l=1;l<(hite-k)/(Math.random()*2+1.5);l++) level[i+k][j-l]="pineleaves";
-            }
-          }
-          level[i+hite][j]="pineleaves";
-          break;
-        case "autmake":
-          var hite=Math.floor(Math.random()*5)+5;
-          for (var k=0;k<hite;k++) {
-            if (k<hite/3) level[i+k][j]="auttrunk";
-            else {
-              level[i+k][j]="aut"+Math.floor(Math.random()*3+1)+"treaves";
-              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j+l]="aut"+Math.floor(Math.random()*3+1)+"leaves";
-              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j-l]="aut"+Math.floor(Math.random()*3+1)+"leaves";
-            }
-          }
-          level[i+hite][j]="aut"+Math.floor(Math.random()*3+1)+"leaves";
-          break;
         case "makefeore":
           ore(6,j,i,level[i][j].slice(4));
           break;
@@ -417,6 +396,13 @@ function init() {
           break;
         case "makecoal":
           ore(5,j,i,"coal");
+          break;
+        case "makelava":
+          level[i][j]="lava";
+          for (var k=0;k<4;k++) {
+            if (level[i+k][j]=="stone") level[i+k][j]="lava";
+            for (var l=-Math.floor(Math.random()*7);l<Math.floor(Math.random()*7);l++) {if (level[i+k][j+l]=="stone") level[i+k][j+l]="lava";}
+          }
           break;
       }
     }
@@ -531,6 +517,42 @@ function update() {
           break;
         case "grass":
           if (!getBlock(j,i+1).trnsp) level[i][j]="dirt";
+          break;
+        case "oaksapling":
+          var hite=Math.floor(Math.random()*5)+5;
+          for (var k=0;k<hite;k++) {
+            if (k<hite/3) level[i+k][j]="oaktrunk";
+            else {
+              level[i+k][j]="oaktreaves";
+              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j+l]="oakleaves";
+              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j-l]="oakleaves";
+            }
+          }
+          level[i+hite][j]="oakleaves";
+          break;
+        case "pinesapling":
+          var hite=Math.floor(Math.random()*5)+7;
+          for (var k=0;k<hite;k++) {
+            if (k<hite/3) level[i+k][j]="pinetrunk";
+            else {
+              level[i+k][j]="pinetreaves";
+              for (var l=1;l<(hite-k)/(Math.random()*2+1.5);l++) level[i+k][j+l]="pineleaves";
+              for (var l=1;l<(hite-k)/(Math.random()*2+1.5);l++) level[i+k][j-l]="pineleaves";
+            }
+          }
+          level[i+hite][j]="pineleaves";
+          break;
+        case "autumnsapling":
+          var hite=Math.floor(Math.random()*5)+5;
+          for (var k=0;k<hite;k++) {
+            if (k<hite/3) level[i+k][j]="auttrunk";
+            else {
+              level[i+k][j]="aut"+Math.floor(Math.random()*3+1)+"treaves";
+              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j+l]="aut"+Math.floor(Math.random()*3+1)+"leaves";
+              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j-l]="aut"+Math.floor(Math.random()*3+1)+"leaves";
+            }
+          }
+          level[i+hite][j]="aut"+Math.floor(Math.random()*3+1)+"leaves";
           break;
       }
     }
@@ -710,6 +732,12 @@ function interact() {
           else hand2='';
         }
         renderHands();
+      } else if (qD||eD) {
+        var time=blockData[level[selY][selX]].mineTime,speed=1;
+        if (time!=-1) {
+          if (item&&itemData[item].tool&&itemData[item].tool==blockData[level[selY][selX]].tool) speed=itemData[item].toolspeed;
+          mineInfo=[level[selY][selX],time*1000/speed,Date.now(),selX,selY];
+        }
       }
     } else if (qD||eD) {
       var time=blockData[level[selY][selX]].mineTime,speed=1;
