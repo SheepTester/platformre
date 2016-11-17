@@ -168,7 +168,7 @@ document.querySelector("#load").onclick=function(){
 }
 document.querySelector("#test").onclick=function(){
   save();
-  window.location.href=window.location.href.slice(0,window.location.href.lastIndexOf("/")+1)+"test.html";
+  window.location.href=window.location.href.slice(0,window.location.href.lastIndexOf("/")+1)+"index.html";
   return false;
 }
 document.querySelector("#template").onclick=function(){
