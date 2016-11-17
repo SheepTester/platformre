@@ -169,12 +169,12 @@ span:hover:after {
     <b>Use the keys WAD (on your keyboard) to move the player around. Use the S key to swim or teleport downwards or slam or jump downwards. Press p to pause, r to suicide, and space to brake and activate powerups that you are standing on.</b><br>
     <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span> <span id="load">load</span>
     <select onchange="example(Number(this.value));">
-      <option value="-1">Select featured level :P</option>
-      <option value="0">Untitled by Steven</option>
-      <option value="1">Untitled by Zach</option>
-      <option value="2">Untitled-2 by Zach</option>
+      <option value="-1">Select currently featured level!</option>
+      <option value="0">Steven's level</option>
+      <option value="1">Zach's level</option>
+      <option value="2">Zach's level two</option>
     </select>
-    <a href="levelmaker.html">edit level</a> <span onclick="var x=document.querySelector('#creds');z=!window.z;if(z)x.style.display='block';else x.style.display='none';">show/hide credits/changelog</span> <span id="joystick">enable joystick</span>
+    <a href="levelmaker.html">edit level</a> <a href="https://goo.gl/forms/GrNkogc9V7Tq42ZU2">Submit a level to be featured!</a><span onclick="var x=document.querySelector('#creds');z=!window.z;if(z)x.style.display='block';else x.style.display='none';">show/hide credits/changelog</span> <span id="joystick">enable joystick</span>
     <textarea placeholder="Level data here"></textarea><br>
     <div id="thing"><span onclick="var c=document.querySelector('#thing');v=!window.v;if(v)c.className='atoscrol';else c.className='';">toggle autoscroll   </span> 
     <span onclick="setBlock(0,-40,'a');render();">spawn lava to solid powerup</span>
