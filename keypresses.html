@@ -16,7 +16,7 @@
     </style>
   </head>
   <body>
-    <p><b>Use the keys WAD to move the player around.</b></p>
+    <p><b>Use the keys WAD or arrow keysto move the player around.</b></p>
     <p>w pressed: <span id="w">no</span></p>
     <p>a pressed: <span id="a">no</span></p>
     <p>d pressed: <span id="d">no</span></p>
@@ -53,11 +53,27 @@ document.body.onkeyup=function(e){
       ele="w";
       wDown=false;
       break;
+    case 38:
+      ele="w";
+      wDown=false;
+      break;
+       case 32:
+      ele="w";
+      wDown=false;
+      break;
     case 65:
       ele="a";
       aDown=false;
       break;
+       case 37:
+      ele="a";
+      aDown=false;
+      break;
     case 68:
+      ele="d";
+      dDown=false;
+      break;
+      case 39:
       ele="d";
       dDown=false;
       break;
