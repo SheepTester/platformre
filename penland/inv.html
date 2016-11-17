@@ -196,6 +196,9 @@ p {
 .oaksapling {background-image: url(items/oaksap.svg);}
 .pinesapling {background-image: url(items/pinesap.svg);}
 .autumnsapling {background-image: url(items/autsap.svg);}
+.vapour {background: white;}
+.acidproof {background: #799779;}
+.acidvapour {background: #CDFFCD;}
     </style>
   </head>
   <body>
@@ -212,17 +215,17 @@ var level,loop,
 mX=0,mY=0, // cursor pos
 lW=300,lH=200, // level size
 sX=lW*8-240,sY=lH*8-240, // scroll
-pausd=false,mineInfo=[],
+pausd=true,mineInfo=[],
 wD=false,aD=false,dD=false,sD=false,spD=false,qD=false,eD=false,twoD=false,
 xv=0,yv=0,x=sX,y=sY,
 blockData={
   /* trnsp:transparent, mineTime:time it takes to mine in seconds w/o tools, liquid, grainy:affected by gravity, drops:items added to inventory when mined, furn:has a menu,
-  tool:correct tool 1-drill 2-bucket 3-saw 4-scissors 5-shovel */
-  air:{trnsp:1,groundCover:1,mineTime:-1,drops:{}},
+  tool:correct tool 1-drill 2-bucket 3-saw 4-scissors 5-shovel, acidproof:undestroyable by acid */
+  air:{trnsp:1,groundCover:1,mineTime:-1,drops:{},acidproof:1},
   grass:{mineTime:0.5,grainy:1,drops:{dirt:1,grass:1},tool:5},
   dirt:{mineTime:0.5,grainy:1,drops:{dirt:1},tool:5},
   stone:{mineTime:3,drops:{rock:4},tool:1},
-  reinforceddiamond:{mineTime:-1,drops:{}},
+  reinforceddiamond:{mineTime:-1,drops:{},acidproof:1},
   tallgrass:{trnsp:1,mineTime:0.1,groundCover:1,drops:{grass:"1-2"},tool:4},
   oaktrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3},
   oaktreaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oaksapling:"0-1"},tool:4},
@@ -254,9 +257,12 @@ blockData={
   grassblock:{mineTime:1,drops:{grassblock:1},tool:5},
   toughgrass:{mineTime:3,drops:{toughergrassblock:1},tool:1},
   lava:{mineTime:5,liquid:1,drops:{lava:1},tool:2},
-  acid:{mineTime:-1,liquid:1,drops:{}},
+  acid:{mineTime:-1,liquid:1,drops:{},acidproof:1},
   heal:{mineTime:5,liquid:1,drops:{healingliquid:1},tool:2},
   oaksapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{oaksapling:1},tool:4},
+  vapour:{mineTime:5,drops:{},trnsp:1},
+  acidproof:{mineTime:5,drops:{},tool:1,acidproof:1},
+  acidvapour:{mineTime:5,drops:{},acidproof:1,trnsp:1},
 },itemData={ /* texture=url of svg texture, ingrid=assembling recipe, desc=description in inventory, place=name of block to place, metals=melting recipe,
   tool:1-drill 2-bucket 3-saw 4-scissors 5-shovel, toolspeed:coefficient enhancing minespeed of correct block */
   dirt:{texture:"items/dirt.svg",desc:"Useless inflammable brown stuff.",place:"dirt"},
@@ -409,7 +415,19 @@ function init() {
   }
 }
 init();
-loop=setInterval(mainloop,33);
+loop=setInterval(mainloop,33);pausd=false;
+function load(page) {
+  var xhttp=new XMLHttpRequest();
+  xhttp.onreadystatechange=function() {
+    if (this.readyState==4&&this.status==200) {
+      if (page=="blockData.json") blockData=JSON.parse(this.responseText);
+      else if (page=="itemData.json") itemData=JSON.parse(this.responseText);
+      else console.log('So someone loaded a page but we don\' know what to do with it, so...\n'+this.responseText);
+    }
+  };
+  xhttp.open("GET",page,true);
+  xhttp.send();
+}
 function mainloop() {
   if (invMode) inventory();
   else {
@@ -554,6 +572,57 @@ function update() {
           }
           level[i+hite][j]="aut"+Math.floor(Math.random()*3+1)+"leaves";
           break;
+        case "lava":
+          for (var k=1;k<9;k+=2) {
+            if (level[k%3-1+i][Math.floor(k/3)-1+j]=="water") {
+              level[k%3-1+i][Math.floor(k/3)-1+j]="vapour";
+              level[i][j]="stone";
+              break;
+            }
+            if (getBlock(Math.floor(k/3)-1+j,k%3-1+i).trnsp&&!Math.floor(Math.random()*200)) {
+              level[i][j]="stone";
+              break;
+            }
+          }
+          break;
+        case "vapour":
+          if (!Math.floor(Math.random()*200)) level[i][j]="water";
+          else if (!Math.floor(Math.random()*3)&&i<150) {
+            var k=Math.floor(Math.random()*3)-1;
+            level[i][j]="air";
+            if (getBlock(j+k,i+1).groundCover) level[i+1][j+k]="vapour";
+            else if (getBlock(j+k,i+1).liquid) {level[i][j]=level[i+1][j+k];level[i+1][j+k]="vapour";}
+            else if (getBlock(j+k,i).groundCover) level[i][j+k]="vapour";
+            else if (getBlock(j+k,i).liquid) {level[i][j]=level[i][j+k];level[i][j+k]="vapour";}
+            else level[i][j]="vapour";
+          }
+          break;
+        case "water":
+          for (var k=1;k<9;k+=2) {
+            if (getBlock(Math.floor(k/3)-1+j,k%3-1+i).trnsp&&!Math.floor(Math.random()*200)) {
+              level[i][j]="vapour";
+              break;
+            }
+          }
+          break;
+        case "acid":
+          if (level[i+1][j]=="stone"&&!Math.floor(Math.random()*10)) level[i+1][j]="acidproof";
+          if (!getBlock(j,i-1).acidproof&&!Math.floor(Math.random()*10)) level[i-1][j]=level[i-1][j]=="stone"&&!Math.floor(Math.random()*10)?"acidproof":"acidvapour";
+          if (!getBlock(j-1,i).acidproof&&!Math.floor(Math.random()*3)) level[i][j-1]=level[i][j-1]=="stone"&&!Math.floor(Math.random()*10)?"acidproof":"acidvapour";
+          if (!getBlock(j+1,i).acidproof&&!Math.floor(Math.random()*3)) level[i][j+1]=level[i][j+1]=="stone"&&!Math.floor(Math.random()*10)?"acidproof":"acidvapour";
+          break;
+        case "acidvapour":
+          if (!Math.floor(Math.random()*200)) level[i][j]="air";
+          else if (!Math.floor(Math.random()*3)&&i<150) {
+            var k=Math.floor(Math.random()*3)-1;
+            level[i][j]="air";
+            if (getBlock(j+k,i+1).groundCover) level[i+1][j+k]="acidvapour";
+            else if (getBlock(j+k,i+1).liquid) {level[i][j]=level[i+1][j+k];level[i+1][j+k]="acidvapour";}
+            else if (getBlock(j+k,i).groundCover) level[i][j+k]="acidvapour";
+            else if (getBlock(j+k,i).liquid) {level[i][j]=level[i][j+k];level[i][j+k]="acidvapour";}
+            else level[i][j]="acidvapour";
+          }
+          break;
       }
     }
   }
@@ -568,7 +637,7 @@ function play() {
     if (block===undefined)
       return true;
     else {
-      if (block=="water") return false;
+      if (blockData[block].liquid) return false;
       else return !(blockData[block].trnsp);
     }
   }
@@ -589,14 +658,14 @@ function play() {
       if (collidingWithWall&&!collideable(0,-16)) y=backupY;
     }
   }
-  if ([
-    level[Math.floor((y+172)/16)][Math.floor((x+172)/16)],
-    level[Math.floor((y+172)/16)][Math.floor((x+248)/16)],
-    level[Math.floor((y+188)/16)][Math.floor((x+172)/16)],
-    level[Math.floor((y+188)/16)][Math.floor((x+248)/16)],
-    level[Math.floor((y+204)/16)][Math.floor((x+172)/16)],
-    level[Math.floor((y+204)/16)][Math.floor((x+248)/16)]
-  ].includes("water")) { /* swimming */
+  if (
+    blockData[level[Math.floor((y+172)/16)][Math.floor((x+172)/16)]].liquid||
+    blockData[level[Math.floor((y+172)/16)][Math.floor((x+248)/16)]].liquid||
+    blockData[level[Math.floor((y+188)/16)][Math.floor((x+172)/16)]].liquid||
+    blockData[level[Math.floor((y+188)/16)][Math.floor((x+248)/16)]].liquid||
+    blockData[level[Math.floor((y+204)/16)][Math.floor((x+172)/16)]].liquid||
+    blockData[level[Math.floor((y+204)/16)][Math.floor((x+248)/16)]].liquid
+  ) { /* swimming */
     water=true;
     if (spD) {
       xv=Math.round(xv*800)/1000;
@@ -609,12 +678,17 @@ function play() {
       if(sD&&yv>-7)yv-=1;
       if(dD&&xv<7)xv+=1;
     }
-  } else if (!(collideable(-7,-17)||collideable(6,-17))) {if (yv>-20) yv--;}
+  } else if (!(collideable(-7,-17)||collideable(6,-17))) {
+    if (yv>-20) yv--;
+    var touchingLeftWall=collideable(-9,15)||collideable(-9,-16),touchingRightWall=collideable(8,15)||collideable(8,-16);
+    if (aD&&!dD&&xv>-7&&!touchingLeftWall&&touchingRightWall) xv-=2;
+    else if (dD&&!aD&&xv<7&&!touchingRightWall&&touchingLeftWall) xv+=2;
+  }
   else { /* MOVING */
     if (wD&&!ceilingAbove&&!collidingWithWall) yv=7;
     if (spD&&(collideable(-7,-17)||collideable(6,-17))) xv=Math.round(xv*300)/1000;
-    else if (aD&&!dD&&xv>-7) xv-=1;
-    else if (dD&&!aD&&xv<7) xv+=1;
+    else if (aD&&!dD&&xv>-7&&!(collideable(-9,15)||collideable(-9,-16))) xv-=1;
+    else if (dD&&!aD&&xv<7&&!(collideable(8,15)||collideable(8,-16))) xv+=1;
     else if (!aD&&!dD) xv=Math.round(xv*700)/1000;
     if (Math.abs(xv)<0.01) {
       xv=0;
@@ -640,14 +714,14 @@ function play() {
     else if (colRWall) x=Math.floor((x-8)/16)*16+8;
     else alert("wat");
     var isNotBetweenWalls=colLWall&&!(collideable(8,0)||collideable(8,-15))||colRWall&&!(collideable(-9,0)||collideable(-9,-15));
-    if ((aD||dD)&&Math.abs(xv*100)>1&&isNotBetweenWalls) {
+    /*if ((aD||dD)&&Math.abs(xv*100)>1&&isNotBetweenWalls) {
       if (wD&&!water&&!ceilingAbove) {
-        yv=6;
-        xv*=-1;
+        yv+=3;
+        //xv*=-1;
       }
-      else xv*=-0.5;
+      //else xv*=-0.5;
     }
-    else xv=0;
+    else*/ xv=0;
   }
   if (x<-232) x=-232;
   if (y<-172) y=-172;
@@ -722,7 +796,7 @@ function interact() {
           invMode="melt";
           plsMakeCraftingUIAppearForMe();
         }
-      } else if (blockData[level[selY][selX]].trnsp) {
+      } else if (blockData[level[selY][selX]].groundCover) {
         if (level[selY][selX]!="air") addToInv(level[selY][selX]);
         level[selY][selX]=itemData[item].place;
         inv[item]--;
