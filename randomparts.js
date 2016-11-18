@@ -411,5 +411,19 @@ var exampleLevels=[
     "@ >>*******^^^^##ggg&ggp@         g    @",
     "@0@@@@@@@@@@@@@@@@@@@@@@@p@@@@@@@@@@@@@@"
   ], // BY ZACH
+    [["Created by Jonathan!"],
+"@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@",
+"@###### # # @f@f@f@f@g @",
+"@####### # # # @ @ @ @g#g s s@",
+"@## # @ w g s @",
+"@## e# # @ ww g#g s s @",
+"@ e# # www>>>#w^w g s @",
+"@ e# # www#w@ww#www @ s s@",
+"@ e# #w#w#@w@#w#ww s @",
+"@ e# # www#w@ww#www @ s @",
+"@ e# #w#w#@w@#w#ww s @",
+"@ #wwwwww#w@ww#www s +@",
+"@0@aa@@@@a@@@@@@@@@@@#@@@pp@@@@@"
+  ], // BY Jonathan
 ];
 /* MADE BY SEAN */
