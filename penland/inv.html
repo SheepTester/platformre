@@ -152,6 +152,29 @@ p {
   border-bottom-left-radius: 5px;
   border-bottom-right-radius: 5px;
 }
+#preview {
+  position: fixed;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: scale(2);
+}
+#previewbutton {
+  background: #333;
+	font-size: inherit;
+	font-family: inherit;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+#previewbutton:hover {
+  background: #444;
+}
+#previewbutton:active {
+  background: #222;
+}
 /*#inv .hand:hover {background-color: rgba(0,0,0,0.3);}*/
 #uno {right: 45px;}
 #one {right: 115px;}
@@ -199,10 +222,12 @@ p {
 .vapour {background: white;}
 .acidproof {background: #799779;}
 .acidvapour {background: #CDFFCD;}
+.seawater {background: #2DE0F3;}
+.contaminatedwater {background: #5FBFF3;}
     </style>
   </head>
   <body>
-    <p>WASD to move. Q is left hand, E is right hand. Mouse to select blocks. 3 opens inventory and closes menus. 2 to interact with makers.<a href="#lolnotyet">Next</a></p>
+    <p>WASD to move. Q is left hand, E is right hand. Mouse to select blocks. 3 opens inventory and closes menus. 2 to interact with makers. <a href="#lolnotyet">Next</a></p>
     <div id="stage"></div>
     <img id="cursor" src="cursor.svg"/>
     <div id="player"></div>
@@ -210,6 +235,7 @@ p {
     <div id="inv"><div class='handd' id='uno'></div><div class='handd' id='two'></div></div>
 
     <script src="../../sheep.js"></script>
+    <script src="previewworld.js"></script>
     <script>
 var level,loop,
 mX=0,mY=0, // cursor pos
@@ -221,48 +247,52 @@ xv=0,yv=0,x=sX,y=sY,
 blockData={
   /* trnsp:transparent, mineTime:time it takes to mine in seconds w/o tools, liquid, grainy:affected by gravity, drops:items added to inventory when mined, furn:has a menu,
   tool:correct tool 1-drill 2-bucket 3-saw 4-scissors 5-shovel, acidproof:undestroyable by acid */
-  air:{trnsp:1,groundCover:1,mineTime:-1,drops:{},acidproof:1},
-  grass:{mineTime:0.5,grainy:1,drops:{dirt:1,grass:1},tool:5},
-  dirt:{mineTime:0.5,grainy:1,drops:{dirt:1},tool:5},
-  stone:{mineTime:3,drops:{rock:4},tool:1},
-  reinforceddiamond:{mineTime:-1,drops:{},acidproof:1},
-  tallgrass:{trnsp:1,mineTime:0.1,groundCover:1,drops:{grass:"1-2"},tool:4},
-  oaktrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3},
-  oaktreaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oaksapling:"0-1"},tool:4},
-  oakleaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oaksapling:"0-1"},trnsp:1,tool:4},
-  pinetrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3},
-  pinetreaves:{grainy:"treaves",mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinesapling:"0-1"},tool:4},
-  pineleaves:{grainy:"leaves",mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinesapling:"0-1"},trnsp:1,tool:4},
-  auttrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3},
-  aut1treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},tool:4},
-  aut1leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},trnsp:1,tool:4},
-  aut2treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},tool:4},
-  aut2leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},trnsp:1,tool:4},
-  aut3treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},tool:4},
-  aut3leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},trnsp:1,tool:4},
-  sand:{mineTime:0.5,grainy:1,drops:{sand:1},tool:2},
-  water:{mineTime:5,liquid:1,drops:{water:1},tool:2},
-  gravel:{mineTime:0.5,grainy:1,drops:{rock:1},tool:5},
-  rose:{trnsp:1,mineTime:0.1,groundCover:1,drops:{rose:1},tool:4},
-  goldenrod:{trnsp:1,mineTime:0.1,groundCover:1,drops:{goldenrod:1},tool:4},
-  myosotis:{trnsp:1,mineTime:0.1,groundCover:1,drops:{myosotis:1},tool:4},
-  feore:{mineTime:3,drops:{rock:4,iron:"1-3"},tool:1},
-  auore:{mineTime:3,drops:{rock:4,gold:"1-3"},tool:1},
-  cuore:{mineTime:3,drops:{rock:4,copper:"1-3"},tool:1},
-  poore:{mineTime:3,drops:{rock:4,powerpowder:"1-3"},tool:1},
-  coal:{mineTime:3,drops:{rock:4,coal:"1-3"},tool:1},
-  assembler:{mineTime:1,drops:{assembler:1},trnsp:1,furn:1,tool:3},
-  melter:{mineTime:1,drops:{melter:1},trnsp:1,furn:1,tool:1},
-  grasspile:{mineTime:0.5,grainy:1,drops:{grasspile:1},tool:4},
-  grassblock:{mineTime:1,drops:{grassblock:1},tool:5},
-  toughgrass:{mineTime:3,drops:{toughergrassblock:1},tool:1},
-  lava:{mineTime:5,liquid:1,drops:{lava:1},tool:2},
-  acid:{mineTime:-1,liquid:1,drops:{},acidproof:1},
-  heal:{mineTime:5,liquid:1,drops:{healingliquid:1},tool:2},
-  oaksapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{oaksapling:1},tool:4},
-  vapour:{mineTime:5,drops:{},trnsp:1},
-  acidproof:{mineTime:5,drops:{},tool:1,acidproof:1},
-  acidvapour:{mineTime:5,drops:{},acidproof:1,trnsp:1},
+  air:{trnsp:1,groundCover:1,mineTime:-1,drops:{},acidproof:1,back:'CEECFF'},
+  grass:{mineTime:0.5,grainy:1,drops:{dirt:1,grass:1},tool:5,back:'1F9D06'},
+  dirt:{mineTime:0.5,grainy:1,drops:{dirt:1},tool:5,back:'866247'},
+  stone:{mineTime:3,drops:{rock:4},tool:1,back:'919596'},
+  reinforceddiamond:{mineTime:-1,drops:{},acidproof:1,back:'212121'},
+  tallgrass:{trnsp:1,mineTime:0.1,groundCover:1,drops:{grass:"1-2"},tool:4,back:'1F9D06'},
+  oaktrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3,back:'74674F'},
+  oaktreaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oaksapling:"0-1"},tool:4,back:'719C34'},
+  oakleaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oaksapling:"0-1"},trnsp:1,tool:4,back:'82B53C'},
+  pinetrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3,back:'4E342E'},
+  pinetreaves:{grainy:"treaves",mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinesapling:"0-1"},tool:4,back:'304D07'},
+  pineleaves:{grainy:"leaves",mineTime:0.5,drops:{pineneedle:"2-5",stick:"1-4",pinesapling:"0-1"},trnsp:1,tool:4,back:'406609'},
+  auttrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3,back:'9E715C'},
+  aut1treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},tool:4,back:'C0412A'},
+  aut1leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},trnsp:1,tool:4,back:'D84830'},
+  aut2treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},tool:4,back:'D78241'},
+  aut2leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},trnsp:1,tool:4,back:'F09048'},
+  aut3treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},tool:4,back:'D7AC56'},
+  aut3leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},trnsp:1,tool:4,back:'F0C060'},
+  sand:{mineTime:0.5,grainy:1,drops:{sand:1},tool:2,back:'EED38B'},
+  water:{mineTime:5,liquid:1,drops:{water:1},tool:2,back:'2DAEF3'},
+  gravel:{mineTime:0.5,grainy:1,drops:{rock:1},tool:5,back:'B8BCBD'},
+  rose:{trnsp:1,mineTime:0.1,groundCover:1,drops:{rose:1},tool:4,back:'D03434'},
+  goldenrod:{trnsp:1,mineTime:0.1,groundCover:1,drops:{goldenrod:1},tool:4,back:'D0AE34'},
+  myosotis:{trnsp:1,mineTime:0.1,groundCover:1,drops:{myosotis:1},tool:4,back:'0077FF'},
+  feore:{mineTime:3,drops:{rock:4,iron:"1-3"},tool:1,back:'BA603B'},
+  auore:{mineTime:3,drops:{rock:4,gold:"1-3"},tool:1,back:'D2A70B'},
+  cuore:{mineTime:3,drops:{rock:4,copper:"1-3"},tool:1,back:'558674'},
+  poore:{mineTime:3,drops:{rock:4,powerpowder:"1-3"},tool:1,back:'AC584B'},
+  coal:{mineTime:3,drops:{rock:4,coal:"1-3"},tool:1,back:'222222'},
+  assembler:{mineTime:1,drops:{assembler:1},trnsp:1,furn:1,tool:3,back:'CE9E6B'},
+  melter:{mineTime:1,drops:{melter:1},trnsp:1,furn:1,tool:1,back:'919596'},
+  grasspile:{mineTime:0.5,grainy:1,drops:{grasspile:1},tool:4,back:'1B8505'},
+  grassblock:{mineTime:1,drops:{grassblock:1},tool:5,back:'166C04'},
+  toughgrass:{mineTime:3,drops:{toughergrassblock:1},tool:1,back:'105203'},
+  lava:{mineTime:5,liquid:1,drops:{lava:1},tool:2,back:'FF6015'},
+  acid:{mineTime:-1,liquid:1,drops:{},acidproof:1,back:'00FF00'},
+  heal:{mineTime:5,liquid:1,drops:{healingliquid:1},tool:2,back:'F06292'},
+  oaksapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{oaksapling:1},tool:4,back:'82B53C'},
+  pinesapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{pinesapling:1},tool:4,back:'406609'},
+  autumnsapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{autumnsapling:1},tool:4,back:'D84830'},
+  vapour:{mineTime:5,drops:{},trnsp:1,back:'ffffff'},
+  acidproof:{mineTime:5,drops:{},tool:1,acidproof:1,back:'799779'},
+  acidvapour:{mineTime:5,drops:{},acidproof:1,trnsp:1,back:'CDFFCD'},
+  contaminatedwater:{mineTime:5,liquid:1,drops:{},acidproof:1,tool:2,back:'5FBFF3'},
+  seawater:{mineTime:5,liquid:1,drops:{},tool:2,back:'2DE0F3'},
 },itemData={ /* texture=url of svg texture, ingrid=assembling recipe, desc=description in inventory, place=name of block to place, metals=melting recipe,
   tool:1-drill 2-bucket 3-saw 4-scissors 5-shovel, toolspeed:coefficient enhancing minespeed of correct block */
   dirt:{texture:"items/dirt.svg",desc:"Useless inflammable brown stuff.",place:"dirt"},
@@ -316,6 +346,7 @@ document.body.onkeydown=function(e){
       else clearInterval(loop);
       document.querySelector("#cover").style.cursor=pausd&&!invMode?"none":"auto";
       pausd=!pausd;
+      if (!pausd) document.querySelector('#preview').style.display='none';
       break;
     case 51:
       document.querySelector("#cover").style.cursor=invMode?"none":"auto";
@@ -434,7 +465,7 @@ function mainloop() {
     draw();
     interact();
     play();
-    update();
+    updateEntireWorld();
   }
 }
 function draw() {
@@ -482,8 +513,7 @@ function draw() {
   document.querySelector("#player").style.bottom=tempY+"px";
   document.querySelector("#player").style.top=-tempY+"px";
 }
-function update() {
-  var destX=Math.floor(sX/16)+480/16+1,destY=Math.floor(sY/16)+360/16+1;
+function updateBlock(i,j) {
   function getBlock(xx,yy) {
     var block;
     block=level[yy];
@@ -494,136 +524,177 @@ function update() {
     if (block===undefined) return blockData["reinforceddiamond"];
     else return block;
   }
+  function nearTreaf(xx,yy) {
+    for (var i=-5;i<=5;i++) {
+      if (getBlock(xx+i,yy).grainy=="treaves") return true;
+    }
+    return false;
+  }
+  if (getBlock(j,i).grainy&&!(getBlock(j,i).grainy=="leaves"&&nearTreaf(j,i))) {
+    if (level[i][j]=="grass") level[i][j]="dirt";
+    if (getBlock(j,i-1).groundCover) {
+      level[i-1][j]=level[i][j];
+      level[i][j]="air";
+    } else if (getBlock(j,i-1).liquid) {
+      var tempp=level[i-1][j]
+      level[i-1][j]=level[i][j];
+      level[i][j]=tempp;
+    }
+  }
+  if (getBlock(j,i).liquid) {
+    var k=(Math.floor(Math.random()*2)-0.5)*2,tempp=level[i][j];
+    level[i][j]="air";
+    if (getBlock(j,i-1).groundCover) level[i-1][j]=tempp;
+    else if (getBlock(j+1,i-1).groundCover&&getBlock(j+1,i).groundCover) level[i-1][j+1]=tempp;
+    else if (getBlock(j-1,i-1).groundCover&&getBlock(j-1,i).groundCover) level[i-1][j-1]=tempp;
+    else if (getBlock(j+k,i).groundCover) level[i][j+k]=tempp;
+    else level[i][j]=tempp;
+  }
+  if (getBlock(j,i).furn||getBlock(j,i).groundCover&&level[i][j]!="air") {
+    if (getBlock(j,i-1).trnsp) {
+      addToInv(level[i][j]);
+      level[i][j]="air";
+    }
+  }
+  switch (level[i][j]) {
+    case "dirt":
+      if (getBlock(j,i+1).trnsp) level[i][j]="grass";
+      break;
+    case "grass":
+      if (!getBlock(j,i+1).trnsp) level[i][j]="dirt";
+      break;
+    case "oaksapling":
+      var hite=Math.floor(Math.random()*5)+5;
+      for (var k=0;k<hite;k++) {
+        if (k<hite/3) level[i+k][j]="oaktrunk";
+        else {
+          level[i+k][j]="oaktreaves";
+          for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j+l]="oakleaves";
+          for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j-l]="oakleaves";
+        }
+      }
+      level[i+hite][j]="oakleaves";
+      break;
+    case "pinesapling":
+      var hite=Math.floor(Math.random()*5)+7;
+      for (var k=0;k<hite;k++) {
+        if (k<hite/3) level[i+k][j]="pinetrunk";
+        else {
+          level[i+k][j]="pinetreaves";
+          for (var l=1;l<(hite-k)/(Math.random()*2+1.5);l++) level[i+k][j+l]="pineleaves";
+          for (var l=1;l<(hite-k)/(Math.random()*2+1.5);l++) level[i+k][j-l]="pineleaves";
+        }
+      }
+      level[i+hite][j]="pineleaves";
+      break;
+    case "autumnsapling":
+      var hite=Math.floor(Math.random()*5)+5;
+      for (var k=0;k<hite;k++) {
+        if (k<hite/3) level[i+k][j]="auttrunk";
+        else {
+          level[i+k][j]="aut"+Math.floor(Math.random()*3+1)+"treaves";
+          for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j+l]="aut"+Math.floor(Math.random()*3+1)+"leaves";
+          for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j-l]="aut"+Math.floor(Math.random()*3+1)+"leaves";
+        }
+      }
+      level[i+hite][j]="aut"+Math.floor(Math.random()*3+1)+"leaves";
+      break;
+    case "lava":
+      for (var k=1;k<9;k+=2) {
+        if (level[k%3-1+i][Math.floor(k/3)-1+j]=="water") {
+          level[k%3-1+i][Math.floor(k/3)-1+j]="vapour";
+          level[i][j]="stone";
+          break;
+        }
+        if (getBlock(Math.floor(k/3)-1+j,k%3-1+i).trnsp&&!Math.floor(Math.random()*200)) {
+          level[i][j]="stone";
+          break;
+        }
+      }
+      break;
+    case "vapour":
+      if (!Math.floor(Math.random()*200)) level[i][j]="water";
+      else if (!Math.floor(Math.random()*3)&&i<150) {
+        var k=Math.floor(Math.random()*3)-1;
+        level[i][j]="air";
+        if (getBlock(j+k,i+1).groundCover) level[i+1][j+k]="vapour";
+        else if (getBlock(j+k,i+1).liquid) {level[i][j]=level[i+1][j+k];level[i+1][j+k]="vapour";}
+        else if (getBlock(j+k,i).groundCover) level[i][j+k]="vapour";
+        else if (getBlock(j+k,i).liquid) {level[i][j]=level[i][j+k];level[i][j+k]="vapour";}
+        else level[i][j]="vapour";
+      }
+      break;
+    case "water":
+      for (var k=1;k<9;k+=2) {
+        if (getBlock(Math.floor(k/3)-1+j,k%3-1+i).trnsp&&!Math.floor(Math.random()*200)) {
+          level[i][j]="vapour";
+          break;
+        } else if (level[k%3-1+i][Math.floor(k/3)-1+j]=="contaminatedwater"&&!Math.floor(Math.random()*20)) {
+          level[i][j]="contaminatedwater";
+          break;
+        }
+      }
+      break;
+    case "acid":
+      function acidTransform(block) {
+        return block=="stone"&&!Math.floor(Math.random()*10)?"acidproof":(block=="water"?"contaminatedwater":"acidvapour");
+      }
+      if (level[i+1][j]=="stone"&&!Math.floor(Math.random()*10)) level[i+1][j]="acidproof";
+      else if (level[i+1][j]=="water") level[i+1][j]="contaminatedwater";
+      if (!getBlock(j,i-1).acidproof&&!Math.floor(Math.random()*10)) level[i-1][j]=acidTransform(level[i-1][j]);
+      if (!getBlock(j-1,i).acidproof&&!Math.floor(Math.random()*3)) level[i][j-1]=acidTransform(level[i][j-1]);
+      if (!getBlock(j+1,i).acidproof&&!Math.floor(Math.random()*3)) level[i][j+1]=acidTransform(level[i][j+1]);
+      break;
+    case "acidvapour":
+      if (!Math.floor(Math.random()*200)) level[i][j]="air";
+      else if (!Math.floor(Math.random()*3)&&i<150) {
+        var k=Math.floor(Math.random()*3)-1;
+        level[i][j]="air";
+        if (getBlock(j+k,i+1).groundCover) level[i+1][j+k]="acidvapour";
+        else if (getBlock(j+k,i+1).liquid) {level[i][j]=level[i+1][j+k];level[i+1][j+k]="acidvapour";}
+        else if (getBlock(j+k,i).groundCover) level[i][j+k]="acidvapour";
+        else if (getBlock(j+k,i).liquid) {level[i][j]=level[i][j+k];level[i][j+k]="acidvapour";}
+        else level[i][j]="acidvapour";
+      }
+      break;
+    case "acidvapour":
+      if (!Math.floor(Math.random()*200)) level[i][j]="air";
+      else if (!Math.floor(Math.random()*3)&&i<150) {
+        var k=Math.floor(Math.random()*3)-1;
+        level[i][j]="air";
+        if (getBlock(j+k,i+1).groundCover) level[i+1][j+k]="acidvapour";
+        else if (getBlock(j+k,i+1).liquid) {level[i][j]=level[i+1][j+k];level[i+1][j+k]="acidvapour";}
+        else if (getBlock(j+k,i).groundCover) level[i][j+k]="acidvapour";
+        else if (getBlock(j+k,i).liquid) {level[i][j]=level[i][j+k];level[i][j+k]="acidvapour";}
+        else level[i][j]="acidvapour";
+      }
+      break;
+    case "contaminatedwater":
+      for (var k=1;k<9;k+=2) {
+        if (level[k%3-1+i][Math.floor(k/3)-1+j]=="acid"&&!Math.floor(Math.random()*100)) {
+          level[i][j]="acid";
+          break;
+        } else if (getBlock(Math.floor(k/3)-1+j,k%3-1+i).trnsp&&!Math.floor(Math.random()*200)) {
+          level[i][j]="acidvapour";
+          break;
+        }
+      }
+      break;
+  }
+}
+function update() {
+  var destX=Math.floor(sX/16)+480/16+1,destY=Math.floor(sY/16)+360/16+1;
   for (var i=Math.floor(sY/16);i<destY;i++) {
     if (i>level.length-1) {break;}
     for (var j=Math.floor(sX/16);j<destX;j++) {
-      function nearTreaf(xx,yy) {
-        for (var i=-5;i<=5;i++) {
-          if (getBlock(xx+i,yy).grainy=="treaves") return true;
-        }
-        return false;
-      }
-      if (getBlock(j,i).grainy&&!(getBlock(j,i).grainy=="leaves"&&nearTreaf(j,i))) {
-        if (level[i][j]=="grass") level[i][j]="dirt";
-        if (getBlock(j,i-1).groundCover) {
-          level[i-1][j]=level[i][j];
-          level[i][j]="air";
-        } else if (getBlock(j,i-1).liquid) {
-          var tempp=level[i-1][j]
-          level[i-1][j]=level[i][j];
-          level[i][j]=tempp;
-        }
-      }
-      if (getBlock(j,i).liquid) {
-        var k=(Math.floor(Math.random()*2)-0.5)*2,tempp=level[i][j];
-        level[i][j]="air";
-        if (getBlock(j,i-1).groundCover) level[i-1][j]=tempp;
-        else if (getBlock(j+1,i-1).groundCover&&getBlock(j+1,i).groundCover) level[i-1][j+1]=tempp;
-        else if (getBlock(j-1,i-1).groundCover&&getBlock(j-1,i).groundCover) level[i-1][j-1]=tempp;
-        else if (getBlock(j+k,i).groundCover) level[i][j+k]=tempp;
-        else level[i][j]=tempp;
-      }
-      if (getBlock(j,i).furn||getBlock(j,i).groundCover&&level[i][j]!="air") {
-        if (getBlock(j,i-1).trnsp) {
-          addToInv(level[i][j]);
-          level[i][j]="air";
-        }
-      }
-      switch (level[i][j]) {
-        case "dirt":
-          if (getBlock(j,i+1).trnsp) level[i][j]="grass";
-          break;
-        case "grass":
-          if (!getBlock(j,i+1).trnsp) level[i][j]="dirt";
-          break;
-        case "oaksapling":
-          var hite=Math.floor(Math.random()*5)+5;
-          for (var k=0;k<hite;k++) {
-            if (k<hite/3) level[i+k][j]="oaktrunk";
-            else {
-              level[i+k][j]="oaktreaves";
-              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j+l]="oakleaves";
-              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j-l]="oakleaves";
-            }
-          }
-          level[i+hite][j]="oakleaves";
-          break;
-        case "pinesapling":
-          var hite=Math.floor(Math.random()*5)+7;
-          for (var k=0;k<hite;k++) {
-            if (k<hite/3) level[i+k][j]="pinetrunk";
-            else {
-              level[i+k][j]="pinetreaves";
-              for (var l=1;l<(hite-k)/(Math.random()*2+1.5);l++) level[i+k][j+l]="pineleaves";
-              for (var l=1;l<(hite-k)/(Math.random()*2+1.5);l++) level[i+k][j-l]="pineleaves";
-            }
-          }
-          level[i+hite][j]="pineleaves";
-          break;
-        case "autumnsapling":
-          var hite=Math.floor(Math.random()*5)+5;
-          for (var k=0;k<hite;k++) {
-            if (k<hite/3) level[i+k][j]="auttrunk";
-            else {
-              level[i+k][j]="aut"+Math.floor(Math.random()*3+1)+"treaves";
-              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j+l]="aut"+Math.floor(Math.random()*3+1)+"leaves";
-              for (var l=1;l<Math.floor(Math.random()*2)+(hite/2-Math.abs(k-(hite/2+1)));l++) level[i+k][j-l]="aut"+Math.floor(Math.random()*3+1)+"leaves";
-            }
-          }
-          level[i+hite][j]="aut"+Math.floor(Math.random()*3+1)+"leaves";
-          break;
-        case "lava":
-          for (var k=1;k<9;k+=2) {
-            if (level[k%3-1+i][Math.floor(k/3)-1+j]=="water") {
-              level[k%3-1+i][Math.floor(k/3)-1+j]="vapour";
-              level[i][j]="stone";
-              break;
-            }
-            if (getBlock(Math.floor(k/3)-1+j,k%3-1+i).trnsp&&!Math.floor(Math.random()*200)) {
-              level[i][j]="stone";
-              break;
-            }
-          }
-          break;
-        case "vapour":
-          if (!Math.floor(Math.random()*200)) level[i][j]="water";
-          else if (!Math.floor(Math.random()*3)&&i<150) {
-            var k=Math.floor(Math.random()*3)-1;
-            level[i][j]="air";
-            if (getBlock(j+k,i+1).groundCover) level[i+1][j+k]="vapour";
-            else if (getBlock(j+k,i+1).liquid) {level[i][j]=level[i+1][j+k];level[i+1][j+k]="vapour";}
-            else if (getBlock(j+k,i).groundCover) level[i][j+k]="vapour";
-            else if (getBlock(j+k,i).liquid) {level[i][j]=level[i][j+k];level[i][j+k]="vapour";}
-            else level[i][j]="vapour";
-          }
-          break;
-        case "water":
-          for (var k=1;k<9;k+=2) {
-            if (getBlock(Math.floor(k/3)-1+j,k%3-1+i).trnsp&&!Math.floor(Math.random()*200)) {
-              level[i][j]="vapour";
-              break;
-            }
-          }
-          break;
-        case "acid":
-          if (level[i+1][j]=="stone"&&!Math.floor(Math.random()*10)) level[i+1][j]="acidproof";
-          if (!getBlock(j,i-1).acidproof&&!Math.floor(Math.random()*10)) level[i-1][j]=level[i-1][j]=="stone"&&!Math.floor(Math.random()*10)?"acidproof":"acidvapour";
-          if (!getBlock(j-1,i).acidproof&&!Math.floor(Math.random()*3)) level[i][j-1]=level[i][j-1]=="stone"&&!Math.floor(Math.random()*10)?"acidproof":"acidvapour";
-          if (!getBlock(j+1,i).acidproof&&!Math.floor(Math.random()*3)) level[i][j+1]=level[i][j+1]=="stone"&&!Math.floor(Math.random()*10)?"acidproof":"acidvapour";
-          break;
-        case "acidvapour":
-          if (!Math.floor(Math.random()*200)) level[i][j]="air";
-          else if (!Math.floor(Math.random()*3)&&i<150) {
-            var k=Math.floor(Math.random()*3)-1;
-            level[i][j]="air";
-            if (getBlock(j+k,i+1).groundCover) level[i+1][j+k]="acidvapour";
-            else if (getBlock(j+k,i+1).liquid) {level[i][j]=level[i+1][j+k];level[i+1][j+k]="acidvapour";}
-            else if (getBlock(j+k,i).groundCover) level[i][j+k]="acidvapour";
-            else if (getBlock(j+k,i).liquid) {level[i][j]=level[i][j+k];level[i][j+k]="acidvapour";}
-            else level[i][j]="acidvapour";
-          }
-          break;
-      }
+      updateBlock(i,j);
+    }
+  }
+}
+function updateEntireWorld() {
+  for (var i=0;i<level.length;i++) {
+    for (var j=0;j<level[0].length;j++) {
+      updateBlock(i,j);
     }
   }
 }
@@ -768,7 +839,7 @@ function interact() {
   }
   if (mineInfo.length>0) {
     if (qD||eD) {
-      if (selX!=mineInfo[3]||selY!=mineInfo[4]) mineInfo=[];
+      if (selX!=mineInfo[3]||selY!=mineInfo[4]||mineInfo[0]!=level[selY][selX]) mineInfo=[];
       else if (Date.now()>=mineInfo[1]+mineInfo[2]) {
         addToInv(level[mineInfo[4]][mineInfo[3]]);
         if (mineInfo[0].slice(-7)=="treaves"&&mineInfo[0].slice(0,3)=="aut") level[mineInfo[4]][mineInfo[3]]="auttrunk";
@@ -783,7 +854,7 @@ function interact() {
     var item;
     if (qD) item=hand1;
     else if (eD) item=hand2;
-    if (item&&itemData[item].place) {
+    if (item&&itemData[item].place) { // place
       if (blockData[level[selY][selX]].furn) {
         if (level[selY][selX]=="assembler") {
           document.querySelector("#cover").style.cursor="auto";
@@ -813,9 +884,21 @@ function interact() {
           mineInfo=[level[selY][selX],time*1000/speed,Date.now(),selX,selY];
         }
       }
-    } else if (qD||eD) {
+    } else if (qD||eD) { // mine
       var time=blockData[level[selY][selX]].mineTime,speed=1;
-      if (time!=-1) {
+      if (blockData[level[selY][selX]].furn) {
+        if (level[selY][selX]=="assembler") {
+          document.querySelector("#cover").style.cursor="auto";
+          document.querySelector("#cursor").style.display="none";
+          invMode="assemble";
+          plsMakeCraftingUIAppearForMe();
+        } else if (level[selY][selX]=="melter") {
+          document.querySelector("#cover").style.cursor="auto";
+          document.querySelector("#cursor").style.display="none";
+          invMode="melt";
+          plsMakeCraftingUIAppearForMe();
+        }
+      } else if (time!=-1) {
         if (item&&itemData[item].tool&&itemData[item].tool==blockData[level[selY][selX]].tool) speed=itemData[item].toolspeed;
         mineInfo=[level[selY][selX],time*1000/speed,Date.now(),selX,selY];
       }
@@ -855,10 +938,10 @@ function prepareInventoryMagicness(extras) {
   }
   var lol=function(e){
     var temp;
-    if (e.keyCode==81) {
+    if (e.keyCode==81&&hand2!=lel) {
       hand1=lel;
       temp=document.querySelector('#one');
-    } else if (e.keyCode==69) {
+    } else if (e.keyCode==69&&hand1!=lel) {
       hand2=lel;
       temp=document.querySelector('#two');
     } else if (e.keyCode==51) {
