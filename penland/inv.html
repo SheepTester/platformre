@@ -160,6 +160,7 @@ p {
   left: 0;
   right: 0;
   transform: scale(2);
+  image-rendering: pixelated;
 }
 #previewbutton {
   background: #333;
@@ -198,7 +199,7 @@ p {
 .aut3treaves {background: #D7AC56;}
 .aut3leaves {background: #F0C060;}
 .sand {background: #EED38B;}
-.water {background: #2DAEF3;}
+.water {background: #A7DBD8;}
 .gravel {background: #B8BCBD;}
 .rose {background-image: url(rose.svg);}
 .goldenrod {background-image: url(goldenrod.svg);}
@@ -222,8 +223,13 @@ p {
 .vapour {background: white;}
 .acidproof {background: #799779;}
 .acidvapour {background: #CDFFCD;}
-.seawater {background: #2DE0F3;}
+.seawater {background: #69D2E7;}
 .contaminatedwater {background: #5FBFF3;}
+.smoke {background: #D7DACF;}
+.flare {background: #FFF700;}
+.explosive {background: #92002C;}
+.explosive2 {background: #FF0451;}
+.fire {background: #FF6540;}
     </style>
   </head>
   <body>
@@ -247,11 +253,11 @@ xv=0,yv=0,x=sX,y=sY,
 blockData={
   /* trnsp:transparent, mineTime:time it takes to mine in seconds w/o tools, liquid, grainy:affected by gravity, drops:items added to inventory when mined, furn:has a menu,
   tool:correct tool 1-drill 2-bucket 3-saw 4-scissors 5-shovel, acidproof:undestroyable by acid */
-  air:{trnsp:1,groundCover:1,mineTime:-1,drops:{},acidproof:1,back:'CEECFF'},
-  grass:{mineTime:0.5,grainy:1,drops:{dirt:1,grass:1},tool:5,back:'1F9D06'},
-  dirt:{mineTime:0.5,grainy:1,drops:{dirt:1},tool:5,back:'866247'},
-  stone:{mineTime:3,drops:{rock:4},tool:1,back:'919596'},
-  reinforceddiamond:{mineTime:-1,drops:{},acidproof:1,back:'212121'},
+  air:{trnsp:1,groundCover:1,mineTime:-1,drops:{},acidproof:1,back:'CEECFF',fireproof:1},
+  grass:{mineTime:0.5,grainy:1,drops:{dirt:1,grass:1},tool:5,back:'1F9D06',fireproof:1},
+  dirt:{mineTime:0.5,grainy:1,drops:{dirt:1},tool:5,back:'866247',fireproof:1},
+  stone:{mineTime:3,drops:{rock:4},tool:1,back:'919596',fireproof:1},
+  reinforceddiamond:{mineTime:-1,drops:{},acidproof:1,back:'212121',explosionproof:1,fireproof:1},
   tallgrass:{trnsp:1,mineTime:0.1,groundCover:1,drops:{grass:"1-2"},tool:4,back:'1F9D06'},
   oaktrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3,back:'74674F'},
   oaktreaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",oaksapling:"0-1"},tool:4,back:'719C34'},
@@ -266,33 +272,38 @@ blockData={
   aut2leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},trnsp:1,tool:4,back:'F09048'},
   aut3treaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},tool:4,back:'D7AC56'},
   aut3leaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",autumnsapling:"0-1"},trnsp:1,tool:4,back:'F0C060'},
-  sand:{mineTime:0.5,grainy:1,drops:{sand:1},tool:2,back:'EED38B'},
-  water:{mineTime:5,liquid:1,drops:{water:1},tool:2,back:'2DAEF3'},
-  gravel:{mineTime:0.5,grainy:1,drops:{rock:1},tool:5,back:'B8BCBD'},
+  sand:{mineTime:0.5,grainy:1,drops:{sand:1},tool:2,back:'EED38B',fireproof:1},
+  water:{mineTime:5,liquid:1,drops:{water:1},tool:2,back:'A7DBD8',evaporatesto:'vapour',fireproof:1},
+  gravel:{mineTime:0.5,grainy:1,drops:{rock:1},tool:5,back:'B8BCBD',fireproof:1},
   rose:{trnsp:1,mineTime:0.1,groundCover:1,drops:{rose:1},tool:4,back:'D03434'},
   goldenrod:{trnsp:1,mineTime:0.1,groundCover:1,drops:{goldenrod:1},tool:4,back:'D0AE34'},
   myosotis:{trnsp:1,mineTime:0.1,groundCover:1,drops:{myosotis:1},tool:4,back:'0077FF'},
-  feore:{mineTime:3,drops:{rock:4,iron:"1-3"},tool:1,back:'BA603B'},
-  auore:{mineTime:3,drops:{rock:4,gold:"1-3"},tool:1,back:'D2A70B'},
-  cuore:{mineTime:3,drops:{rock:4,copper:"1-3"},tool:1,back:'558674'},
-  poore:{mineTime:3,drops:{rock:4,powerpowder:"1-3"},tool:1,back:'AC584B'},
+  feore:{mineTime:3,drops:{rock:4,iron:"1-3"},tool:1,back:'BA603B',fireproof:1},
+  auore:{mineTime:3,drops:{rock:4,gold:"1-3"},tool:1,back:'D2A70B',fireproof:1},
+  cuore:{mineTime:3,drops:{rock:4,copper:"1-3"},tool:1,back:'558674',fireproof:1},
+  poore:{mineTime:3,drops:{rock:4,powerpowder:"1-3"},tool:1,back:'AC584B',fireproof:1},
   coal:{mineTime:3,drops:{rock:4,coal:"1-3"},tool:1,back:'222222'},
   assembler:{mineTime:1,drops:{assembler:1},trnsp:1,furn:1,tool:3,back:'CE9E6B'},
-  melter:{mineTime:1,drops:{melter:1},trnsp:1,furn:1,tool:1,back:'919596'},
+  melter:{mineTime:1,drops:{melter:1},trnsp:1,furn:1,tool:1,back:'919596',fireproof:1},
   grasspile:{mineTime:0.5,grainy:1,drops:{grasspile:1},tool:4,back:'1B8505'},
   grassblock:{mineTime:1,drops:{grassblock:1},tool:5,back:'166C04'},
-  toughgrass:{mineTime:3,drops:{toughergrassblock:1},tool:1,back:'105203'},
-  lava:{mineTime:5,liquid:1,drops:{lava:1},tool:2,back:'FF6015'},
-  acid:{mineTime:-1,liquid:1,drops:{},acidproof:1,back:'00FF00'},
-  heal:{mineTime:5,liquid:1,drops:{healingliquid:1},tool:2,back:'F06292'},
+  toughgrass:{mineTime:3,drops:{toughergrassblock:1},tool:1,back:'105203',fireproof:1},
+  lava:{mineTime:5,liquid:1,drops:{lava:1},tool:2,back:'FF6015',evaporatesto:'stone',fireproof:1},
+  acid:{mineTime:-1,liquid:1,drops:{},acidproof:1,back:'00FF00',fireproof:1},
+  heal:{mineTime:5,liquid:1,drops:{healingliquid:1},tool:2,back:'F06292',fireproof:1},
   oaksapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{oaksapling:1},tool:4,back:'82B53C'},
   pinesapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{pinesapling:1},tool:4,back:'406609'},
   autumnsapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{autumnsapling:1},tool:4,back:'D84830'},
-  vapour:{mineTime:5,drops:{},trnsp:1,back:'ffffff'},
-  acidproof:{mineTime:5,drops:{},tool:1,acidproof:1,back:'799779'},
-  acidvapour:{mineTime:5,drops:{},acidproof:1,trnsp:1,back:'CDFFCD'},
-  contaminatedwater:{mineTime:5,liquid:1,drops:{},acidproof:1,tool:2,back:'5FBFF3'},
-  seawater:{mineTime:5,liquid:1,drops:{},tool:2,back:'2DE0F3'},
+  vapour:{mineTime:5,drops:{},trnsp:1,back:'ffffff',vapour:1,vapourcondensesto:'water',fireproof:1},
+  acidproof:{mineTime:5,drops:{},tool:1,acidproof:1,back:'799779',fireproof:1},
+  acidvapour:{mineTime:5,drops:{},acidproof:1,trnsp:1,back:'CDFFCD',vapour:1,vapourcondensesto:'smoke'},
+  contaminatedwater:{mineTime:5,liquid:1,drops:{},acidproof:1,tool:2,back:'5FBFF3',evaporatesto:'acidvapour',fireproof:1},
+  seawater:{mineTime:5,liquid:1,drops:{seawater:1},tool:2,back:'69D2E7',evaporatesto:'vapour',fireproof:1},
+  smoke:{mineTime:5,drops:{},trnsp:1,back:'D7DACF',vapour:1,explosionproof:1,fireproof:1},
+  flare:{mineTime:-1,drops:{},trnsp:1,back:'FFF700',fireproof:1},
+  explosive:{mineTime:0.5,drops:{},back:'D7DACF'},
+  explosive2:{mineTime:-1,drops:{},trnsp:1,back:'FF0451'},
+  fire:{mineTime:0.2,drops:{},back:'FF6540',trnsp:1,fireproof:1},
 },itemData={ /* texture=url of svg texture, ingrid=assembling recipe, desc=description in inventory, place=name of block to place, metals=melting recipe,
   tool:1-drill 2-bucket 3-saw 4-scissors 5-shovel, toolspeed:coefficient enhancing minespeed of correct block */
   dirt:{texture:"items/dirt.svg",desc:"Useless inflammable brown stuff.",place:"dirt"},
@@ -327,8 +338,9 @@ blockData={
   water:{texture:"items/water.svg",desc:"A very delicous liquid.",place:"water"},
   lava:{texture:"items/lava.svg",desc:"A very hot liquid.",place:"lava"},
   acid:{texture:"items/acid.svg",desc:"A very dangeorous liquid.",place:"acid"},
-  healingliquid:{texture:"items/healingliquid.svg",desc:"A first aid kit in a bucket.",place:"heal"},
+  healingliquid:{texture:"items/heal.svg",desc:"A first aid kit in a bucket.",place:"heal"},
   drill:{texture:"items/drill.svg",metals:{blade:3,powerpowder:2,iron:1},desc:"A pointy object that destroys hard stuff for you.",tool:1,toolspeed:30},
+  seawater:{texture:"items/seawater.svg",desc:"H20 and NaCl.",place:"seawater"},
 },
 inv={},invMode=false,invPage="inf",
 hand1="",hand2="",lel;
@@ -398,15 +410,20 @@ function init() {
         else level[i][j]="stone";
       }
       else if (i<=heights[j]) {
-        if (40<heights[j]) level[i][j]="dirt";
-        else level[i][j]=["dirt","sand","gravel"][Math.floor(Math.random()*3)];
+        if (42>heights[j]) level[i][j]=["dirt","sand","gravel"][Math.floor(Math.random()*3)];
+        else if (70>heights[j]) level[i][j]="dirt";
+        else level[i][j]=Math.floor(Math.random()*4)?'stone':'dirt';
       }
-      else if (i==heights[j]+1&&40<heights[j]) {
+      else if (i==heights[j]+1&&42<=heights[j]&&70>heights[j]) {
         if (Math.floor(Math.random()*2)) level[i][j]="tallgrass";
-        else if (Math.floor(Math.random()*5)==0) level[i][j]=["oak","pine","autumn"][Math.floor(Math.random()*3)]+"sapling";
+        else if (Math.floor(Math.random()*5)==0) level[i][j]=["oak","autumn"][Math.floor(Math.random()*2)]+"sapling";
         else if (Math.floor(Math.random()*9)<8) level[i][j]=["rose","goldenrod","myosotis"][Math.floor(Math.random()*3)];
       }
-      else if (40>=heights[j]&&i<=40) level[i][j]="water";
+      else if (i==heights[j]+1&&70<=heights[j]) {
+        if (!Math.floor(Math.random()*5)&&level[i-1][j]=='dirt') level[i][j]="pinesapling";
+      }
+      else if (40>=heights[j]&&i<=40) level[i][j]="seawater";
+      else if (149-Math.floor(Math.random()*2)<i&&i>50&&heights[j]+10<i&&i<150) level[i][j]="vapour";
     }
   }
   function ore(size,whereX,whereY,wat) {
@@ -549,11 +566,57 @@ function updateBlock(i,j) {
     else if (getBlock(j-1,i-1).groundCover&&getBlock(j-1,i).groundCover) level[i-1][j-1]=tempp;
     else if (getBlock(j+k,i).groundCover) level[i][j+k]=tempp;
     else level[i][j]=tempp;
+    if (getBlock(j,i).evaporatesto) {
+      for (var k=1;k<9;k+=2) {
+        if (getBlock(Math.floor(k/3)-1+j,k%3-1+i).trnsp&&!Math.floor(Math.random()*200)) {
+          level[i][j]=getBlock(j,i).evaporatesto;
+          break;
+        } else {
+          var original=level[i][j];
+          switch (level[i][j]) {
+            case 'water':
+              if (level[k%3-1+i][Math.floor(k/3)-1+j]=="contaminatedwater"&&!Math.floor(Math.random()*20)) level[i][j]="contaminatedwater";
+              else if (level[k%3-1+i][Math.floor(k/3)-1+j]=="seawater"&&!Math.floor(Math.random()*20)) level[i][j]="seawater";
+              break;
+            case 'contaminatedwater':
+              if (level[k%3-1+i][Math.floor(k/3)-1+j]=="acid"&&!Math.floor(Math.random()*100)) level[i][j]="acid";
+              break;
+            case 'seawater':
+              if (level[k%3-1+i][Math.floor(k/3)-1+j]=="contaminatedwater"&&!Math.floor(Math.random()*20)) level[i][j]="contaminatedwater";
+              break;
+            case 'lava':
+              if (level[k%3-1+i][Math.floor(k/3)-1+j]=="water") {
+                level[k%3-1+i][Math.floor(k/3)-1+j]="vapour";
+                level[i][j]="stone";
+              }
+              if (level[k%3-1+i][Math.floor(k/3)-1+j]=="seawater") {
+                level[k%3-1+i][Math.floor(k/3)-1+j]="vapour";
+                level[i][j]="stone";
+              }
+              break;
+          }
+          if (level[i][j]!=original) break;
+        }
+      }
+    }
   }
   if (getBlock(j,i).furn||getBlock(j,i).groundCover&&level[i][j]!="air") {
     if (getBlock(j,i-1).trnsp) {
       addToInv(level[i][j]);
       level[i][j]="air";
+    }
+  }
+  if (getBlock(j,i).vapour) {
+    if (/*!Math.floor(Math.random()*200)&&getBlock(j,i).vapourcondensesto||*/i>150&&getBlock(j,i).vapourcondensesto) level[i][j]=getBlock(j,i).vapourcondensesto;
+    else if (!Math.floor(Math.random()*3)) {
+      var k=Math.floor(Math.random()*3)-1,tempp=level[i][j];
+      level[i][j]="air";
+      if (getBlock(j+k,i+1).groundCover) level[i+1][j+k]=tempp;
+      else if (getBlock(j+k,i+1).liquid) {level[i][j]=level[i+1][j+k];level[i+1][j+k]=tempp;}
+      else if (getBlock(j,i+1).grainy&&!k) {level[i][j]=level[i+1][j+k];level[i+1][j+k]=tempp;}
+      else if (getBlock(j+k,i).groundCover) level[i][j+k]=tempp;
+      else if (getBlock(j+k,i).liquid) {level[i][j]=level[i][j+k];level[i][j+k]=tempp;}
+      else level[i][j]=tempp;
     }
   }
   switch (level[i][j]) {
@@ -599,42 +662,6 @@ function updateBlock(i,j) {
       }
       level[i+hite][j]="aut"+Math.floor(Math.random()*3+1)+"leaves";
       break;
-    case "lava":
-      for (var k=1;k<9;k+=2) {
-        if (level[k%3-1+i][Math.floor(k/3)-1+j]=="water") {
-          level[k%3-1+i][Math.floor(k/3)-1+j]="vapour";
-          level[i][j]="stone";
-          break;
-        }
-        if (getBlock(Math.floor(k/3)-1+j,k%3-1+i).trnsp&&!Math.floor(Math.random()*200)) {
-          level[i][j]="stone";
-          break;
-        }
-      }
-      break;
-    case "vapour":
-      if (!Math.floor(Math.random()*200)) level[i][j]="water";
-      else if (!Math.floor(Math.random()*3)&&i<150) {
-        var k=Math.floor(Math.random()*3)-1;
-        level[i][j]="air";
-        if (getBlock(j+k,i+1).groundCover) level[i+1][j+k]="vapour";
-        else if (getBlock(j+k,i+1).liquid) {level[i][j]=level[i+1][j+k];level[i+1][j+k]="vapour";}
-        else if (getBlock(j+k,i).groundCover) level[i][j+k]="vapour";
-        else if (getBlock(j+k,i).liquid) {level[i][j]=level[i][j+k];level[i][j+k]="vapour";}
-        else level[i][j]="vapour";
-      }
-      break;
-    case "water":
-      for (var k=1;k<9;k+=2) {
-        if (getBlock(Math.floor(k/3)-1+j,k%3-1+i).trnsp&&!Math.floor(Math.random()*200)) {
-          level[i][j]="vapour";
-          break;
-        } else if (level[k%3-1+i][Math.floor(k/3)-1+j]=="contaminatedwater"&&!Math.floor(Math.random()*20)) {
-          level[i][j]="contaminatedwater";
-          break;
-        }
-      }
-      break;
     case "acid":
       function acidTransform(block) {
         return block=="stone"&&!Math.floor(Math.random()*10)?"acidproof":(block=="water"?"contaminatedwater":"acidvapour");
@@ -645,41 +672,48 @@ function updateBlock(i,j) {
       if (!getBlock(j-1,i).acidproof&&!Math.floor(Math.random()*3)) level[i][j-1]=acidTransform(level[i][j-1]);
       if (!getBlock(j+1,i).acidproof&&!Math.floor(Math.random()*3)) level[i][j+1]=acidTransform(level[i][j+1]);
       break;
-    case "acidvapour":
-      if (!Math.floor(Math.random()*200)) level[i][j]="air";
-      else if (!Math.floor(Math.random()*3)&&i<150) {
-        var k=Math.floor(Math.random()*3)-1;
-        level[i][j]="air";
-        if (getBlock(j+k,i+1).groundCover) level[i+1][j+k]="acidvapour";
-        else if (getBlock(j+k,i+1).liquid) {level[i][j]=level[i+1][j+k];level[i+1][j+k]="acidvapour";}
-        else if (getBlock(j+k,i).groundCover) level[i][j+k]="acidvapour";
-        else if (getBlock(j+k,i).liquid) {level[i][j]=level[i][j+k];level[i][j+k]="acidvapour";}
-        else level[i][j]="acidvapour";
-      }
+    case "flare":
+      if (Math.floor(Math.random()*2)) level[i][j]=Math.floor(Math.random()*20)?"smoke":"acidvapour";
       break;
-    case "acidvapour":
-      if (!Math.floor(Math.random()*200)) level[i][j]="air";
-      else if (!Math.floor(Math.random()*3)&&i<150) {
-        var k=Math.floor(Math.random()*3)-1;
-        level[i][j]="air";
-        if (getBlock(j+k,i+1).groundCover) level[i+1][j+k]="acidvapour";
-        else if (getBlock(j+k,i+1).liquid) {level[i][j]=level[i+1][j+k];level[i+1][j+k]="acidvapour";}
-        else if (getBlock(j+k,i).groundCover) level[i][j+k]="acidvapour";
-        else if (getBlock(j+k,i).liquid) {level[i][j]=level[i][j+k];level[i][j+k]="acidvapour";}
-        else level[i][j]="acidvapour";
-      }
-      break;
-    case "contaminatedwater":
-      for (var k=1;k<9;k+=2) {
-        if (level[k%3-1+i][Math.floor(k/3)-1+j]=="acid"&&!Math.floor(Math.random()*100)) {
-          level[i][j]="acid";
-          break;
-        } else if (getBlock(Math.floor(k/3)-1+j,k%3-1+i).trnsp&&!Math.floor(Math.random()*200)) {
-          level[i][j]="acidvapour";
-          break;
+    case "explosive":
+      var size=Math.floor(Math.random()*2)+3;
+      for (var k=-size;k<size;k++) {
+        for (var l=-size;l<size;l++) {
+          if (!getBlock(j+l,i+k).explosionproof&&Math.sqrt(k*k+l*l)<=size) {
+            addToInv(level[i+k][j+l]);
+            if (getBlock(j+l,i+k).groundCover) level[i+k][j+l]='flare';
+            else level[i+k][j+l]=Math.floor(Math.random()*3)?'flare':'fire';
+          }
         }
       }
+      level[i][j]="air";
       break;
+    case "explosive2": // unused
+      var explosionPattern=[
+        '0000000',
+        '0101010',
+        '0011100',
+        '0111110',
+        '0011100',
+        '0101010',
+        '0000000',
+      ];
+      for (var k=0;k<7;k++) {
+        for (var l=0;l<7;l++) {
+          if (!getBlock(j+l,i+k).explosionproof&&explosionPattern[k][l]=='1') level[i+k-3][j+l-3]='flare';
+        }
+      }
+      level[i][j]="air";
+      break;
+    case 'fire':
+    for (var k=1;k<9;k+=2) {
+      if (level[k%3-1+i][Math.floor(k/3)-1+j]=='acidvapour') level[k%3-1+i][Math.floor(k/3)-1+j]='explosive';
+      else if (level[k%3-1+i][Math.floor(k/3)-1+j]=='water'&&!Math.floor(Math.random()*20)) level[k%3-1+i][Math.floor(k/3)-1+j]='vapour';
+      else if (level[k%3-1+i][Math.floor(k/3)-1+j]=='seawater'&&!Math.floor(Math.random()*20)) level[k%3-1+i][Math.floor(k/3)-1+j]='vapour';
+      else if (!getBlock(Math.floor(k/3)-1+j,k%3-1+i).fireproof&&!Math.floor(Math.random()*20)) level[k%3-1+i][Math.floor(k/3)-1+j]='fire';
+    }
+    if (!Math.floor(Math.random()*100)) level[i][j]="air";
+    else if (level[i+1][j]=='air') level[i+1][j]="smoke";
   }
 }
 function update() {
@@ -698,11 +732,17 @@ function updateEntireWorld() {
     }
   }
 }
-function foo(xo,yo) { // in px
+function foo(xo,yo,block) { // in px
+  var block;
+  if (block) level[Math.floor((y+180+yo)/16)][Math.floor((x+240+xo)/16)]=block;
   return level[Math.floor((y+180+yo)/16)][Math.floor((x+240+xo)/16)];
 }
 function play() {
   x+=xv;y+=yv;
+  if (x>lW*16) x=lW*16;
+  if (y>lH*16) y=lH*16;
+  if (x<-232) x=-232;
+  if (y<-172) y=-172;
   function collideable(xOff,yOff) { // in px
     var leX=Math.floor((x+240+xOff)/16),leY=Math.floor((y+180+yOff)/16),block=level[leY][leX];
     if (block===undefined)

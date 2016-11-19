@@ -25,10 +25,12 @@ document.querySelector('#previewbutton').onclick=function(){
       pixelData[1]=rgb.g;
       pixelData[2]=rgb.b;
       pixelData[3]=255;
-      c.putImageData(pixelId,x+0.5,y+0.5);
+      c.putImageData(pixelId,x,y);
     }
     for (var i=0;i<200;i++) {
       for (var j=0;j<300;j++) pixel(blockData[level[i][j]].back,j,199-i);
     }
+    // pixel('673AB7',(x+240)/16,(y+180)/16);
+    // pixel('673AB7',(x+240)/16,(y+180)/16+1);
   }
 };
