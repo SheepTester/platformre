@@ -27,10 +27,10 @@ document.querySelector('#previewbutton').onclick=function(){
       pixelData[3]=255;
       c.putImageData(pixelId,x,y);
     }
-    for (var i=0;i<200;i++) {
-      for (var j=0;j<300;j++) pixel(blockData[level[i][j]].back,j,199-i);
+    for (var ii=0;ii<200;ii++) {
+      for (var jj=0;jj<300;jj++) pixel(blockData[level[ii][jj]].back,jj,199-ii);
     }
-    // pixel('673AB7',(x+240)/16,(y+180)/16);
-    // pixel('673AB7',(x+240)/16,(y+180)/16+1);
+    pixel('673AB7',(x+240)/16,199-(y+180)/16);
+    pixel('673AB7',(x+240)/16,199-(y+180)/16-1);
   }
 };
