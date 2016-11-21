@@ -486,7 +486,7 @@ function createRandomLevel() {
   }
   level.splice(0,0,"@".repeat(48));
 
-  level.splice(0,0,["This is a randomly generated level with 4 floors of mini-platformer-ness.","Next floor!","Almost there!"]);
+  level.splice(0,0,["Hi, we're running out of money to host this site. Consider donating or we may have to use ads :(.","Next floor!","Almost there!"]);
   levels=[level,[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
   startPlaying();
 }
