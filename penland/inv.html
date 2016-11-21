@@ -207,6 +207,15 @@ p {
 #oxygen {border-left-color:rgba(3,169,244,0.8);border-right-color:rgba(3,169,244,0.2);}
 #hunger {border-left-color:rgba(173,132,44,0.8);border-right-color:rgba(173,132,44,0.2);}
 #thirst {border-left-color:rgba(63,111,181,0.8);border-right-color:rgba(63,111,181,0.2);}
+#label {
+  color: white;
+  text-shadow: 0 0 3px rgba(0,0,0,0.3);
+  margin: 0;
+  width: 100%;
+  text-align: center;
+  position: absolute;
+  bottom: 0;
+}
 .grass {background: #866247;background-image: url(grass.svg);}
 .dirt {background: #866247;}
 .reinforceddiamond {background: #212121;}
@@ -234,6 +243,7 @@ p {
 .cuore {background: #558674;background-image: url(ore.svg);}
 .poore {background: #AC584B;background-image: url(ore.svg);}
 .coal {background: #222;background-image: url(ore.svg);}
+.sulfur {background: #EEE692;background-image: url(ore.svg);}
 .assembler {background-image: url(items/assembler.svg);}
 .grasspile {background: #1B8505;}
 .grassblock {background: #166C04;}
@@ -267,10 +277,13 @@ p {
 .granitegravel {background: #DFD291;}
 .limestonegravel {background: #D0DABF;}
 .charcoal {background: #444;}
+.urine {background: #fbce26;}
+.feces {background: #593318;}
+.compost {background: #38312F;}
     </style>
   </head>
   <body>
-    <p>WASD to move. Q is left hand, E is right hand. Mouse to select blocks. 3 opens inventory and closes menus. 2 to interact with makers. <a href="#lolnotyet">Next</a></p>
+    <p>WASD to move. Q is left hand, E is right hand. Mouse to select blocks. 3 opens inventory and closes menus. In an inventory, use Q and E while hovering over a slot to equip it to the corresponding hand. <a href="#lolnotyet">Next</a></p>
     <div id="stage"></div>
     <img id="cursor" src="cursor.svg"/>
     <div id="player"></div>
@@ -281,6 +294,7 @@ p {
         <li id='hunger'></li>
         <li id='thirst'></li>
       </ul>
+      <p id='label'></p>
     </div>
     <div id="inv"><div class='handd' id='uno'></div><div class='handd' id='two'></div></div>
 
@@ -331,33 +345,37 @@ blockData={
   cuore:{mineTime:3,drops:{limestone:4,copper:"1-3"},tool:1,back:'558674',fireproof:1},
   poore:{mineTime:3,drops:{basalt:4,powerpowder:"1-3"},tool:1,back:'AC584B',fireproof:1},
   coal:{mineTime:3,drops:{granite:4,coal:"1-3"},tool:1,back:'222222'},
+  sulfur:{mineTime:3,drops:{granite:4,sulfur:"1-3"},tool:1,back:'EEE692'},
   assembler:{mineTime:1,drops:{assembler:1},trnsp:1,furn:1,tool:3,back:'CE9E6B',invmode:'assemble'},
   melter:{mineTime:1,drops:{melter:1},trnsp:1,furn:1,tool:1,back:'919596',fireproof:1,invmode:'melt'},
   grasspile:{mineTime:0.5,grainy:1,drops:{grasspile:1},tool:4,back:'1B8505'},
   grassblock:{mineTime:1,drops:{grassblock:1},tool:5,back:'166C04'},
   toughgrass:{mineTime:3,drops:{toughergrassblock:1},tool:1,back:'105203',fireproof:1},
   lava:{mineTime:5,liquid:1,drops:{lava:1},tool:2,back:'FF6015',evaporatesto:'basalt',fireproof:1},
-  acid:{mineTime:-1,liquid:1,drops:{},acidproof:1,back:'00FF00',fireproof:1},
+  acid:{mineTime:8,liquid:1,drops:{},acidproof:1,tool:2,back:'00FF00',fireproof:1},
   heal:{mineTime:5,liquid:1,drops:{healingliquid:1},tool:2,back:'F06292',fireproof:1},
   oaksapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{oaksapling:1},tool:4,back:'82B53C'},
   pinesapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{pinesapling:1},tool:4,back:'406609'},
   autumnsapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{autumnsapling:1},tool:4,back:'D84830'},
   vapour:{mineTime:5,drops:{},trnsp:1,back:'ffffff',vapour:1,vapourcondensesto:'water',fireproof:1},
   acidproof:{mineTime:5,drops:{},tool:1,acidproof:1,back:'799779',fireproof:1},
-  acidvapour:{mineTime:5,drops:{contaminant:1},acidproof:1,trnsp:1,back:'CDFFCD',vapour:1,vapourcondensesto:'smoke'},
+  acidvapour:{mineTime:5,drops:{contaminant:1},acidproof:1,trnsp:1,back:'CDFFCD',vapour:1/*,vapourcondensesto:'smoke'*/},
   contaminatedwater:{mineTime:5,liquid:1,drops:{contaminatedwater:1},acidproof:1,tool:2,back:'5FBFF3',evaporatesto:'acidvapour',fireproof:1},
   seawater:{mineTime:5,liquid:1,drops:{seawater:1},tool:2,back:'69D2E7',evaporatesto:'vapour',fireproof:1},
   smoke:{mineTime:5,drops:{},trnsp:1,back:'D7DACF',vapour:1,explosionproof:1,fireproof:1},
   flare:{mineTime:-1,drops:{},trnsp:1,back:'FFF700',fireproof:1},
-  explosive:{mineTime:0.5,drops:{explosive:1},back:'92002C'},
+  explosive:{mineTime:0.5,drops:{explosive:1},back:'92002C',fireproof:1},
   explosive2:{mineTime:-1,drops:{},trnsp:1,back:'FF0451'},
-  fire:{mineTime:0.2,drops:{},back:'FF6540',trnsp:1,fireproof:1},
+  fire:{mineTime:0.2,drops:{},back:'FF6540',trnsp:1,fireproof:1,grainy:1},
   palmtrunk:{grainy:1,mineTime:1,drops:{wood:"1-4"},tool:3,back:'D1BE94'},
   palmtreaves:{grainy:"treaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",palmsapling:"0-1"},tool:4,back:'87BB25'},
   palmleaves:{grainy:"leaves",mineTime:0.5,drops:{leaf:"2-5",stick:"1-4",palmsapling:"0-1"},trnsp:1,tool:4,back:'99D42A'},
   palmsapling:{trnsp:1,mineTime:0.1,groundCover:1,drops:{palmsapling:1},tool:4,back:'99D42A'},
   seaweed:{mineTime:0.3,liquid:1,liquidtrnsp:1,drops:{},tool:2,back:'1B4201'},
-  charcoal:{mineTime:3,drops:{charcoal:"2-5"},tool:1,back:'444444',fireproof:1},
+  charcoal:{mineTime:1,drops:{charcoal:"2-5"},tool:1,back:'444444',fireproof:1,grainy:1},
+  urine:{mineTime:5,liquid:1,drops:{urine:1},tool:2,back:'fbce26',evaporatesto:'vapour',fireproof:1},
+  feces:{mineTime:0.5,grainy:1,trnsp:1,drops:{feces:1},tool:5,back:'593318',fireproof:1},
+  compost:{mineTime:0.5,grainy:1,drops:{compost:1},tool:5,back:'38312F',fireproof:1},
 },itemData={ /* texture=url of svg texture, ingrid=assembling recipe, desc=description in inventory, place=name of block to place, metals=melting recipe,
   tool:1-drill 2-bucket 3-saw 4-scissors 5-shovel, toolspeed:coefficient enhancing minespeed of correct block */
   dirt:{texture:"items/dirt.svg",desc:"Useless inflammable brown stuff.",place:"dirt"},
@@ -391,27 +409,35 @@ blockData={
   blade:{texture:"items/blade.svg",metals:{iron:1},desc:"A sharp flat metal stick that hurts when you eat it."},
   scissors:{texture:"items/scissors.svg",ingrid:{blade:2},desc:"Two blades put together to chop things.",tool:4,toolspeed:3},
   saw:{texture:"items/saw.svg",ingrid:{blade:1,stick:2},desc:"A stick made for destroying tree bones.",tool:3,toolspeed:15},
-  water:{texture:"items/water.svg",desc:"A very delicous liquid.",place:"water"},
+  water:{texture:"items/water.svg",desc:"A very delicous liquid.",place:"water",drink:3600},
   lava:{texture:"items/lava.svg",desc:"A very hot liquid.",place:"lava"},
   acid:{texture:"items/acid.svg",desc:"A very dangeorous liquid.",place:"acid"},
   healingliquid:{texture:"items/heal.svg",desc:"A first aid kit in a bucket.",place:"heal"},
   drill:{texture:"items/drill.svg",metals:{blade:3,powerpowder:2,iron:1},desc:"A pointy object that destroys hard stuff for you.",tool:1,toolspeed:30},
-  seawater:{texture:"items/seawater.svg",desc:"H20 and NaCl.",place:"seawater"},
+  seawater:{texture:"items/seawater.svg",ingrid:{water:1,salt:1},desc:"H20 and NaCl.",place:"seawater"},
   palmsapling:{texture:"items/palmsap.svg",desc:"Makes 1 palm tree. Perfect for beaches.",place:"palmsapling"},
   basaltblock:{texture:"items2/basaltblock.svg",metals:{basalt:4},desc:"A firmer form of a rock.",place:"basalt"},
   graniteblock:{texture:"items2/graniteblock.svg",metals:{granite:4},desc:"Unaffected by gravity.",place:"granite"},
   limestoneblock:{texture:"items2/limestoneblock.svg",metals:{limestone:4},desc:"Not as fragile.",place:"limestone"},
   salt:{texture:"items2/salt.svg",metals:{seawater:1},desc:"Delicous NaCl."},
   contaminant:{texture:"items2/contaminate.svg",metals:{contaminatedwater:1},desc:"Bad stuff."},
-  contaminatedwater:{texture:"items2/contaminated.svg",desc:"Bad water."},
+  contaminatedwater:{texture:"items2/contaminated.svg",ingrid:{water:1,contaminant:1},desc:"Bad water."},
   charcoal:{texture:"items2/charcoal.svg",desc:"Burnt stuff."},
-  gunpowder:{texture:"items2/charcoalp.svg",ingrid:{charcoal:1},desc:"Explosive stuff."},
-  plantfibre:{texture:"items2/fibre.svg",ingrid:{grass:1},desc:"Burnt stuff."},
-  paper:{texture:"items2/paper.svg",ingrid:{plantfibre:4},desc:"Burnt stuff."},
-  explosive:{texture:"items2/explosive.svg",ingrid:{paper:3,gunpowder:3},desc:"Burnt stuff."},
+  gunpowder:{texture:"items2/charcoalp.svg",ingrid:{charcoal:1,sulfur:1},desc:"Explosive stuff."},
+  plantfibre:{texture:"items2/fibre.svg",ingrid:{grass:1},desc:"Destroyed grass bits."},
+  paper:{texture:"items2/paper.svg",ingrid:{plantfibre:4},desc:"Flat white rectangles."},
+  explosive:{texture:"items2/explosive.svg",ingrid:{paper:3,gunpowder:3},desc:"Dangerous stuff, requires fire to explode.",place:'explosive'},
+  sulfur:{texture:"items2/sulfur.svg",desc:"Smelly stuff."},
+  match:{texture:"items2/match.svg",ingrid:{stick:1,sulfur:1},desc:"Easily create dangerous hot stuff!",place:'fire'},
+  acidproofblock:{texture:"items2/acidproof.svg",desc:"A rock that can't be destroyed by the very scary acid.",place:"acidproof"},
+  acidproofbucket:{texture:"items2/acidproofbucket.svg",metals:{acidproofblock:3},desc:"A cup made for carrying the very scary acid.",tool:2,toolspeed:80},
+  bucketofacid:{texture:"items2/acidbucket.svg",desc:"A cup holding the very scary acid.",place:'acid'},
+  urine:{texture:"items2/urine.svg",desc:"WHY ARE YOU EVEN KEEPING THIS?!",place:"urine"},
+  feces:{texture:"items2/feces.svg",desc:"Leave on dirt for a little while and you'll get compost.",place:"feces"},
+  compost:{texture:"items2/compost.svg",desc:"Good for plants, smells bad.",place:"compost"},
 },
 inv={},invMode=false,invPage="inf",
-hand1="",hand2="",lel,playerData={health:100,fallDistance:-1,oxygen:300};
+hand1="",hand2="",lel,playerData={health:100,fallDistance:-1,oxygen:300,thirst:3600,bladder:0,hunger:3600,rectum:0},timeoutId=0;
 document.body.onkeydown=function(e){
   switch (e.keyCode) {
     case 87:wD=true;break;
@@ -473,8 +499,9 @@ function init() {
       if (i==0) level[i][j]="reinforceddiamond";
       else if (i<=heights[j]-Math.floor(Math.random()*7)-2) {
         if (i<=heights[j]-20&&!Math.floor(Math.random()*400)) level[i][j]="makelava";
+        if (i<=heights[j]-40&&!Math.floor(Math.random()*400)) level[i][j]="makeacid";
         else if (!Math.floor(Math.random()*100)) level[i][j]="make"+["fe","au","cu","po"][Math.floor(Math.random()*4)]+"ore";
-        else if (!Math.floor(Math.random()*200)) level[i][j]="makecoal";
+        else if (!Math.floor(Math.random()*200)) level[i][j]="make"+['coal','sulfur'][Math.floor(Math.random()*2)];
         else {
           if (j===0) {
             if (Math.floor(Math.random()*3)&&["basalt",'granite','limestone'].includes(level[i-1][j])) level[i][j]=level[i-1][j];
@@ -537,6 +564,9 @@ function init() {
         case "makecoal":
           ore(5,j,i,"coal");
           break;
+        case "makesulfur":
+          ore(5,j,i,"sulfur");
+          break;
         case "makelava":
           level[i][j]="lava";
           for (var k=0;k<4;k++) {
@@ -559,6 +589,13 @@ function init() {
             for (var l=0;l<size-k+Math.floor(Math.random()*3)-1;l++) level[i-k][j+l]="heal";
             for (var l=0;l<size-k+Math.floor(Math.random()*3)-1;l++) level[i-k][j-l]="heal";
           }
+          break;
+        case "makeacid":
+          level[i][j]="acid";
+          level[i+1][j]="acidproof";
+          if (level[i-1][j]!="reinforceddiamond") level[i-1][j]="acidproof";
+          level[i][j+1]="acidproof";
+          level[i][j-1]="acidproof";
           break;
       }
     }
@@ -647,6 +684,12 @@ function draw() {
   if (playerData.oxygen>300) playerData.oxygen=300;
   document.querySelector("#oxygen").style.borderLeftWidth=(playerData.oxygen/6)+'px'
   document.querySelector("#oxygen").style.borderRightWidth=(50-playerData.oxygen/6)+'px'
+  if (playerData.thirst>3600) playerData.thirst=3600;
+  document.querySelector("#thirst").style.borderLeftWidth=(playerData.thirst/72)+'px'
+  document.querySelector("#thirst").style.borderRightWidth=(50-playerData.thirst/72)+'px'
+  if (playerData.hunger>3600) playerData.hunger=3600;
+  document.querySelector("#hunger").style.borderLeftWidth=(playerData.hunger/72)+'px'
+  document.querySelector("#hunger").style.borderRightWidth=(50-playerData.hunger/72)+'px'
 }
 function updateBlock(i,j) {
   function getBlock(xx,yy) {
@@ -696,12 +739,15 @@ function updateBlock(i,j) {
               if (level[k%3-1+i][Math.floor(k/3)-1+j]=="contaminatedwater"&&!Math.floor(Math.random()*20)) level[i][j]="contaminatedwater";
               else if (level[k%3-1+i][Math.floor(k/3)-1+j]=="seawater"&&!Math.floor(Math.random()*20)) level[i][j]="seawater";
               else if (level[k%3-1+i][Math.floor(k/3)-1+j]=="heal"&&!Math.floor(Math.random()*20)) level[i][j]="heal";
+              else if (level[k%3-1+i][Math.floor(k/3)-1+j]=="urine"&&!Math.floor(Math.random()*50)) level[k%3-1+i][Math.floor(k/3)-1+j]="water";
               break;
             case 'contaminatedwater':
               if (level[k%3-1+i][Math.floor(k/3)-1+j]=="acid"&&!Math.floor(Math.random()*100)) level[i][j]="acid";
+              else if (level[k%3-1+i][Math.floor(k/3)-1+j]=="urine"&&!Math.floor(Math.random()*50)) level[k%3-1+i][Math.floor(k/3)-1+j]="contaminatedwater";
               break;
             case 'seawater':
               if (level[k%3-1+i][Math.floor(k/3)-1+j]=="contaminatedwater"&&!Math.floor(Math.random()*20)) level[i][j]="contaminatedwater";
+              else if (level[k%3-1+i][Math.floor(k/3)-1+j]=="urine"&&!Math.floor(Math.random()*50)) level[k%3-1+i][Math.floor(k/3)-1+j]="seawater";
               break;
             case 'lava':
               if (level[k%3-1+i][Math.floor(k/3)-1+j]=="water") {
@@ -709,6 +755,14 @@ function updateBlock(i,j) {
                 level[i][j]="basalt";
               }
               if (level[k%3-1+i][Math.floor(k/3)-1+j]=="seawater") {
+                level[k%3-1+i][Math.floor(k/3)-1+j]="vapour";
+                level[i][j]="basalt";
+              }
+              if (level[k%3-1+i][Math.floor(k/3)-1+j]=="contaminatedwater") {
+                level[k%3-1+i][Math.floor(k/3)-1+j]="vapour";
+                level[i][j]="explosive2";
+              }
+              if (level[k%3-1+i][Math.floor(k/3)-1+j]=="urine") {
                 level[k%3-1+i][Math.floor(k/3)-1+j]="vapour";
                 level[i][j]="basalt";
               }
@@ -789,6 +843,7 @@ function updateBlock(i,j) {
       if (["basalt",'granite','limestone'].includes(level[i+1][j])&&!Math.floor(Math.random()*10)) level[i+1][j]="acidproof";
       else if (level[i+1][j]=="water") level[i+1][j]="contaminatedwater";
       else if (level[i+1][j]=="seawater") level[i+1][j]="contaminatedwater";
+      else if (level[i+1][j]=="urine") level[i+1][j]="contaminatedwater";
       if (!getBlock(j,i-1).acidproof&&!Math.floor(Math.random()*10)) level[i-1][j]=acidTransform(level[i-1][j]);
       if (!getBlock(j-1,i).acidproof&&!Math.floor(Math.random()*3)) level[i][j-1]=acidTransform(level[i][j-1]);
       if (!getBlock(j+1,i).acidproof&&!Math.floor(Math.random()*3)) level[i][j+1]=acidTransform(level[i][j+1]);
@@ -803,6 +858,7 @@ function updateBlock(i,j) {
           if (!getBlock(j+l,i+k).explosionproof&&Math.sqrt(k*k+l*l)<=size) {
             addToInv(level[i+k][j+l]);
             if (getBlock(j+l,i+k).groundCover) level[i+k][j+l]='flare';
+            else if (level[i+k][j+l]=='explosive') level[i+k][j+l]='explosive2';
             else level[i+k][j+l]=Math.floor(Math.random()*3)?'flare':'fire';
           }
         }
@@ -812,8 +868,22 @@ function updateBlock(i,j) {
     case 'fire':
       for (var k=1;k<9;k+=2) {
         if (level[k%3-1+i][Math.floor(k/3)-1+j]=='acidvapour') level[k%3-1+i][Math.floor(k/3)-1+j]='explosive2';
-        else if (level[k%3-1+i][Math.floor(k/3)-1+j]=='water'&&!Math.floor(Math.random()*20)) level[k%3-1+i][Math.floor(k/3)-1+j]='vapour';
-        else if (level[k%3-1+i][Math.floor(k/3)-1+j]=='seawater'&&!Math.floor(Math.random()*20)) level[k%3-1+i][Math.floor(k/3)-1+j]='vapour';
+        else if (level[k%3-1+i][Math.floor(k/3)-1+j]=='water'&&!Math.floor(Math.random()*20)) {
+          level[k%3-1+i][Math.floor(k/3)-1+j]='vapour';
+          if (!Math.floor(Math.random()*2)) level[i][j]='charcoal';
+        }
+        else if (level[k%3-1+i][Math.floor(k/3)-1+j]=='seawater'&&!Math.floor(Math.random()*20)) {
+          level[k%3-1+i][Math.floor(k/3)-1+j]='vapour';
+          if (!Math.floor(Math.random()*2)) level[i][j]='charcoal';
+        }
+        else if (level[k%3-1+i][Math.floor(k/3)-1+j]=='contaminatedwater'&&!Math.floor(Math.random()*20)) {
+          level[k%3-1+i][Math.floor(k/3)-1+j]='explosive2';
+          if (!Math.floor(Math.random()*2)) level[i][j]='charcoal';
+        }
+        else if (level[k%3-1+i][Math.floor(k/3)-1+j]=='urine'&&!Math.floor(Math.random()*20)) {
+          level[k%3-1+i][Math.floor(k/3)-1+j]='vapour';
+          if (!Math.floor(Math.random()*2)) level[i][j]='charcoal';
+        }
         else if (level[k%3-1+i][Math.floor(k/3)-1+j]=='explosive') level[k%3-1+i][Math.floor(k/3)-1+j]='explosive2';
         else if (!getBlock(Math.floor(k/3)-1+j,k%3-1+i).fireproof&&!Math.floor(Math.random()*20)) level[k%3-1+i][Math.floor(k/3)-1+j]='fire';
       }
@@ -831,6 +901,15 @@ function updateBlock(i,j) {
       }
       level[i+hite][j]="palmleaves";
       for (var l=1;l<4;l++) {level[i+hite][j+l]="palmleaves";level[i+hite][j-l]="palmleaves";}
+      break;
+    case 'urine':
+      level[i+1][j]="acidvapour";
+      break;
+    case 'feces':
+      for (var k=1;k<9;k+=2) {
+        if (['dirt','compost'].includes(level[k%3-1+i][Math.floor(k/3)-1+j])&&!Math.floor(Math.random()*100)) level[i][j]='compost';
+      }
+      if (getBlock(j,i+1).groundCover) level[i+1][j]="acidvapour";
       break;
   }
 }
@@ -985,9 +1064,18 @@ function play() {
   if (playerData.health<=0) {
     playerData.health=100;
     playerData.oxygen=300;
+    playerData.thirst=3600;
+    playerData.hunger=3600;
     x=cX;y=cY;
     xv=0;yv=0;
+    document.querySelector('#label').innerHTML="You failed at life.";
+    clearTimeout(timeoutId);
+    timeoutId=setTimeout(function(){document.querySelector('#label').innerHTML='';},3000);
   }
+  if (playerData.thirst>0) playerData.thirst--;
+  else playerData.health--;
+  if (playerData.hunger>0) playerData.thirst--;
+  else playerData.health--;
 }
 function addToInv(blockName) {
   var items=blockData[blockName].drops;
@@ -1031,7 +1119,20 @@ function interact() {
     if (qD||eD) {
       if (selX!=mineInfo[3]||selY!=mineInfo[4]||mineInfo[0]!=level[selY][selX]) mineInfo=[];
       else if (Date.now()>=mineInfo[1]+mineInfo[2]) {
-        addToInv(level[mineInfo[4]][mineInfo[3]]);
+        if (mineInfo[5]=='acidproofbucket'&&mineInfo[0]=='acid') {
+          inv.acidproofbucket--;
+          if (!inv.acidproofbucket) {
+            delete inv.acidproofbucket;
+            if ("acidproofbucket"==hand1) hand1='';
+            else hand2='';
+          }
+          if (!inv.hasOwnProperty('bucketofacid')) inv.bucketofacid=1;
+          else inv.bucketofacid++;
+          if (!hand1&&hand2!='bucketofacid'&&!qD) hand1='bucketofacid';
+          else if (!hand2&&hand1!='bucketofacid'&&!eD) hand2='bucketofacid';
+          renderHands();
+        }
+        else addToInv(level[mineInfo[4]][mineInfo[3]]);
         if (mineInfo[0].slice(-7)=="treaves"&&mineInfo[0].slice(0,3)=="aut") level[mineInfo[4]][mineInfo[3]]="auttrunk";
         else if (mineInfo[0].slice(-7)=="treaves") level[mineInfo[4]][mineInfo[3]]=mineInfo[0].slice(0,-7)+"trunk";
         else level[mineInfo[4]][mineInfo[3]]="air";
@@ -1044,12 +1145,85 @@ function interact() {
     var item;
     if (qD) item=hand1;
     else if (eD) item=hand2;
-    if (item&&itemData[item].place) { // place
+    if (item&&(itemData[item].drink||itemData[item].food)&&(playerData.thirst<3000||playerData.hunger<3000)) {
+      if (itemData[item].drink) {
+        playerData.thirst+=itemData[item].drink;
+        playerData.bladder++;
+        if (playerData.thirst>3600) playerData.thirst=3600;
+      }
+      if (itemData[item].food) {
+        playerData.hunger+=itemData[item].food;
+        playerData.rectum++;
+        if (playerData.hunger>3600) playerData.hunger=3600;
+      }
+      inv[item]--;
+      if (!inv[item]) {
+        delete inv[item];
+        if (item==hand1) hand1='';
+        else hand2='';
+      }
+      if (playerData.bladder>10) {
+        var j=0;
+        for (var i=0;i<lH;i++) {
+          while (!blockData[level[Math.floor((y+180)/16)+i][Math.floor((x+240)/16)]].groundCover&&i<lH) i++;
+          level[Math.floor((y+180)/16)+i][Math.floor((x+240)/16)]='urine';
+          j++;
+          if (j>=playerData.bladder) break;
+        }
+        playerData.bladder=0;
+        clearTimeout(timeoutId);
+        document.querySelector('#label').innerHTML='';
+      } else if (playerData.bladder==10) {
+        document.querySelector('#label').innerHTML='Your bladder is full and requires a micturition.';
+        clearTimeout(timeoutId);
+        timeoutId=setTimeout(function(){
+          var j=0;
+          for (var i=0;i<lH;i++) {
+            while (!blockData[level[Math.floor((y+180)/16)+i][Math.floor((x+240)/16)]].groundCover&&i<lH) i++;
+            level[Math.floor((y+180)/16)+i][Math.floor((x+240)/16)]='urine';
+            j++;
+            if (j>=10) break;
+          }
+          playerData.bladder=0;
+          document.querySelector('#label').innerHTML='';
+        },30000);
+      }
+      if (playerData.rectum>20) {
+        var j=0;
+        for (var i=0;i<lH;i++) {
+          var k=Math.floor(Math.random()*3)-1;
+          var i=0;
+          while (!blockData[level[Math.floor((y+180)/16)+i][Math.floor((x+240)/16)+k]].groundCover&&i<lH) i++;
+          level[Math.floor((y+180)/16)+i][Math.floor((x+240)/16)+k]='feces';
+          j++;
+          if (j>=20) break;
+        }
+        playerData.rectum=0;
+        clearTimeout(timeoutId);
+        document.querySelector('#label').innerHTML='';
+      } else if (playerData.rectum==20) {
+        document.querySelector('#label').innerHTML='Your bladder is full and requires a defecation.';
+        clearTimeout(timeoutId);
+        timeoutId=setTimeout(function(){
+          var j=0;
+          for (var i=0;i<lH;i++) {
+            var k=Math.floor(Math.random()*3)-1;
+            var i=0;
+            while (!blockData[level[Math.floor((y+180)/16)+i][Math.floor((x+240)/16)+k]].groundCover&&i<lH) i++;
+            level[Math.floor((y+180)/16)+i][Math.floor((x+240)/16)+k]='feces';
+            j++;
+            if (j>=20) break;
+          }
+          playerData.rectum=0;
+          document.querySelector('#label').innerHTML='';
+        },30000);
+      }
+    } else if (item&&itemData[item].place) { // place
       if (blockData[level[selY][selX]].furn) {
         document.querySelector("#cover").style.cursor="auto";
         document.querySelector("#cursor").style.display="none";
         invMode=blockData[level[selY][selX]].invmode;
-        plsMakeCraftingUIAppearForMe();
+        plsMakeCraftingUIAppearForMe(selY,selX);
       } else if (blockData[level[selY][selX]].groundCover) {
         if (level[selY][selX]!="air") addToInv(level[selY][selX]);
         level[selY][selX]=itemData[item].place;
@@ -1059,12 +1233,18 @@ function interact() {
           if (item==hand1) hand1='';
           else hand2='';
         }
+        if (item=='bucketofacid') {
+          if (!inv.hasOwnProperty('acidproofbucket')) inv.acidproofbucket=1;
+          else inv.acidproofbucket++;
+          if (!hand1&&hand2!='acidproofbucket'&&!qD) hand1='acidproofbucket';
+          else if (!hand2&&hand1!='acidproofbucket'&&!eD) hand2='acidproofbucket';
+        }
         renderHands();
       } else if (qD||eD) {
         var time=blockData[level[selY][selX]].mineTime,speed=1;
         if (time!=-1) {
           if (item&&itemData[item].tool&&itemData[item].tool==blockData[level[selY][selX]].tool) speed=itemData[item].toolspeed;
-          mineInfo=[level[selY][selX],time*1000/speed,Date.now(),selX,selY];
+          mineInfo=[level[selY][selX],time*1000/speed,Date.now(),selX,selY,item];
         }
       }
     } else if (qD||eD) { // mine
@@ -1073,10 +1253,10 @@ function interact() {
         document.querySelector("#cover").style.cursor="auto";
         document.querySelector("#cursor").style.display="none";
         invMode=blockData[level[selY][selX]].invmode;
-        plsMakeCraftingUIAppearForMe();
+        plsMakeCraftingUIAppearForMe(selY,selX);
       } else if (time!=-1) {
         if (item&&itemData[item].tool&&itemData[item].tool==blockData[level[selY][selX]].tool) speed=itemData[item].toolspeed;
-        mineInfo=[level[selY][selX],time*1000/speed,Date.now(),selX,selY];
+        mineInfo=[level[selY][selX],time*1000/speed,Date.now(),selX,selY,item];
       }
     }
     if (document.querySelector("#cursor").style.background!="none") document.querySelector("#cursor").style.background="none";
@@ -1163,7 +1343,7 @@ function prepareInventoryMagicness(extras) {
     document.body.removeEventListener("keydown",lol);
   };
 }
-function plsMakeCraftingUIAppearForMe() {
+function plsMakeCraftingUIAppearForMe(heresTheYOfTheCrafter,heresTheXOfTheCrafter) {
   if (invMode=='assemble') prepareInventoryMagicness("<ul id='availables'></ul>");
   else if (invMode=='melt') prepareInventoryMagicness("<ul id='availables'></ul>");
   else prepareInventoryMagicness();
@@ -1185,12 +1365,18 @@ function plsMakeCraftingUIAppearForMe() {
       if (invMode=='melt') {
         removeFromInv('coal',1);
         for (var ingridient in itemData[item].metals) removeFromInv(ingridient,itemData[item].metals[ingridient]);
+        var i=1;
+        while (['vapour','smoke'].includes(level[heresTheYOfTheCrafter+i][heresTheXOfTheCrafter])&&i<lH) i++;
+        if (blockData[level[heresTheYOfTheCrafter+i][heresTheXOfTheCrafter]].groundCover) {
+          if (itemData[item].metals.water||itemData[item].metals.seawater||itemData[item].metals.contaminatedwater||itemData[item].metals.urine) level[heresTheYOfTheCrafter+i][heresTheXOfTheCrafter]='vapour';
+          else level[heresTheYOfTheCrafter+i][heresTheXOfTheCrafter]='smoke';
+        }
       }
       if (!inv.hasOwnProperty(item)) inv[item]=1;
       else inv[item]++;
       if (!hand1&&hand2!=item) hand1=item;
       else if (!hand2&&hand1!=item) hand2=item;
-      plsMakeCraftingUIAppearForMe();
+      plsMakeCraftingUIAppearForMe(heresTheYOfTheCrafter,heresTheXOfTheCrafter);
     }
   };
 }
