@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Platformre level test</title>
+    <title>Platformre</title>
     <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
 body {
   font-family: monospace;
@@ -162,29 +163,32 @@ span:hover:after {
 #thing>span:nth-child(7):hover:after {content:'make gold';}
 #thing>span:nth-child(8):hover:after {content:'teleport through blocks';}
 #thing>span:nth-child(9):hover:after {content:'save yourself';}
+.material-icons {
+  font-size: 0.8em;
+}
     </style>
     <link rel="stylesheet" type="text/css" href="blocks.css">
   </head>
   <body>
     <b>Use the keys WAD (on your keyboard) to move the player around. Use the S key to swim or teleport downwards or slam or jump downwards. Press p to pause, r to suicide, and space to brake and activate powerups that you are standing on.</b><br>
-    <span onclick="createRandomLevel()" style="font-size: 2em;">generate a level</span> <span id="load">load</span>
+    <span onclick="createRandomLevel()" style="font-size: 2em;"><i class="material-icons">add_circle_outline</i>generate a level</span> <span id="load"><i class="material-icons">file_download</i>load</span> <a href="submit.html"><i class="material-icons">playlist_add</i>submit level</a>
     <select onchange="example(Number(this.value));">
-      <option value="-1">Select featured level :P</option>
+      <option value="-1">Select level :P</option>
       <option value="0">Untitled by Steven</option>
       <option value="1">Untitled by Zach</option>
       <option value="2">Untitled-2 by Zach</option>
     </select>
-    <a href="levelmaker.html">edit level</a> <span onclick="var x=document.querySelector('#creds');z=!window.z;if(z)x.style.display='block';else x.style.display='none';">show/hide credits/changelog</span> <span id="joystick">enable joystick</span>
-    <textarea placeholder="Level data here"></textarea><br>
-    <div id="thing"><span onclick="var c=document.querySelector('#thing');v=!window.v;if(v)c.className='atoscrol';else c.className='';">toggle autoscroll</span> spawn
-    <span onclick="setBlock(0,-40,'a');render();">lava to solid</span>
-    <span onclick="setBlock(0,-40,'i');render();">liquification</span>
-    <span onclick="setBlock(0,-40,'p');render();">pillar</span>
-    <span onclick="setBlock(0,-40,';');render();">slammer</span>
-    <span onclick="setBlock(0,-40,'o');render();">rage</span>
-    <span onclick="setBlock(0,-40,'m');render();">midas' touch</span>
-    <span onclick="setBlock(0,-40,'t');render();">transparent block</span>
-    powerup or <span onclick="setBlock(0,-40,'C');render();">checkpoint</span></div><br>
+    <a href="maker/"><i class="material-icons">mode_edit</i>edit level</a> <span onclick="var x=document.querySelector('#creds');z=!window.z;if(z)x.style.display='block';else x.style.display='none';"><i class="material-icons">subject</i>show/hide credits/changelog</span> <span id="joystick"><i class="material-icons">videogame_asset</i>enable joystick</span>
+    <textarea placeholder="Level code here"></textarea><br>
+    <div id="thing"><span onclick="var c=document.querySelector('#thing');v=!window.v;if(v)c.className='atoscrol';else c.className='';"><i class="material-icons">open_with</i>toggle autoscroll</span> spawn
+    <span onclick="setBlock(0,-40,'a');render();"><i class="material-icons">invert_colors</i>lava to solid</span>
+    <span onclick="setBlock(0,-40,'i');render();"><i class="material-icons">local_drink</i>liquification</span>
+    <span onclick="setBlock(0,-40,'p');render();"><i class="material-icons">cloud_upload</i>pillar</span>
+    <span onclick="setBlock(0,-40,';');render();"><i class="material-icons">file_download</i>slammer</span>
+    <span onclick="setBlock(0,-40,'o');render();"><i class="material-icons">accessibility</i>rage</span>
+    <span onclick="setBlock(0,-40,'m');render();"><i class="material-icons">attach_money</i>midas' touch</span>
+    <span onclick="setBlock(0,-40,'t');render();"><i class="material-icons">swap_horiz</i>transparent block</span>
+    powerup or <span onclick="setBlock(0,-40,'C');render();"><i class="material-icons">beenhere</i>checkpoint</span></div><br>
     <div id="joistik" class="notactive">
       <img src="icons/joystick.svg" id="move"/>
       <img src="icons/brake.svg" id="brake"/>

@@ -118,14 +118,12 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
       case "antilava":
         for (var i=0;i<9;i++) {
           tt=getBlock(i%3*40-40,Math.floor(i/3)*40-40);
-          if (danger.includes(tt)) {
-            setBlock(i%3*40-40,Math.floor(i/3)*40-40,"@");
-            anyChanges=true;
-          }
-          if (tt=="f") {
-            setBlock(i%3*40-40,Math.floor(i/3)*40-40," ");
-            anyChanges=true;
-          }
+          anyChanges=true;
+          if (tt=='#') setBlock(i%3*40-40,Math.floor(i/3)*40-40,"ý");
+          else if (tt=="é") setBlock(i%3*40-40,Math.floor(i/3)*40-40,"@");
+          else if (tt=="í") setBlock(i%3*40-40,Math.floor(i/3)*40-40,"á");
+          else if (tt=="f") setBlock(i%3*40-40,Math.floor(i/3)*40-40," ");
+          else anyChanges=false;
         }
         break;
       case "liquify":
@@ -507,10 +505,10 @@ document.querySelector("#joystick").onclick=function(){
   var joy=function(e) {
     var xDiff=e.changedTouches[0].clientX-130,yDiff=e.changedTouches[0].clientY-document.querySelector("#joistik img").getBoundingClientRect().top-100;
     wDown=false;aDown=false;dDown=false;sDown=false;
-    if (xDiff>0) dDown=true;
-    else if (xDiff<0) aDown=true;
-    if (yDiff<-50) wDown=true;
-    else if (yDiff>50) sDown=true;
+    if (xDiff>30) dDown=true;
+    else if (xDiff<-30) aDown=true;
+    if (yDiff<-30) wDown=true;
+    else if (yDiff>30) sDown=true;
     document.querySelector("#move").style.transform="perspective(100px) rotateY("+(aDown?-5:(dDown?5:0))+"deg) rotateX("+(sDown?-5:(wDown?5:0))+"deg)";
     e.preventDefault();
   }

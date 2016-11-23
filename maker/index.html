@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Level makitor</title>
+    <title>Makitor - Platformre</title>
     <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
 body {
   font-family: monospace;
@@ -105,28 +106,31 @@ input:focus, textarea:focus {
 .atoscrol span{background:rgba(0,0,0,0.2);}
 .atoscrol span:hover{background:rgba(0,0,0,0.5);}
 .atoscrol span:active{background:black;}
+.material-icons {
+  font-size: 0.8em;
+}
     </style>
-    <link rel="stylesheet" type="text/css" href="blocks.css">
+    <link rel="stylesheet" type="text/css" href="../blocks.css">
   </head>
   <body>
     <p>
       <b>Click. Press the arrow keys to expand or shorten the level size.</b><br>
       <span id="palette"></span>
     </p>
-    <div id="curB" class="ground"></div><p id="current">solid</p> <span id="undo" class="btn">undo</span> <span id="redo" class="btn">redo</span>
+    <div id="curB" class="ground"></div><p id="current">solid</p> <span id="undo" class="btn"><i class="material-icons">undo</i>undo</span> <span id="redo" class="btn"><i class="material-icons">redo</i>redo</span>
     <div class="level"></div>
     width: <span id="width"></span> height: <span id="height"></span> <span id="template" class="btn">set height to 6</span><br>
-    <span onclick="var x=document.querySelector('#text');window.z=!window.z;if(window.z)x.style.display='block';else x.style.display='none';" class="btn">show/hide text blocks</span>
+    <span onclick="var x=document.querySelector('#text');window.z=!window.z;if(window.z)x.style.display='block';else x.style.display='none';" class="btn"><i class="material-icons">title</i>show/hide text blocks</span>
     <div id="text" style="display:none;">
     </div><br>
-    <span id="save" class="btn">save to cookie</span> <span id="done" class="btn">get code for this</span> <span id="doneBit" class="btn">(for developers) get code as level bit</span><br><a href id="test">save and test level</a>
+    <span id="save" class="btn"><i class="material-icons">cloud_upload</i>save to cookie</span> <span id="done" class="btn"><i class="material-icons">code</i>get code for this</span> <span id="doneBit" class="btn">(for developers) get code as level bit</span><br><a href id="test"><i class="material-icons">save</i>save and test level</a>
     <br>
-    <span id="load" class="btn">import</span>
-    <textarea placeholder="code here"></textarea>
+    <span id="load" class="btn"><i class="material-icons">file_download</i>import</span> <a href="../submit.html"><i class="material-icons">playlist_add</i>submit level</a>
+    <textarea placeholder="Level code here"></textarea>
     suggest level piece for the level randomizer <a href="https://scratch.mit.edu/projects/124314649/">on Scratch</a> <!--or
     <a href="https://docs.google.com/forms/d/e/1FAIpQLSdz6F-IRXt_H6P3nMQCwJKHqSzmi5X0XzgvgI7HtQXeRiUcSw/viewform">on a google form</a>--> (btw these level pieces have to be 4-8 blocks by 6 with no right wall nor ceiling)
 
-    <script src="../sheep.js"></script>
+    <script src="../../sheep.js"></script>
     <script src="maker.js"></script>
 <!-- MADE BY SEAN -->
   </body>
