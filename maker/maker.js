@@ -168,7 +168,7 @@ document.querySelector("#load").onclick=function(){
 }
 document.querySelector("#test").onclick=function(){
   save();
-  window.location.href='https://sheeptester.github.io/platformre/';
+  window.location.href='../';
   return false;
 }
 document.querySelector("#template").onclick=function(){
