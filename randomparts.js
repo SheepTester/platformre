@@ -424,7 +424,8 @@ var exampleLevels=[
   "á         yá",
   "á0áííáááííááá"
 ],
-  [["Made by Anonymous!"],
+[[
+"Made by Anonymous!"],
 "@@@@@@@@@@@@@@@@@@@@@@@@@",
 "@e           wwwwwwwww++@",
 "@e           wwwwwwwww++@",
@@ -435,7 +436,7 @@ var exampleLevels=[
 "@  áóóó                 @",
 "@   ááóó               @@",
 "@     íí**<<<á         e@",
-"@wwwwwwwwwwww  áí@wwCC@e@",
+"@wwwwwwwwwwww íáí@wwCC@e@",
 "@########úúúú    @ww@@@e@",
 "@@@ááá@@@**úú   # @@   e@",
 "@          úú         áá@",
