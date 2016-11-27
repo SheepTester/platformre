@@ -63,6 +63,20 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       " ss ",
       "    ",
       "@@@@"
+    ],[
+      "####",
+      "úú ú",
+      " ú  ",
+      "    ",
+      "  C ",
+      "mm@m"
+    ],[
+      "áááá",
+      "yyíy",
+      "yyíy",
+      "yyyy",
+      "yyyy",
+      "yyyy"
     ],
   ],[ // 5-wide levels
     [
@@ -128,6 +142,20 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "   ##",
       "  ###",
       "a####"
+    ],[
+      "@@@@@",
+      "yy gó",
+      "yý;gó",
+      "yýggó",
+      "yýggó",
+      "@@t@@"
+    ],[
+      "@####",
+      "w    ",
+      "wvnnv",
+      "w@  @",
+      "w@  @",
+      "@@##@"
     ],
   ],[ // 6-wide levels
     [
@@ -193,6 +221,20 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "  # # ",
       "      ",
       "@@aa##"
+    ],[
+      "qqqqqq",
+      "qqqqqq",
+      "qqqqqq",
+      "qqqqqq",
+      "qqqqqq",
+      "@@@@@@"
+    ],[
+      "áááááá",
+      "á    á",
+      "á  á  ",
+      "á  á í",
+      "   á  ",
+      "áááááá"
     ],
   ],[ // 7-wide levels
     [
@@ -258,6 +300,20 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "       ",
       "       ",
       "s#####s"
+    ],[
+      "       ",
+      "       ",
+      "       ",
+      "       ",
+      " fffff ",
+      "@@@@@@@"
+    ],[
+      "uuuuuuu",
+      "uuuuuuu",
+      "uuuuuuu",
+      "uuuuuuu",
+      "uuuuu@@",
+      "@@###@@"
     ],
   ],[ // 8-wide levels
     [
@@ -323,6 +379,20 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "  ``###`",
       "``@@@##@",
       "@@@@@@@@"
+    ],[
+      "e ééééé ",
+      "e       ",
+      "e@@@@@@@",
+      "e       ",
+      "e       ",
+      "@@ýýiýý@"
+    ],[
+      "ú ####  ",
+      "ú #### @",
+      "ú #### @",
+      "ú #### @",
+      "ú #### @",
+      "@o@@@@p@"
     ],
   ],
 ],start=[

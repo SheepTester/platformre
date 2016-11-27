@@ -71,10 +71,10 @@ document.querySelector(".level").onmousedown=function(e){
   mD=true;
   if (e.target.className.slice(0,10)=="levelBlock") {
     var row=Number(e.target.parentNode.id.slice(1)),col=Number(e.target.id.slice(1));
-    if (!(row==level.length-2&&col==1)) {
+    // if (!(row==level.length-2&&col==1)) {
       e.target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
       level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
-    }
+    // }
   }
 }
 document.querySelector(".level").onmouseup=function(){mD=false;if(level!=hist[hist.length-1]){hist.push(JSON.parse(JSON.stringify(level)));redoHist=[];}}
@@ -82,10 +82,10 @@ document.querySelector(".level").onmouseover=function(e){
   if (e.target.className.slice(0,10)=="levelBlock"&&mD) {
     var row=Number(e.target.parentNode.id.slice(1));
     var col=Number(e.target.id.slice(1));
-    if (!(row==level.length-2&&col==1)) {
+    // if (!(row==level.length-2&&col==1)) {
       e.target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
       level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
-    }
+    // }
   }
 }
 document.body.onkeydown=function(e){
