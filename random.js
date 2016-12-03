@@ -58,6 +58,18 @@ document.body.onkeydown=function(e){
     case 68:
       dDown=true;
       break;
+    case 38:
+      wDown=true;
+      break;
+    case 37:
+      aDown=true;
+      break;
+    case 40:
+      sDown=true;
+      break;
+    case 39:
+      dDown=true;
+      break;
     case 32:
       spaceDown=true;
       if (e.target==document.body) {
@@ -93,6 +105,18 @@ document.body.onkeyup=function(e){
     case 68:
       dDown=false;
       break;
+    case 38:
+      wDown=false;
+      break;
+    case 37:
+      aDown=false;
+      break;
+    case 40:
+      sDown=false;
+      break;
+    case 39:
+      dDown=false;
+      break;
     case 32:
       spaceDown=false;
       break;
@@ -101,7 +125,7 @@ document.body.onkeyup=function(e){
 /* plattformre script based off those from Scratch */
 var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýádn".split(''),danger="#éí",power="",powerupdelay=-1,v,time,play=function(){
   x+=xv;y+=yv;
-  updateLevel();
+  // updateLevel();
   var nearBys=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)],
   onALadder=nearBys.includes("e"),
   collidingWithWall=collide.includes(getBlock(-15,0))||collide.includes(getBlock(14,0)),
@@ -111,9 +135,9 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   powerupLength=[5,2,1,5,3,5],
   reverseGrav=nearBys.includes("y"),
   confYes=nearBys.includes("u"),
-  sD=confYes?dDown:sDown,dD=confYes?wDown:dDown,wD=confYes?aDown:wDown,aD=confYes?sDown:aDown;
+  sD=confYes?dDown:sDown,dD=confYes?wDown:dDown,wD=confYes?aDown:wDown,aD=confYes?sDown:aDown,
+  anyChanges=false,tt;
   if (power) { /* powerups */
-    var anyChanges=false,tt;
     switch (power) {
       case "antilava":
         for (var i=0;i<9;i++) {
@@ -183,8 +207,21 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
         }
         break;
     }
-    if (anyChanges) render();
   }
+  for (var i=0;i<25;i++) {
+    tt=getBlock(i%5*40-80,Math.floor(i/5)*40-80);
+    if (tt=="q"&&!Math.floor(Math.random()*60)) {
+      setBlock(i%5*40-80,Math.floor(i/5)*40-80,"n");
+      anyChanges=true;
+    } else if (tt=="n"&&!Math.floor(Math.random()*60)) {
+      setBlock(i%5*40-80,Math.floor(i/5)*40-80,"q");
+      anyChanges=true;
+    } else if (tt=="d"&&!Math.floor(Math.random()*60)) {
+      setBlock(i%5*40-80,Math.floor(i/5)*40-80," ");
+      anyChanges=true;
+    }
+  }
+  if (anyChanges) render();
   if (getBlock(0,0)=="f"&&power!="rage") die();
   else if (onALadder) {
     yv=0;
@@ -439,7 +476,7 @@ function createRandomLevel() {
       floorlength-=k+4;
       nextbit=parts[k][rand(0,parts[k].length-1)];
       for (var i=0;i<5;i++) {
-        if ((!collide.includes(nextbit[i][0])||nextbit[i][0]=="w")&&(!collide.includes(level[i][level[i].length-1])||level[i][level[i].length-1]=="w")) {
+        if ((nextbit[i][0]==" "||nextbit[i][0]=="w")&&(level[i][level[i].length-1]==" "||level[i][level[i].length-1]=="w")) {
           break;
         }
       }

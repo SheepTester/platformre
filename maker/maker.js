@@ -16,12 +16,37 @@ var paletteIdToPaletteLabel={
   air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB",autojumppad:"ajump topOnly",gold:"gold",sand:"sand",lavatosolidpowerup:"antilava topOnly",usedpowerup:"nopower",liquificationpowerup:"liquify topOnly",pillarpowerup:"pillar topOnly",fire:"fire",ladder:"ladder",slammerpowerup:"slam topOnly",ragepowerup:"rage topOnly",midastouchpowerup:"midas topOnly",transparentblockspowerup:"trans topOnly",solidlava:"sl",invisiblesolid:"sa",dangeroussolid:"ls",invisiblelava:"la",transparentsolid:"as",transparentlava:"al",gravity:"grav",text:"text topOnly",confusion:"conf",fadingblock:"fade",unstablesolid:"unes",unstableair:"unet"
 },paletteLabelToSymbol={
   air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B",autojumppad:"&",gold:"g",sand:"s",lavatosolidpowerup:"a",usedpowerup:"`",liquificationpowerup:"i",pillarpowerup:"p",fire:"f",ladder:"e",slammerpowerup:";",ragepowerup:"o",midastouchpowerup:"m",transparentblockspowerup:"t",solidlava:"ý",invisiblesolid:"á",dangeroussolid:"é",invisiblelava:"í",transparentsolid:"ó",transparentlava:"ú",gravity:"y",confusion:"u",fadingblock:"d",unstablesolid:"n",unstableair:"q"
+},paletteLabelToDesc={
+  air:"The normal invisible thing that you can't collide into.",
+  solid:"An ordinary block that hurts if you run and jump into it, so don't.",
+  lava:"A really hot liquidy thing that kills you too fast.",
+  destination:"This is what people have to touch to feel accomplished.",
+  jumpboost:"Makes you jump higher.",
+  stickyground:"You can't jump on this.",
+  ice:"It's a bit slippery and hard to move on.",
+  mud:"A muddy block that makes you move slower.",
+  water:"A liquid that you can swim in without dying too quickly.",
+  leftconveyorbelt:"Stand on it and you magically move to the left.",rightconveyorbelt:"Stand on it and you magically move to the left.",
+  checkpoint:"After standing on this you'll resurrect here when you die.",
+  leftfan:"Pushes you to the left.",rightfan:"Pushes you to the right.",upfan:"Pushes you upwards and allows you to swim through the air.",
+  autojumppad:"Makes you jump higher and also does it for you.",
+  gold:"A shiny decorational block to make you feel rich even though you aren't.",sand:"A boring decorational block.",
+  lavatosolidpowerup:"Turns dangerous blocks into their solid lookalikes.",usedpowerup:"An uninteresting block.",liquificationpowerup:"Creates water and ice and things.",pillarpowerup:"Creates a pillar when you jump and also sets your resurrection point.",
+  fire:"A dangerous block that kills you a bit slower than lava.",
+  ladder:"You can climb this by pressing w and s to descend.",
+  slammerpowerup:"Press s and it'll destroy the block under you, given that you are a block above nothingness.",ragepowerup:"Superspeed and lava-proofness.",midastouchpowerup:"Turns nearby blocks into gold; activates automatically.",transparentblockspowerup:"Goes through walls and ceilings a block thick. Press s to fall through the floor.",
+  solidlava:"A safer, solider kind of lava.",invisiblesolid:"What seems to be air actually is an invisible wall.",dangeroussolid:"What seems to be the safe familiar solid turns out to be the rapidly killing lava disguised as solid.",invisiblelava:"Some kind of really hot air.",transparentsolid:"Walls that you can walk through.",transparentlava:"Lava that doesn't hurt you and instead you just fall through it.",
+  gravity:"Reverses gravity; powerups and related blocks won't work while you're on the ceiling.",
+  confusion:"Your controls are messed around with.",
+  fadingblock:"Pillars create this block; fades away into air after a bit when near the player.",
+  unstablesolid:"Turns transparent after a bit when near the player.",unstableair:"Turns solid after a bit when near the player."
 };
 var inputStuff="",textStyle="";
 for (var i=0;i<10;i++) {
   paletteIdToPaletteLabel["t"+i]="textblock"+i;
-  paletteLabelToClassName["textblock"+i]="text topOnly t"+i;
+  paletteLabelToClassName["textblock"+i]="t"+i+" text topOnly";
   paletteLabelToSymbol["textblock"+i]=i.toString();
+  paletteLabelToDesc["textblock"+i]="Displays text on the screen.";
   inputStuff+='textblock'+i+': <input type="text" placeholder="Text to display" id="i'+i+'"/><br>';
   textStyle+=".t"+i+":after {content: 't"+i+"';}";
 }
@@ -31,12 +56,16 @@ for (var i=0;i<level[0].length;i++) {
   document.querySelector("#i"+i).value=level[0][i];
 }
 var innerht='',blockClasses=[],ids="";
+textStyle="";
 for (var span in paletteIdToPaletteLabel) {
-  innerht+='<div class="icon"><div class="'+paletteLabelToClassName[paletteIdToPaletteLabel[span]]+'"></div></div>';
-  innerht+='<span class="blkTyp" id="'+span+'">'+paletteIdToPaletteLabel[span]+'</span> ';
+  var ssss=paletteLabelToClassName[paletteIdToPaletteLabel[span]];
+  if (ssss.indexOf(' ')>-1) ssss=ssss.slice(0,ssss.indexOf(' '));
+  innerht+='<div class="hoverthing '+ssss+'hoverthingTHING"><div class="icon"><div class="'+paletteLabelToClassName[paletteIdToPaletteLabel[span]]+'"></div></div><span class="blkTyp" id="'+span+'">'+paletteIdToPaletteLabel[span]+'</span></div> ';
   blockClasses.push(paletteLabelToClassName[paletteIdToPaletteLabel[span]]);
   ids+=paletteLabelToSymbol[paletteIdToPaletteLabel[span]];
+  textStyle+="."+ssss+"hoverthingTHING:hover:after {content:\""+paletteLabelToDesc[paletteIdToPaletteLabel[span]]+"\";}";
 }
+document.head.innerHTML+="<style>"+textStyle+"</style>";
 function render() {
   var data="";
   if (typeof level[0]=="object") {

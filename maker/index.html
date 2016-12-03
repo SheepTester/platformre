@@ -109,6 +109,16 @@ input:focus, textarea:focus {
 .material-icons {
   font-size: 0.8em;
 }
+.hoverthing {
+  display: inline;
+}
+.hoverthing:hover:after {
+  background: white;
+  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+  position: absolute;
+  z-index: 1000;
+  transform: translateX(-60px) translateY(12px);
+}
     </style>
     <link rel="stylesheet" type="text/css" href="../blocks.css">
   </head>
