@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Submit a level - Platformre</title>
+    <title>Received level - Platformre</title>
     <meta charset="UTF-8">
     <style>
 body {
@@ -51,6 +51,18 @@ input:focus, textarea:focus {
     <p>Now why not <a href="./">play other people's levels that are equally bad as yours</a> or <a href="maker/">make yet another level because you find it entertaining for some reason</a>.</p>
 
     <script src="../sheep.js"></script>
+    <script>
+if (window.location.search=="?bit") {
+  function replace(element) {
+    element.innerHTML=element.innerHTML.replace(/level/g,'level-bit');
+  }
+  replace(document.querySelector("p:nth-child(2)"));
+  replace(document.querySelector("p:nth-child(3)"));
+  replace(document.querySelector("title"));
+  replace(document.querySelector("h1"));
+  document.querySelector("a:first-child").innerHTML="play the current random level generator";
+}
+    </script>
 <!-- MADE BY SEAN -->
   </body>
 </html>

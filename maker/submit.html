@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Submit a level-bit - Platformre</title>
+    <meta charset="UTF-8">
+    <style>
+body {
+  font-family: monospace;
+}
+.blkTyp, .btn {
+  cursor: pointer;
+  background: #eee;
+}
+.blkTyp:hover, .btn:hover {
+  background: gray;
+}
+.blkTyp:active, .btn:active {
+  background: black;
+  color: white;
+}
+textarea {
+  font-family: monospace;
+  font-size: inherit;
+  width: 200px;
+  height: 200px;
+}
+input {
+  width: 200px;
+}
+input, textarea {
+  border: 1px solid #ccc !important;
+  display: block;
+}
+input:focus, textarea:focus {
+  border-color: blue !important;
+}
+.material-icons {
+  font-size: 0.8em;
+}
+/*input:focus:after, textarea:focus:after {
+  background: white;
+  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+  position: absolute;
+}
+#personname:focus:after {content:"Put your first name or alias here. Otherwise you'll be referred to as 'Anonymous.' Very mysterious indeed."}*/
+    </style>
+  </head>
+  <body>
+    <h1>Submit a level-bit</h1>
+    <p>Level-bits are used for the <a href="../">random level generator</a>. Every segment in the generator is a "level-bit."</p>
+    <p>Requirements:</p>
+    <ul>
+      <li>6 blocks tall (including floor)</li>
+      <li>4-8 blocks wide</li>
+      <li>floor required, ceiling is optional</li>
+      <li>no text blocks or destinations</li>
+      <li>at least a water or air on the left and right side</li>
+    </ul>
+    <p>Click on the rectangle below and do stuff. Relocate your cursor over a rectangle and most of the time a little tip thing will appear explaining in more detail what you are supposed to put in that rectangle.</p>
+    <p>Please note that you will not be creditted for your level-bit.</p>
+    <form action="https://formspree.io/seanthesheep22@outlook.com" method="POST">
+      <textarea name="level" placeholder="Level-bit code here" title="Paste the code of the level here (or type it if you think you're cool). Otherwise I can't add the level. Very sad indeed."></textarea>
+      <p style="color:red;" id="error"></p>
+      <input type="submit" value="OK here's my level-bit" title="Click me when you feel accomplished." />
+
+      <input type="hidden" name="_next" value="platformre/gotit.html?bit" />
+      <input type="hidden" name="_format" value="plain" />
+    </form>
+
+    <script src="../sheep.js"></script>
+    <script>
+      if(localStorage.getItem('level')) {
+        var level=JSON.parse(localStorage.getItem('level'));
+        level.splice(0,1);
+        document.querySelector('textarea').value="[\n  \""+level.join("\",\n  \"")+"\"\n],";
+        validate();
+      }
+      document.querySelector('textarea').onchange=validate;
+      function validate() {
+        var errors='';
+        if (!document.querySelector('textarea').value) errors+='Please paste your level code.<br>';
+        else {
+          var level;
+          try {
+            level=JSON.parse(document.querySelector('textarea').value.slice(0,-1));
+          }
+          catch(err) {
+            errors+='Make sure you\'re using the level-code format.<br>';
+          }
+          finally {
+            if (level) {
+              if (level.length!=6) errors+='Your level-bit needs to be 6 blocks tall.<br>';
+              if (typeof level[0]=="object") errors+='Make sure you\'re using the level-code format.<br>';
+              if (level[level.length-1].length<4) errors+='Level-bits have to be at least 4 blocks wide.<br>';
+              if (level[level.length-1].length>8) errors+='Level-bits have to be at most 8 blocks wide.<br>';
+            }
+          }
+        }
+        document.querySelector('#error').innerHTML=errors;
+      }
+    </script>
+<!-- MADE BY SEAN -->
+  </body>
+</html>
