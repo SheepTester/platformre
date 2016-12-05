@@ -65,8 +65,8 @@ var parts=[ /* 6 TALL LEVELS; space=air, @=ground, #=lava, +=win, ^=jumpboost, v
       "@@@@"
     ],[
       "####",
-      "úú ú",
-      " ú  ",
+      "úú  ",
+      "    ",
       "    ",
       "  C ",
       "mm@m"
