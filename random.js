@@ -441,7 +441,7 @@ function createRandomLevel() {
       floorlength-=k+4;
       nextbit=parts[k][rand(0,parts[k].length-1)];
       for (var i=0;i<5;i++) {
-        if ((!collide.includes(nextbit[i][0])||nextbit[i][0]=="w")&&(!collide.includes(level[i][level[i].length-1])||level[i][level[i].length-1]=="w")) {
+        if ((nextbit[i][0]==" "||nextbit[i][0]=="w")&&(level[i][level[i].length-1]==" "||level[i][level[i].length-1]=="w")) {
           break;
         }
       }
