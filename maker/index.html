@@ -118,6 +118,13 @@ input:focus, textarea:focus {
   position: absolute;
   z-index: 1000;
   transform: translateX(-60px) translateY(12px);
+  pointer-events: none;
+}
+input[type=number] {
+  width: 30px;
+}
+#test {
+  font-size: 1.5em;
 }
     </style>
     <link rel="stylesheet" type="text/css" href="../blocks.css">
@@ -129,16 +136,18 @@ input:focus, textarea:focus {
     </p>
     <div id="curB" class="ground"></div><p id="current">solid</p> <span id="undo" class="btn"><i class="material-icons">undo</i>undo</span> <span id="redo" class="btn"><i class="material-icons">redo</i>redo</span>
     <div class="level"></div>
-    width: <span id="width"></span> height: <span id="height"></span> <span id="template" class="btn">set height to 6</span><br>
+    width: <input type="number" min="3" id="width"/> height: <input type="number" min="3" id="height"/><br>
     <span onclick="var x=document.querySelector('#text');window.z=!window.z;if(window.z)x.style.display='block';else x.style.display='none';" class="btn"><i class="material-icons">title</i>show/hide text blocks</span>
     <div id="text" style="display:none;">
     </div><br>
-    <span id="save" class="btn"><i class="material-icons">cloud_upload</i>save to cookie</span> <span id="done" class="btn"><i class="material-icons">code</i>get code as level</span> <span id="doneBit" class="btn"><i class="material-icons">code</i>get code as level bit</span><br><a href id="test"><i class="material-icons">save</i>save and test level</a>
+    <span id="save" class="btn"><i class="material-icons">cloud_upload</i>save to cookie</span> <span id="done" class="btn"><i class="material-icons">code</i>get code as level</span> <span id="doneBit" class="btn"><i class="material-icons">code</i>get code as level bit</span><br>
+    <a href="../" id="test"><i class="material-icons">save</i>save and test level</a>
     <br>
     <span id="load" class="btn"><i class="material-icons">file_download</i>import</span> <a href="../submit.html"><i class="material-icons">playlist_add</i>submit level</a> <a href="submit.html"><i class="material-icons">playlist_add</i>submit level-bit</a>
     <textarea placeholder="Level code here"></textarea>
-    suggest level piece for the level randomizer <a href="https://scratch.mit.edu/projects/124314649/">on Scratch</a> <!--or
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdz6F-IRXt_H6P3nMQCwJKHqSzmi5X0XzgvgI7HtQXeRiUcSw/viewform">on a google form</a>--> (btw these level pieces have to be 4-8 blocks by 6 with no right wall nor ceiling)
+    <!--suggest level piece for the level randomizer <a href="https://scratch.mit.edu/projects/124314649/">on Scratch</a> <!- -or
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdz6F-IRXt_H6P3nMQCwJKHqSzmi5X0XzgvgI7HtQXeRiUcSw/viewform">on a google form</a>- -> (btw these level pieces have to be 4-8 blocks by 6 with no right wall nor ceiling)-->
+    <a href="../keypresses.html">keypress/collision test</a> <a href="../levelplaytest.html">old platformre</a>
 
     <script src="../../sheep.js"></script>
     <script src="maker.js"></script>

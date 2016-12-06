@@ -532,6 +532,7 @@ document.querySelector("#load").onclick=function(){
 function example(id) {
   if (id!=-1) {
     levels=[exampleLevels[id],[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
+    document.querySelector('select').blur();
     startPlaying();
   }
 }
@@ -548,6 +549,7 @@ document.querySelector("#joystick").onclick=function(){
     else if (yDiff>30) sDown=true;
     document.querySelector("#move").style.transform="perspective(100px) rotateY("+(aDown?-5:(dDown?5:0))+"deg) rotateX("+(sDown?-5:(wDown?5:0))+"deg)";
     e.preventDefault();
+    return false;
   }
   document.querySelector("#move").ontouchstart=joy;
   document.querySelector("#move").ontouchmove=joy;

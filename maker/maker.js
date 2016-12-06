@@ -82,8 +82,8 @@ function render() {
     data+="</div>";
   }
   document.querySelector(".level").innerHTML=data;
-  document.querySelector("#width").innerHTML=level[0].length;
-  document.querySelector("#height").innerHTML=level.length;
+  document.querySelector("#width").value=level[0].length;
+  document.querySelector("#height").value=level.length;
   document.querySelector(".level").style.width=(level[0].length*40)+"px";
   document.querySelector(".level").style.height=(level.length*40)+"px";
 }
@@ -96,25 +96,17 @@ document.querySelector("p").onclick=function(e){
   }
 }
 var mD=false;
-document.querySelector(".level").onmousedown=function(e){
-  mD=true;
-  if (e.target.className.slice(0,10)=="levelBlock") {
-    var row=Number(e.target.parentNode.id.slice(1)),col=Number(e.target.id.slice(1));
-    // if (!(row==level.length-2&&col==1)) {
-      e.target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
-      level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
-    // }
-  }
-}
+document.querySelector(".level").onmousedown=function(e){mD=true;doSomething(e.target);}
+document.querySelector(".level").ontouchstart=function(e){mD=true;doSomething(e.changedTouches[0].target);}
 document.querySelector(".level").onmouseup=function(){mD=false;if(level!=hist[hist.length-1]){hist.push(JSON.parse(JSON.stringify(level)));redoHist=[];}}
-document.querySelector(".level").onmouseover=function(e){
-  if (e.target.className.slice(0,10)=="levelBlock"&&mD) {
-    var row=Number(e.target.parentNode.id.slice(1));
-    var col=Number(e.target.id.slice(1));
-    // if (!(row==level.length-2&&col==1)) {
-      e.target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
-      level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
-    // }
+document.querySelector(".level").ontouchend=function(){mD=false;if(level!=hist[hist.length-1]){hist.push(JSON.parse(JSON.stringify(level)));redoHist=[];}}
+document.querySelector(".level").onmouseover=function(e){if (mD) doSomething(e.target);}
+document.querySelector(".level").ontouchmove=function(e){if (mD) doSomething(document.elementFromPoint(e.changedTouches[0].clientX,e.changedTouches[0].clientY));e.preventDefault();}
+function doSomething(target) {
+  if (target.className.slice(0,10)=="levelBlock") {
+    var row=Number(target.parentNode.id.slice(1)),col=Number(target.id.slice(1));
+    target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
+    level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
   }
 }
 document.body.onkeydown=function(e){
@@ -140,11 +132,53 @@ document.body.onkeydown=function(e){
       level.splice(0,0,paletteLabelToSymbol[document.querySelector("#current").innerHTML].repeat(level[0].length));
       break;
   }
-  if(level!=hist[hist.length-1]){
+  if(level!=hist[hist.length-1]&&e.keyCode>=37&&e.keyCode<=40){
     hist.push(JSON.parse(JSON.stringify(level)));
     redoHist=[];
     render();
+    e.preventDefault();
   }
+};
+document.querySelector("#width").onchange=function(){
+  var w=Number(document.querySelector("#width").value);
+  if (w<3) {
+    w=3;
+    document.querySelector("#width").value=3;
+  }
+  if (level[0].length>w) {
+    for (var i=0;i<level.length;i++) {
+      level[i]=level[i].slice(0,w-level[i].length);
+    }
+  } else if (level[0].length<w) {
+    for (var i=0;i<level.length;i++) {
+      level[i]+=paletteLabelToSymbol[document.querySelector("#current").innerHTML].repeat(w-level[i].length);
+    }
+  }
+  if(level!=hist[hist.length-1]){
+    hist.push(JSON.parse(JSON.stringify(level)));
+    redoHist=[];
+  }
+  render();
+};
+document.querySelector("#height").onchange=function(){
+  var h=Number(document.querySelector("#height").value);
+  if (h<3) {
+    h=3;
+    document.querySelector("#height").value=3;
+  }
+  if (level.length>h) {
+    level.splice(0,level.length-h);
+  } else if (level.length<h) {
+    var j=level.length;
+    for (var i=0;i<h-j;i++) {
+      level.splice(0,0,paletteLabelToSymbol[document.querySelector("#current").innerHTML].repeat(level[0].length));
+    }
+  }
+  if(level!=hist[hist.length-1]){
+    hist.push(JSON.parse(JSON.stringify(level)));
+    redoHist=[];
+  }
+  render();
 };
 function highlight(element) { // based off http://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse
   if (document.body.createTextRange) {
@@ -168,7 +202,7 @@ document.querySelector("#done").onclick=function(){
   else texts="";
   document.querySelector("textarea").value="[["+texts+"],\n\""+level.join("\",\n\"")+"\"\n]";
   document.querySelector("textarea").select();
-}
+};
 function save() {
   var texts=[],blankForever=-1,danewcode;
   if (typeof level[0]=="object") {
@@ -200,7 +234,7 @@ document.querySelector("#test").onclick=function(){
   window.location.href='../';
   return false;
 }
-document.querySelector("#template").onclick=function(){
+/*document.querySelector("#template").onclick=function(){
   if (level.length>6) {
     level.splice(0,level.length-6);
   } else if (level.length<6) {
@@ -210,7 +244,7 @@ document.querySelector("#template").onclick=function(){
     }
   }
   render();
-}
+}*/
 document.querySelector("#undo").onclick=function(){
   if (hist.length-1) {
     redoHist.push(hist.pop());
