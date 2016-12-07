@@ -7,6 +7,9 @@
     <style>
 body {
   font-family: monospace;
+  margin-top: 80px;
+  background: #E9EEF2;
+  font-family: 'Open Sans', sans-serif;
 }
 .level {
   -webkit-touch-callout: none;
@@ -27,9 +30,8 @@ body {
 #curB {
   height: 40px;
   width: 40px;
-  display: inline-block;
-  transform: scale(0.4);
-  position: absolute;
+  float: left;
+  display: block;
 }
 .levelBlock:hover {
   transform: scale(0.8);
@@ -47,9 +49,10 @@ body {
   color: white;
 }
 #current {
-  color: coral;
-  padding-left: 40px;
-  padding-top: 10px;
+  color: #7B8092;
+  margin: 0;
+  line-height: 1;
+  font-size: 40px;
 }
 #done {
   white-space: pre-wrap;
@@ -75,11 +78,13 @@ textarea {
 .text:after {
   color: #757575;
   font-size: 30px;
-  position: relative;
-  left: 3px;
+  position: absolute;
+  transform: translateX(3px);
+  line-height: 1;
 }
 input, textarea {
   border: 1px solid #ccc !important;
+  font-family: monospace !important;
 }
 input:focus, textarea:focus {
   border-color: blue !important;
@@ -126,17 +131,124 @@ input[type=number] {
 #test {
   font-size: 1.5em;
 }
+#palette {
+  position: fixed;
+  height: 60px;
+  width: 100%;
+  top: 0;
+  background: black;
+  display: block;
+  left: 0;
+  white-space: nowrap;
+  overflow-x: auto;
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  z-index: 1000;
+  overflow-y: hidden;
+}
+#palette::-webkit-scrollbar {
+    display: none;
+}
+.icon2 {
+  height: 40px;
+  width: 40px;
+  transition: transform .2s;
+  display: inline-block;
+  margin: 10px 5px;
+  cursor: pointer;
+}
+.icon2:hover {
+  transform: scale(1.2);
+}
+.info {
+  display: block;
+  position: absolute;
+  font-size: 12px;
+  z-index: 1001;
+  background: white;
+  color: #666;
+  padding: 5px;
+  border-radius: 2px;
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  width: 150px;
+  white-space: normal;
+}
+#info {
+  position: fixed;
+  width: 100%;
+  top: 60px;
+  background: rgba(255,255,255,0.8);
+  display: block;
+  left: 0;
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  z-index: 500;
+  color: #666;
+  padding: 5px;
+}
+#info b {
+  font-size: 1.5em;
+  color: #333;
+}
+#info div {
+  float: left;
+  height: 40px;
+  width: 40px;
+  margin: 10px;
+}
+/*.select:hover .info:before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  border-bottom: 15px solid white;
+  position: absolute;;
+  transform: translateY(-15px);
+}*/
+#palette .arrow {
+  background: rgba(255,255,255,0.3);
+  position: fixed;
+  font-size: 60px;
+  height: 60px;
+  width: 60px;
+  top: 0;
+  z-index: 1002;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+#palette .arrow:hover {
+  background: rgba(255,255,255,0.6);
+}
+#mleft {left:0;}
+#mrite {right:0;}
+.icon2:first-of-type {margin-left: 70px;}
+.icon2:last-of-type {margin-right: 70px;}
+.do {
+  font-size: 20px;
+  border-radius: 50%;
+  height: 20px;
+  width: 20px;
+  color: #575E75;
+  background: white;
+  border: 2px solid #F0F0F0;
+  padding: 5px;
+  margin: 5px 2.5px;
+  -webkit-user-select: none;
+  cursor: pointer;
+}
+.dis {
+  background: #F9F9F9;
+  color: #989CAA;
+  cursor: default;
+}
     </style>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="../blocks.css">
   </head>
   <body>
-    <p>
-      <b>Click. Press the arrow keys to expand or shorten the level size.</b><br>
-      <span id="palette"></span>
-    </p>
-    <div id="curB" class="ground"></div><p id="current">solid</p> <span id="undo" class="btn"><i class="material-icons">undo</i>undo</span> <span id="redo" class="btn"><i class="material-icons">redo</i>redo</span>
+    <div id="palette"><i class="material-icons arrow" id="mleft">keyboard_arrow_left</i><i class="material-icons arrow" id="mrite">keyboard_arrow_right</i></div>
+    <div id="curB" class="ground"></div><p id="current">solid</p> <i class="material-icons do dis" id="undo">undo</i><i class="material-icons do dis" id="redo">redo</i>
     <div class="level"></div>
-    width: <input type="number" min="3" id="width"/> height: <input type="number" min="3" id="height"/><br>
+    width: <input type="number" min="3" id="width"/> height: <input type="number" min="3" id="height"/> You can also use arrow keys to resize the level.<br>
     <span onclick="var x=document.querySelector('#text');window.z=!window.z;if(window.z)x.style.display='block';else x.style.display='none';" class="btn"><i class="material-icons">title</i>show/hide text blocks</span>
     <div id="text" style="display:none;">
     </div><br>

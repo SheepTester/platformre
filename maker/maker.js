@@ -56,16 +56,18 @@ for (var i=0;i<level[0].length;i++) {
   document.querySelector("#i"+i).value=level[0][i];
 }
 var innerht='',blockClasses=[],ids="";
-textStyle="";
+//textStyle="";
 for (var span in paletteIdToPaletteLabel) {
-  var ssss=paletteLabelToClassName[paletteIdToPaletteLabel[span]];
-  if (ssss.indexOf(' ')>-1) ssss=ssss.slice(0,ssss.indexOf(' '));
-  innerht+='<div class="hoverthing '+ssss+'hoverthingTHING"><div class="icon"><div class="'+paletteLabelToClassName[paletteIdToPaletteLabel[span]]+'"></div></div><span class="blkTyp" id="'+span+'">'+paletteIdToPaletteLabel[span]+'</span></div> ';
+  // var ssss=paletteLabelToClassName[paletteIdToPaletteLabel[span]];
+  // if (ssss.indexOf(' ')>-1) ssss=ssss.slice(0,ssss.indexOf(' '));
+  // innerht+='<div class="hoverthing '+ssss+'hoverthingTHING"><div class="icon"><div class="'+paletteLabelToClassName[paletteIdToPaletteLabel[span]]+'"></div></div><span class="blkTyp" id="'+span+'">'+paletteIdToPaletteLabel[span]+'</span></div> ';
+  innerht+='<div class="icon2 '+paletteLabelToClassName[paletteIdToPaletteLabel[span]]+'" data-label="'+paletteIdToPaletteLabel[span]+'"></div>';
   blockClasses.push(paletteLabelToClassName[paletteIdToPaletteLabel[span]]);
+  // <div class="info"><b>'+paletteIdToPaletteLabel[span]+'</b><br>'+paletteLabelToDesc[paletteIdToPaletteLabel[span]]+'</div>
   ids+=paletteLabelToSymbol[paletteIdToPaletteLabel[span]];
-  textStyle+="."+ssss+"hoverthingTHING:hover:after {content:\""+paletteLabelToDesc[paletteIdToPaletteLabel[span]]+"\";}";
+  //textStyle+="."+ssss+"hoverthingTHING:hover:after {content:\""+paletteLabelToDesc[paletteIdToPaletteLabel[span]]+"\";}";
 }
-document.head.innerHTML+="<style>"+textStyle+"</style>";
+//document.head.innerHTML+="<style>"+textStyle+"</style>";
 function render() {
   var data="";
   if (typeof level[0]=="object") {
@@ -88,20 +90,58 @@ function render() {
   document.querySelector(".level").style.height=(level.length*40)+"px";
 }
 render();
-document.querySelector("#palette").innerHTML=innerht;
-document.querySelector("p").onclick=function(e){
-  if (e.target.className=="blkTyp") {
-    document.querySelector("#current").innerHTML=paletteIdToPaletteLabel[e.target.id];
-    document.querySelector("#curB").className=paletteLabelToClassName[document.querySelector("#current").innerHTML];
+document.querySelector("#palette").innerHTML+=innerht;
+document.querySelector("#palette").onmouseover=function(e){
+  if (/icon2/.test(e.target.className)&&!document.querySelector('#info')) {
+    var s=document.createElement("div");
+    s.innerHTML='<div class="'+paletteLabelToClassName[e.target.dataset.label]+'"></div><b>'+e.target.dataset.label+'</b><br>'+paletteLabelToDesc[e.target.dataset.label];
+    s.id="info";
+    document.querySelector('#palette').parentNode.insertBefore(s,document.querySelector('#palette').nextSibling);
   }
+}
+document.querySelector("#palette").onmouseout=function(e){
+  if (document.querySelector('#info')) {
+    document.body.removeChild(document.querySelector('#info'));
+  }
+}
+document.querySelector("#palette").onclick=function(e){
+  if (/icon2/i.test(e.target.className)) {
+    document.querySelector("#current").innerHTML=e.target.dataset.label;
+    document.querySelector("#curB").className=paletteLabelToClassName[e.target.dataset.label];
+  }
+}
+document.querySelector("#mleft").onclick=function(){
+  document.querySelector("#palette").scrollLeft-=document.querySelector("#palette").clientWidth-120;
+}
+document.querySelector("#mrite").onclick=function(){
+  document.querySelector("#palette").scrollLeft+=document.querySelector("#palette").clientWidth-120;
 }
 var mD=false;
 document.querySelector(".level").onmousedown=function(e){mD=true;doSomething(e.target);}
 document.querySelector(".level").ontouchstart=function(e){mD=true;doSomething(e.changedTouches[0].target);}
-document.querySelector(".level").onmouseup=function(){mD=false;if(level!=hist[hist.length-1]){hist.push(JSON.parse(JSON.stringify(level)));redoHist=[];}}
-document.querySelector(".level").ontouchend=function(){mD=false;if(level!=hist[hist.length-1]){hist.push(JSON.parse(JSON.stringify(level)));redoHist=[];}}
+document.querySelector(".level").onmouseup=function(){mD=false;ANEDITHASBEENMADE();}
+document.querySelector(".level").ontouchend=function(){mD=false;ANEDITHASBEENMADE();}
 document.querySelector(".level").onmouseover=function(e){if (mD) doSomething(e.target);}
 document.querySelector(".level").ontouchmove=function(e){if (mD) doSomething(document.elementFromPoint(e.changedTouches[0].clientX,e.changedTouches[0].clientY));e.preventDefault();}
+function ANEDITHASBEENMADE() {
+  function arraysEqual(a,b) { // http://stackoverflow.com/questions/3115982/how-to-check-if-two-arrays-are-equal-with-javascript
+    if (a===b) return true;
+    if (a==null||b==null) return false;
+    if (a.length!=b.length) return false;
+    for (var i=0;i<a.length;i++) {
+      if (a[i]!=b[i]) return false;
+    }
+    return true;
+  }
+  if (!arraysEqual(level,hist[hist.length-1])) {
+    hist.push(JSON.parse(JSON.stringify(level))); // otherwise they'll update each other
+    redoHist=[];
+  }
+  if (hist.length>1) document.querySelector("#undo").className=document.querySelector("#undo").className.replace(/ dis/g,'');
+  else document.querySelector("#undo").className+=" dis";
+  if (redoHist.length) document.querySelector("#redo").className=document.querySelector("#redo").className.replace(/ dis/g,'');
+  else document.querySelector("#redo").className+=" dis";
+}
 function doSomething(target) {
   if (target.className.slice(0,10)=="levelBlock") {
     var row=Number(target.parentNode.id.slice(1)),col=Number(target.id.slice(1));
@@ -132,9 +172,8 @@ document.body.onkeydown=function(e){
       level.splice(0,0,paletteLabelToSymbol[document.querySelector("#current").innerHTML].repeat(level[0].length));
       break;
   }
-  if(level!=hist[hist.length-1]&&e.keyCode>=37&&e.keyCode<=40){
-    hist.push(JSON.parse(JSON.stringify(level)));
-    redoHist=[];
+  ANEDITHASBEENMADE();
+  if(e.keyCode>=37&&e.keyCode<=40){
     render();
     e.preventDefault();
   }
@@ -154,10 +193,7 @@ document.querySelector("#width").onchange=function(){
       level[i]+=paletteLabelToSymbol[document.querySelector("#current").innerHTML].repeat(w-level[i].length);
     }
   }
-  if(level!=hist[hist.length-1]){
-    hist.push(JSON.parse(JSON.stringify(level)));
-    redoHist=[];
-  }
+  ANEDITHASBEENMADE()
   render();
 };
 document.querySelector("#height").onchange=function(){
@@ -174,10 +210,7 @@ document.querySelector("#height").onchange=function(){
       level.splice(0,0,paletteLabelToSymbol[document.querySelector("#current").innerHTML].repeat(level[0].length));
     }
   }
-  if(level!=hist[hist.length-1]){
-    hist.push(JSON.parse(JSON.stringify(level)));
-    redoHist=[];
-  }
+  ANEDITHASBEENMADE()
   render();
 };
 function highlight(element) { // based off http://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse
@@ -248,16 +281,24 @@ document.querySelector("#test").onclick=function(){
 document.querySelector("#undo").onclick=function(){
   if (hist.length-1) {
     redoHist.push(hist.pop());
-    level=hist[hist.length-1];
+    level=JSON.parse(JSON.stringify(hist[hist.length-1]));
     render();
   }
+  if (hist.length>1) document.querySelector("#undo").className=document.querySelector("#undo").className.replace(/ dis/g,'');
+  else document.querySelector("#undo").className+=" dis";
+  if (redoHist.length) document.querySelector("#redo").className=document.querySelector("#redo").className.replace(/ dis/g,'');
+  else document.querySelector("#redo").className+=" dis";
 }
 document.querySelector("#redo").onclick=function(){
   if (redoHist.length) {
     hist.push(redoHist.pop());
-    level=hist[hist.length-1];
+    level=JSON.parse(JSON.stringify(hist[hist.length-1]));
     render();
   }
+  if (hist.length>1) document.querySelector("#undo").className=document.querySelector("#undo").className.replace(/ dis/g,'');
+  else document.querySelector("#undo").className+=" dis";
+  if (redoHist.length) document.querySelector("#redo").className=document.querySelector("#redo").className.replace(/ dis/g,'');
+  else document.querySelector("#redo").className+=" dis";
 }
 /*
 [[],
