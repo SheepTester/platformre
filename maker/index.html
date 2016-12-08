@@ -7,9 +7,12 @@
     <style>
 body {
   font-family: monospace;
-  margin-top: 80px;
+  margin: 10px;
+  margin-top: 70px;
+  margin-bottom: 50px;
   background: #E9EEF2;
   font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
 }
 .level {
   -webkit-touch-callout: none;
@@ -19,7 +22,8 @@ body {
   -ms-user-select: none;
   user-select: none;
   position: relative;
-  border: 1px solid red;
+  /*border: 1px solid red;*/
+  background: white;
 }
 .levelBlock {
   height: 40px;
@@ -53,6 +57,7 @@ body {
   margin: 0;
   line-height: 1;
   font-size: 40px;
+  padding-left: 45px;
 }
 #done {
   white-space: pre-wrap;
@@ -72,6 +77,9 @@ textarea {
 .as,.al {opacity: 0.5;}
 .sl {background: #802B11 !important;}
 .ls {background: #532121 !important;}
+.air {
+  background: white;
+}
 .text {
   background-image: none !important;
 }
@@ -83,11 +91,14 @@ textarea {
   line-height: 1;
 }
 input, textarea {
-  border: 1px solid #ccc !important;
-  font-family: monospace !important;
+  border: 1px solid #ccc;
 }
 input:focus, textarea:focus {
-  border-color: blue !important;
+  border-color: blue;
+}
+textarea {
+  font-family: monospace !important;
+  font-size: 14px !important;
 }
 .icon {
   height: 10px;
@@ -127,9 +138,16 @@ input:focus, textarea:focus {
 }
 input[type=number] {
   width: 30px;
+  border-radius: 15px;
+  padding: 5px;
+  height: 20px;
+  border: 1px solid #B8BDC0;
 }
-#test {
-  font-size: 1.5em;
+#size {
+  margin: 0;
+  display: inline-block;
+  font-size: 20px;
+  padding: 2.5px;
 }
 #palette {
   position: fixed;
@@ -146,7 +164,7 @@ input[type=number] {
   overflow-y: hidden;
 }
 #palette::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
 .icon2 {
   height: 40px;
@@ -205,23 +223,30 @@ input[type=number] {
   transform: translateY(-15px);
 }*/
 #palette .arrow {
-  background: rgba(255,255,255,0.3);
+  background-color: rgba(0,0,0,0.3);
   position: fixed;
   font-size: 60px;
   height: 60px;
-  width: 60px;
+  width: 40px;
   top: 0;
   z-index: 1002;
   -webkit-user-select: none;
   cursor: pointer;
+  background-size:60px;background-position: center;
 }
 #palette .arrow:hover {
-  background: rgba(255,255,255,0.6);
+  background-color: rgba(0,0,0,0.6);
 }
-#mleft {left:0;}
-#mrite {right:0;}
-.icon2:first-of-type {margin-left: 70px;}
-.icon2:last-of-type {margin-right: 70px;}
+#palette #mleft {left:0;background-image:url('../icons/materialicon_chevron_left.svg');}
+#palette #mrite {right:0;background-image:url('../icons/materialicon_chevron_right.svg');}
+#palette .icon2:first-of-type {margin-left: 50px;}
+#palette .icon2:last-of-type {margin-right: 50px;}
+.sel {
+  border: 5px solid rgba(255,255,255,0.3);
+  margin: 5px 0;
+}
+#palette .sel.icon2:first-of-type {margin-left: 45px;}
+#palette .sel.icon2:last-of-type {margin-right: 45px;}
 .do {
   font-size: 20px;
   border-radius: 50%;
@@ -229,7 +254,7 @@ input[type=number] {
   width: 20px;
   color: #575E75;
   background: white;
-  border: 2px solid #F0F0F0;
+  border: 1px solid #B8BDC0;
   padding: 5px;
   margin: 5px 2.5px;
   -webkit-user-select: none;
@@ -240,26 +265,217 @@ input[type=number] {
   color: #989CAA;
   cursor: default;
 }
+#tools {
+  position: fixed;
+  height: 40px;
+  width: 100%;
+  bottom: 0;
+  background: black;
+  display: block;
+  left: 0;
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+#tools i {
+  color: white;
+  font-size: 40px;
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+}
+#tools .dropdown ul li i {
+  color: #333;
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}
+#tools i:after {
+  content: '';
+  background: rgba(255,255,255,0.3);
+  height: 0;
+  width: 40px;
+  display: block;
+  position: absolute;
+  bottom: 0;
+  transition: height 0.2s;
+}
+#tools i:hover:after {
+  height: 40px;
+}
+#tools .dropdown ul li i:after {
+  content: normal;
+}
+#tools i:hover:before {
+  background: white;
+  position: absolute;
+  color: #333;
+  background: rgba(255,255,255,0.8);
+  top: -25px;
+  font-size: 15px;
+  font-family: 'Open Sans', sans-serif;
+  padding: 5px;
+}
+#test i:hover:before {
+  content: 'Save and test level';
+}
+#edittext:hover:before {
+  content: 'Edit text blocks';
+}
+#tools ul {
+  display: none;
+}
+#tools .dropdown:hover ul {
+  background: rgba(255,255,255,0.8);
+  display: block;
+  bottom: 40px;
+  position: absolute;
+  font-family: 'Open Sans', sans-serif;
+  list-style: none;
+  margin: 0;
+  padding: 5px;
+  color: #333;
+}
+#tools .dropdown:hover ul li {
+  height: 20px;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  -webkit-user-select: none;
+}
+#tools .dropdown:hover ul .dropheader {
+  cursor: auto;
+  -webkit-user-select: text;
+}
+#tools .dropdown:hover ul li:not(.dropheader):hover {
+  background: rgba(0,0,0,0.1);
+}
+#tools .dropdown:hover ul li:not(.dropheader):active {
+  background: rgba(0,0,0,0.2);
+}
+#tools .dropdown:hover ul li a {
+  text-decoration: none;
+  color: #333;
+}
+.new, .newtext {
+  background: rgba(0,0,0,0.8);
+  position: fixed;
+  padding: 100px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1010;
+  display: none;
+}
+.new textarea {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  border: none;
+}
+.new button {
+  bottom: 100px;
+  border: none;
+  position: absolute;
+  right: 100px;
+  border-top: 2px solid #2196F3;
+  border-left: 2px solid #2196F3;
+  background: none;
+  color: #333;
+  padding: 0 2px;
+  border-top-left-radius: 5px;
+}
+.new button:hover {
+  background: #2196F3;
+  color: white;
+}
+.new button:active {
+  background: #1976D2;
+  border-color: #1976D2;
+}
+.newtext #text {
+  height: 100%;
+  width: 100%;
+  background: #eee;
+  border-radius: 5px;
+  padding: 5px;
+  overflow: auto;
+}
+.newtext input {
+  /*width: 100%;*/
+  border-radius: 15px;
+  padding: 5px;
+  height: 20px;
+  background: white;
+  border: 1px solid #B8BDC0;
+  margin-bottom: 5px;
+  width: 300px;
+}
+.newtext #closet {
+  background: #f44336;
+  border-radius: 50%;
+  height: 10px;
+  width: 10px;
+  border: none;
+  display: block;
+  position: absolute;
+  top: 100px;
+  right: 90px;
+  margin: 5px;
+}
+.newtext #closet:hover {
+  background: #ef5350;
+}
+.newtext #closet:active {
+  background: #d32f2f;
+}
+#close {
+  right: auto;
+  left: 100px;
+  border-color: #f44336;
+  border-left: none;
+  border-right: 2px solid #f44336;
+  border-top-left-radius: 0;
+  border-top-right-radius: 5px;
+}
+#close:hover {
+  background: #f44336;
+}
+#close:active {
+  background: #d32f2f;
+  border-color: #d32f2f;
+}
     </style>
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="../blocks.css">
   </head>
   <body>
-    <div id="palette"><i class="material-icons arrow" id="mleft">keyboard_arrow_left</i><i class="material-icons arrow" id="mrite">keyboard_arrow_right</i></div>
-    <div id="curB" class="ground"></div><p id="current">solid</p> <i class="material-icons do dis" id="undo">undo</i><i class="material-icons do dis" id="redo">redo</i>
+    <div id="palette"><i class="arrow" id="mleft"></i><i class="arrow" id="mrite"></i></div>
+    <i class="material-icons do dis" id="undo">undo</i><i class="material-icons do dis" id="redo">redo</i><p id="size">Width: <input type="number" min="3" id="width"/> Height: <input type="number" min="3" id="height"/></p>
     <div class="level"></div>
-    width: <input type="number" min="3" id="width"/> height: <input type="number" min="3" id="height"/> You can also use arrow keys to resize the level.<br>
-    <span onclick="var x=document.querySelector('#text');window.z=!window.z;if(window.z)x.style.display='block';else x.style.display='none';" class="btn"><i class="material-icons">title</i>show/hide text blocks</span>
-    <div id="text" style="display:none;">
-    </div><br>
-    <span id="save" class="btn"><i class="material-icons">cloud_upload</i>save to cookie</span> <span id="done" class="btn"><i class="material-icons">code</i>get code as level</span> <span id="doneBit" class="btn"><i class="material-icons">code</i>get code as level bit</span><br>
-    <a href="../" id="test"><i class="material-icons">save</i>save and test level</a>
-    <br>
-    <span id="load" class="btn"><i class="material-icons">file_download</i>import</span> <a href="../submit.html"><i class="material-icons">playlist_add</i>submit level</a> <a href="submit.html"><i class="material-icons">playlist_add</i>submit level-bit</a>
-    <textarea placeholder="Level code here"></textarea>
-    <!--suggest level piece for the level randomizer <a href="https://scratch.mit.edu/projects/124314649/">on Scratch</a> <!- -or
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLSdz6F-IRXt_H6P3nMQCwJKHqSzmi5X0XzgvgI7HtQXeRiUcSw/viewform">on a google form</a>- -> (btw these level pieces have to be 4-8 blocks by 6 with no right wall nor ceiling)-->
-    <a href="../keypresses.html">keypress/collision test</a> <a href="../levelplaytest.html">old platformre</a>
+    <div class="newtext"><div id="text"><div id="closet"></div></div></div>
+    <div class="new">
+      <textarea placeholder="Level code here"></textarea>
+      <button id="close"></button>
+    </div>
+    <div id="tools">
+      <a href="../" id="test"><i class="material-icons">play_circle_outline</i></a><i class="material-icons dropdown">save<ul>
+        <li class="dropheader"><strong>Save/load</strong></li>
+        <li id="done">get level code</li>
+        <li id="doneBit">get level-bit code</li>
+        <li id="loadopen">import level by code</li>
+        <li id="save">save to cookie</li>
+      </ul></i><i class="material-icons dropdown">playlist_add<ul>
+        <li class="dropheader"><strong>Submit...</strong></li>
+        <li><a href="../submit.html">level</a></li>
+        <li><a href="submit.html">level-bit</a></li>
+      </ul></i><i class="material-icons" onclick="document.querySelector('.newtext').style.display='block';" id="edittext">title</i><i class="material-icons dropdown">more_horiz<ul>
+        <li class="dropheader"><strong>Other links</strong></li>
+        <li><a href="../keypresses.html">keypress/collision test</a></li>
+        <li><a href="../levelplaytest.html">original platformre</a></li>
+        <li><a href="/?penland">Penland 5</a></li>
+      </ul></i>
+    </div>
 
     <script src="../../sheep.js"></script>
     <script src="maker.js"></script>

@@ -47,10 +47,10 @@ for (var i=0;i<10;i++) {
   paletteLabelToClassName["textblock"+i]="t"+i+" text topOnly";
   paletteLabelToSymbol["textblock"+i]=i.toString();
   paletteLabelToDesc["textblock"+i]="Displays text on the screen.";
-  inputStuff+='textblock'+i+': <input type="text" placeholder="Text to display" id="i'+i+'"/><br>';
+  inputStuff+='Text block '+i+': <input type="text" placeholder="Text to display" id="i'+i+'"/><br>';
   textStyle+=".t"+i+":after {content: 't"+i+"';}";
 }
-document.querySelector("#text").innerHTML=inputStuff;
+document.querySelector("#text").innerHTML+=inputStuff;
 document.head.innerHTML+="<style>"+textStyle+"</style>";
 for (var i=0;i<level[0].length;i++) {
   document.querySelector("#i"+i).value=level[0][i];
@@ -91,6 +91,7 @@ function render() {
 }
 render();
 document.querySelector("#palette").innerHTML+=innerht;
+document.querySelector(".icon2.ground").className+=" sel";
 document.querySelector("#palette").onmouseover=function(e){
   if (/icon2/.test(e.target.className)&&!document.querySelector('#info')) {
     var s=document.createElement("div");
@@ -104,10 +105,12 @@ document.querySelector("#palette").onmouseout=function(e){
     document.body.removeChild(document.querySelector('#info'));
   }
 }
-document.querySelector("#palette").onclick=function(e){
+document.querySelector("#palette").onclick=document.querySelector("#palette").ontouchstart=function(e){
   if (/icon2/i.test(e.target.className)) {
-    document.querySelector("#current").innerHTML=e.target.dataset.label;
-    document.querySelector("#curB").className=paletteLabelToClassName[e.target.dataset.label];
+    // document.querySelector("#current").innerHTML=e.target.dataset.label;
+    // document.querySelector("#curB").className=paletteLabelToClassName[e.target.dataset.label];
+    document.querySelector(".sel").className=document.querySelector(".sel").className.replace(" sel",'');
+    e.target.className+=" sel";
   }
 }
 document.querySelector("#mleft").onclick=function(){
@@ -145,8 +148,8 @@ function ANEDITHASBEENMADE() {
 function doSomething(target) {
   if (target.className.slice(0,10)=="levelBlock") {
     var row=Number(target.parentNode.id.slice(1)),col=Number(target.id.slice(1));
-    target.className="levelBlock "+paletteLabelToClassName[document.querySelector("#current").innerHTML];
-    level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelector("#current").innerHTML]+level[row].slice(col+1);
+    target.className="levelBlock "+paletteLabelToClassName[document.querySelectorAll(".sel")[0].dataset.label];
+    level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label]+level[row].slice(col+1);
   }
 }
 document.body.onkeydown=function(e){
@@ -172,8 +175,8 @@ document.body.onkeydown=function(e){
       level.splice(0,0,paletteLabelToSymbol[document.querySelector("#current").innerHTML].repeat(level[0].length));
       break;
   }
-  ANEDITHASBEENMADE();
   if(e.keyCode>=37&&e.keyCode<=40){
+    ANEDITHASBEENMADE();
     render();
     e.preventDefault();
   }
@@ -225,6 +228,8 @@ function highlight(element) { // based off http://stackoverflow.com/questions/98
   }
 }
 document.querySelector("#done").onclick=function(){
+  document.querySelector('.new').style.display="block";
+  document.querySelector('#close').innerHTML="Close";
   var texts=[],blankForever=-1;
   for (var i=0;i<10;i++) {
     texts.push("\""+document.querySelector("#i"+i).value+"\"");
@@ -252,15 +257,33 @@ function save() {
 }
 document.querySelector("#save").onclick=save;
 document.querySelector("#doneBit").onclick=function(){
+  document.querySelector('.new').style.display="block";
+  document.querySelector('#close').innerHTML="Close";
   document.querySelector("textarea").value="[\n  \""+level.join("\",\n  \"")+"\"\n],";
   document.querySelector("textarea").select();
 }
-document.querySelector("#load").onclick=function(){
-  level=JSON.parse(document.querySelector("textarea").value);
-  for (var i=0;i<level[0].length;i++) {
-    document.querySelector("#i"+i).value=level[0][i];
+document.querySelector("#loadopen").onclick=function(){
+  document.querySelector('.new').style.display="block";
+  document.querySelector("textarea").value="";
+  var button=document.createElement('BUTTON');
+  button.id="load";
+  button.innerHTML="OK";
+  document.querySelector('.new').appendChild(button);
+  document.querySelector('#close').innerHTML="Cancel";
+  document.querySelector("#load").onclick=function(){
+    document.querySelector('.new').style.display="none";
+    level=JSON.parse(document.querySelector("textarea").value);
+    for (var i=0;i<level[0].length;i++) {
+      document.querySelector("#i"+i).value=level[0][i];
+    }
+    render();
   }
-  render();
+}
+document.querySelector("#close").onclick=function(){
+  document.querySelector('.new').style.display="none";
+}
+document.querySelector("#closet").onclick=function(){
+  document.querySelector('.newtext').style.display="none";
 }
 document.querySelector("#test").onclick=function(){
   save();
