@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Changelog - Platformre</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <style>
+body {
+  margin: 10px;
+  margin-bottom: 50px;
+  background: #E9EEF2;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  color: #333;
+}
+#return {
+  display: block;
+  position: fixed;
+  height: 40px;
+  width: 40px;
+  left: 10px;
+  bottom: 10px;
+  border-radius: 50%;
+  background-color: rgba(0,0,0,0.8);
+  background-image: url('icons/materialicon_chevron_left.svg');
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  background-size: 40px;
+  transition: box-shadow 0.2s;
+}
+#return:hover {
+  box-shadow: 0 0 5px rgba(0,0,0,0.7);
+}
+#return:active {
+  box-shadow: 0 0 1px rgba(0,0,0,0.5);
+}
+#return:hover:after {
+  content: "Go back";
+  position: absolute;
+  background-color: rgba(255,255,255,0.8);
+  box-shadow: 0 0 3px rgba(0,0,0,0.2);
+  color: #333;
+  font-size: 12px;
+  display: inline-block;
+  white-space: nowrap;
+  top: -20px;
+  padding: 3px;
+  left: -5px;
+}
+    </style>
+  </head>
+  <body>
+    <h1>Changelog</h1>
+    <p>Of commits 56-75:</p>
+    <ul>
+      <li>too many Penland improvements</li>
+      <li>platformre link changes</li>
+      <li>more mobile friendliness</li>
+      <li>redesign of pages</li>
+      <li>+ a lot more but I won't bother mentioning them all</li>
+    </ul>
+    <p>Of commit 55:</p>
+    <ul>
+      <li>featured levels from Zach</li>
+    </ul>
+    <p>Of commit 44 and 45:</p>
+    <ul>
+      <li>joystick for touchscreens</li>
+      <li>gave credit to griffpatch_tutor</li>
+      <li>worked on world generation</li>
+    </ul>
+    <p>Of commit 43:</p>
+    <ul>
+      <li>bug fixes</li>
+      <li>growing level in editor now uses current block</li>
+      <li>autosave level when test level is clicked in editor</li>
+      <li>more distinguishable cycled blocks</li>
+      <li>undo/redo in editor</li>
+      <li>confusion block that messes up controls</li>
+      <li>+ other betterifications</li>
+      <li>added penland5's <a href="penland/render.html">rendering engine</a></li>
+    </ul>
+    <p>Of commit 41 and 42:</p>
+    <ul>
+      <li>added block icons to editor</li>
+      <li>added <a href="mspaint.html">ms paint</a></li>
+      <li>player doesn't show anymore until a level is rendered</li>
+      <li>fixed the air/solid/lava cycled blocks' textures</li>
+      <li>recolored player to black</li>
+    </ul>
+    <p>Of commit 40:</p>
+    <ul>
+      <li>fixed collisions</li>
+    </ul>
+    <p>Of commit 39:</p>
+    <ul>
+      <li>autoscrolling</li>
+      <li>spacebar doesn't scroll now</li>
+      <li>fixed ladders (again)</li>
+      <li>editted levels now save as a cookie</li>
+    </ul>
+    <p>Of commit 38:</p>
+    <ul>
+      <li>credited yllie</li>
+      <li>you can now teleport into lava and other uncollidables with the transparent powerup</li>
+      <li>gravity blocks that reverse gravity</li>
+      <li>midas touch autoactivates now</li>
+      <li>air, solid, and lava cycle through into different blocks with same physics but different looks (i.e. invisible lava)</li>
+      <li>text blocks now an option in level maker</li>
+      <li>redesigned text display</li>
+      <li>load featured level button</li>
+    </ul>
+    <p>Of commit 37:</p>
+    <ul>
+      <li>credits and changelog section</li>
+      <li>rage mode powerup - superspeed, higher jump, immunity to lava and fire (warning: collision glitches!)</li>
+      <li>midas touch powerup - turns collidables into gold</li>
+      <li>transparent powerup - teleports you through blocks (press s to tp down)</li>
+      <li>fixed ladders</li>
+      <li>recolored nojump</li>
+      <li>topOnly interactions work underwater</li>
+      <li>the "sun" level-bit now won't be impossible</li>
+    </ul>
+    <div id="return" onclick="window.history.back()"></div>
+
+    <script src="../sheep.js"></script>
+<!-- MADE BY SEAN -->
+  </body>
+</html>

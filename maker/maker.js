@@ -163,7 +163,7 @@ document.body.onkeydown=function(e){
       break;
     case 39:
       for (var i=0;i<level.length;i++) {
-        level[i]+=paletteLabelToSymbol[document.querySelector("#current").innerHTML];
+        level[i]+=paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label];
       }
       break;
     case 40:
@@ -172,7 +172,7 @@ document.body.onkeydown=function(e){
       }
       break;
     case 38:
-      level.splice(0,0,paletteLabelToSymbol[document.querySelector("#current").innerHTML].repeat(level[0].length));
+      level.splice(0,0,paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label].repeat(level[0].length));
       break;
   }
   if(e.keyCode>=37&&e.keyCode<=40){
@@ -265,6 +265,7 @@ document.querySelector("#doneBit").onclick=function(){
 document.querySelector("#loadopen").onclick=function(){
   document.querySelector('.new').style.display="block";
   document.querySelector("textarea").value="";
+  document.querySelector("textarea").focus();
   var button=document.createElement('BUTTON');
   button.id="load";
   button.innerHTML="OK";
@@ -272,6 +273,7 @@ document.querySelector("#loadopen").onclick=function(){
   document.querySelector('#close').innerHTML="Cancel";
   document.querySelector("#load").onclick=function(){
     document.querySelector('.new').style.display="none";
+    document.querySelector('.new').removeChild(document.querySelector('#load'));
     level=JSON.parse(document.querySelector("textarea").value);
     for (var i=0;i<level[0].length;i++) {
       document.querySelector("#i"+i).value=level[0][i];
@@ -322,6 +324,12 @@ document.querySelector("#redo").onclick=function(){
   else document.querySelector("#undo").className+=" dis";
   if (redoHist.length) document.querySelector("#redo").className=document.querySelector("#redo").className.replace(/ dis/g,'');
   else document.querySelector("#redo").className+=" dis";
+}
+document.querySelector("#tools").ontouchstart=function(e){
+  if (/\bdropdown\b/.test(e.target.className)) {
+    if (e.target.className.includes("hover")) e.target.className=e.target.className.replace(/ hover/g,'');
+    else e.target.className+=" hover";
+  }
 }
 /*
 [[],

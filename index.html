@@ -4,9 +4,14 @@
     <title>Platformre</title>
     <meta charset="UTF-8">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <style>
 body {
-  font-family: monospace;
+  margin: 10px;
+  margin-bottom: 50px;
+  background: #E9EEF2;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
 }
 #player {
   position: absolute;
@@ -21,6 +26,7 @@ body {
 .level {
   position: absolute;
   left: 0;
+  top: -30px;
 }
 .levelBlock {
   height: 40px;
@@ -68,18 +74,21 @@ button {
   color: white;
 }
 #message {
-  margin: auto;
+  margin: 0;
   position: fixed;
   top: 0;
-  bottom: 0;
+  left: 0;
   width: 100%;
-  height: 20px;
+  height: 50px;
   text-align: center;
-  font-size: 40px;
+  font-size: 30px;
   color: white;
-  -webkit-text-fill-color: white;
+  background: -webkit-linear-gradient(rgba(0,0,0,0.8), transparent);
+  background: -moz-linear-gradient(rgba(0,0,0,0.8), transparent);
+  background: linear-gradient(rgba(0,0,0,0.8), transparent);
+  /*-webkit-text-fill-color: white;
   -webkit-text-stroke-width: 1px;
-  -webkit-text-stroke-color: black;
+  -webkit-text-stroke-color: black;*/
 }
 textarea {
   display: block;
@@ -111,12 +120,6 @@ span:active {
 .atoscrol span{background:rgba(0,0,0,0.2);}
 .atoscrol span:hover{background:rgba(0,0,0,0.5);}
 .atoscrol span:active{background:black;}
-textarea {
-  border: 1px solid #ccc !important;
-}
-textarea:focus {
-  border-color: blue !important;
-}
 .notactive {
   display: none;
 }
@@ -149,133 +152,267 @@ textarea:focus {
   right: 55px;
   bottom: 220px;
 }
-span:hover:after {
-  background: white;
-  box-shadow: 0 0 3px rgba(0,0,0,0.4);
+#powerup>li:hover:after {
+  background: rgba(255,255,255,0.8);
   position: absolute;
-  transform: translateX(-75px) translateY(-12px);
+  transform: translateX(10px);
 }
-#thing>span:nth-child(2):hover:after {content:'turn lava into solid';}
-#thing>span:nth-child(3):hover:after {content:'summon water';}
-#thing>span:nth-child(4):hover:after {content:'zoom upwards';}
-#thing>span:nth-child(5):hover:after {content:'diggy diggy hole';}
-#thing>span:nth-child(6):hover:after {content:'super speed';}
-#thing>span:nth-child(7):hover:after {content:'make gold';}
-#thing>span:nth-child(8):hover:after {content:'teleport through blocks';}
-#thing>span:nth-child(9):hover:after {content:'save yourself';}
+#powerup>li:nth-child(2):hover:after {content:'turn lava into solid';}
+#powerup>li:nth-child(3):hover:after {content:'summon water';}
+#powerup>li:nth-child(4):hover:after {content:'zoom upwards';}
+#powerup>li:nth-child(5):hover:after {content:'diggy diggy hole';}
+#powerup>li:nth-child(6):hover:after {content:'super speed';}
+#powerup>li:nth-child(7):hover:after {content:'make gold';}
+#powerup>li:nth-child(8):hover:after {content:'teleport through blocks';}
+#powerup>li:nth-child(9):hover:after {content:'save yourself';}
 .material-icons {
   font-size: 0.8em;
 }
 #editer {
-  font-size: 1.5em;
+  /*font-size: 1.5em;*/
+}
+#tools {
+  position: fixed;
+  height: 40px;
+  width: 100%;
+  bottom: 0;
+  background: rgba(0,0,0,0.8);
+  display: block;
+  left: 0;
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+#tools i {
+  color: white;
+  font-size: 40px;
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+}
+#tools i:after {
+  content: '';
+  background: rgba(255,255,255,0.3);
+  height: 0;
+  width: 40px;
+  display: block;
+  position: absolute;
+  bottom: 0;
+  transition: height 0.2s;
+}
+#tools i:hover:after {
+  height: 40px;
+}
+#tools .dropdown ul li i {
+  color: #333;
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}
+#tools .dropdown ul li i:after {
+  content: normal;
+}
+#tools i:hover:before {
+  background: white;
+  position: absolute;
+  color: #333;
+  background: rgba(255,255,255,0.8);
+  top: -25px;
+  font-size: 15px;
+  padding: 5px;
+  font-family: 'Open Sans', sans-serif;
+}
+#editer i:hover:before {
+  content: 'Edit level';
+}
+#joystick:hover:before {
+  content: 'Enable joystick for touchscreens';
+}
+#tools ul {
+  display: none;
+}
+#tools .dropdown:hover ul, #tools .dropdown.hover ul {
+  background: rgba(255,255,255,0.8);
+  display: block;
+  bottom: 40px;
+  position: absolute;
+  list-style: none;
+  margin: 0;
+  padding: 5px;
+  font-family: 'Open Sans', sans-serif;
+  color: #333;
+}
+#tools .dropdown:hover ul li, #tools .dropdown.hover ul li {
+  height: 20px;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  -webkit-user-select: none;
+}
+#tools .dropdown:hover ul .dropheader, #tools .dropdown.hover ul .dropheader {
+  cursor: auto;
+  -webkit-user-select: text;
+}
+#tools .dropdown:hover ul li:not(.dropheader):hover, #tools .dropdown.hover ul li:not(.dropheader):hover {
+  background: rgba(0,0,0,0.1);
+}
+#tools .dropdown:hover ul li:not(.dropheader):active, #tools .dropdown.hover ul li:not(.dropheader):active {
+  background: rgba(0,0,0,0.2);
+}
+#tools .dropdown:hover ul li a, #tools .dropdown.hover ul li a {
+  text-decoration: none;
+  color: #333;
+}
+.new, .newtext {
+  background: rgba(0,0,0,0.8);
+  position: fixed;
+  padding: 100px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1010;
+  display: none;
+}
+.new textarea {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  border: none;
+  resize: none;
+}
+.new button {
+  bottom: 100px;
+  border: none;
+  position: absolute;
+  background: none;
+  color: #333;
+  padding: 0 2px;
+}
+#load {
+  right: 100px;
+  border-top: 2px solid #2196F3;
+  border-left: 2px solid #2196F3;
+  border-top-left-radius: 5px;
+}
+#load:hover {
+  background: #2196F3;
+  color: white;
+}
+#load:active {
+  background: #1976D2;
+  border-color: #1976D2;
+}
+#close {
+  left: 100px;
+  border-top: 2px solid #f44336;
+  border-right: 2px solid #f44336;
+  border-top-right-radius: 5px;
+}
+#close:hover {
+  background: #f44336;
+}
+#close:active {
+  background: #d32f2f;
+  border-color: #d32f2f;
+}
+.newtext #closet {
+  background: #f44336;
+  border-radius: 50%;
+  height: 10px;
+  width: 10px;
+  border: none;
+  display: block;
+  position: absolute;
+  top: 100px;
+  right: 90px;
+  margin: 5px;
+}
+.newtext #closet:hover {
+  background: #ef5350;
+}
+.newtext #closet:active {
+  background: #d32f2f;
+}
+.newtext #help {
+  height: 100%;
+  width: 100%;
+  background: #eee;
+  border-radius: 5px;
+  padding: 5px;
+  overflow: auto;
+}
+#helptext:hover:before {
+  content: 'See how to play the game.';
 }
     </style>
     <link rel="stylesheet" type="text/css" href="blocks.css">
   </head>
   <body>
-    <b>Use the keys WAD (on your keyboard) to move the player around. Use the S key to swim or teleport downwards or slam or jump downwards. Press p to pause, r to suicide, and space to brake and activate powerups that you are standing on.</b><br>
-    <span onclick="createRandomLevel()" style="font-size: 2em;"><i class="material-icons">add_circle_outline</i>generate a level</span> <span id="load"><i class="material-icons">file_download</i>load</span> <a href="submit.html"><i class="material-icons">playlist_add</i>submit level</a>
-    <select onchange="example(Number(this.value));">
-      <option value="-1">Select level :P</option>
-      <option value="0">Untitled by Steven</option>
-      <option value="1">Untitled by Zach</option>
-      <option value="2">Untitled-2 by Zach</option>
-      <option value="3">Recursive Death by Sean</option>
-      <option value="4">Slammer by Sean</option>
-    </select>
-    <a href="maker/" id="editer"><i class="material-icons">mode_edit</i>edit level</a> <span onclick="var x=document.querySelector('#creds');z=!window.z;if(z)x.style.display='block';else x.style.display='none';"><i class="material-icons">subject</i>show/hide credits/changelog</span> <span id="joystick"><i class="material-icons">videogame_asset</i>enable joystick</span> <a href="https://gamedemos.github.io/platform/"><i class="material-icons">flight_takeoff</i>see gamedemos's fork</a>
-    <textarea placeholder="Level code here"></textarea><br>
-    <div id="thing"><span onclick="var c=document.querySelector('#thing');v=!window.v;if(v)c.className='atoscrol';else c.className='';"><i class="material-icons">open_with</i>toggle autoscroll</span> spawn
-    <span onclick="setBlock(0,-40,'a');render();"><i class="material-icons">invert_colors</i>lava to solid</span>
-    <span onclick="setBlock(0,-40,'i');render();"><i class="material-icons">local_drink</i>liquification</span>
-    <span onclick="setBlock(0,-40,'p');render();"><i class="material-icons">cloud_upload</i>pillar</span>
-    <span onclick="setBlock(0,-40,';');render();"><i class="material-icons">file_download</i>slammer</span>
-    <span onclick="setBlock(0,-40,'o');render();"><i class="material-icons">accessibility</i>rage</span>
-    <span onclick="setBlock(0,-40,'m');render();"><i class="material-icons">attach_money</i>midas' touch</span>
-    <span onclick="setBlock(0,-40,'t');render();"><i class="material-icons">swap_horiz</i>transparent block</span>
-    powerup or <span onclick="setBlock(0,-40,'C');render();"><i class="material-icons">beenhere</i>checkpoint</span></div><br>
+    <div class="new">
+      <textarea placeholder="Level code here"></textarea>
+      <button id="close">Cancel</button>
+      <button id="load">OK</button>
+    </div>
+    <div class="newtext">
+      <div id="help">
+        <div id="closet"></div>
+        <h1>Guide</h1>
+        <p>Move around and collide into things. Avoid dangerous blocks (such as lava, an orange block) and try to get to the destination blocks (lime green with the flag icon). Along the way, you may encounter special blocks but I won't go into much detail because it's fun seeing people discover things and realize they don't know everything.</p>
+        <p><b>W</b> or <b>up arrow</b> jump if on ground, swim up if in water. hold while jumping into wall to wall jump. makes a pillar with the pillar powerup</p>
+        <p><b>A</b> or <b>left arrow</b> move left if on ground, swim left if in water</p>
+        <p><b>D</b> or <b>right arrow</b> move right if on ground, swim right if in water</p>
+        <p><b>S</b> or <b>down arrow</b> jump if in gravity blocks and on ground, swim down if in water. destroys block under you with the slammer powerup. falls through the floor with the transparent blocks powerup.</p>
+        <p><b>space</b> brakes if on ground or in water. activates powerups.</p>
+        <p><b>P</b> pauses the game</p>
+        <p><b>R</b> suicide. useful if trapped in stickyground blocks.</p>
+        <p>If you're having trouble with jumping, remember that you can't run in midair. So take a running start before jumping if you want to navigate the air.</p>
+      </div>
+    </div>
     <div id="joistik" class="notactive">
       <img src="icons/joystick.svg" id="move"/>
       <img src="icons/brake.svg" id="brake"/>
       <img src="icons/materialicon_refresh.svg" id="restart"/>
       <img src="icons/pause.svg" id="plause"/>
     </div>
-    <div id="creds" style="display:none;">
-      <h1>Credits</h1>
-      <ul>
-        <li>Material Design for the colors and the icons used on the blocks.</li>
-        <li>Mateo, Zach, Steven, Alan, and me for testing this out and pointing out my mistakes.</li>
-        <li>Also them for ideas.</li>
-        <li><a href="https://scratch.mit.edu/users/Yllie/">Yllie</a> for block ideas from their Ultimate Game Creator.</li>
-        <li>I am Sean. Nice to meat you.</li>
-      </ul>
-      <h1>Changelog</h1>
-      <p>Of commit 55:</p>
-      <ul>
-        <li>featured levels from Zach</li>
-      </ul>
-      <p>Of commit 44 and 45:</p>
-      <ul>
-        <li>joystick for touchscreens</li>
-        <li>gave credit to griffpatch_tutor</li>
-        <li>worked on world generation</li>
-      </ul>
-      <p>Of commit 43:</p>
-      <ul>
-        <li>bug fixes</li>
-        <li>growing level in editor now uses current block</li>
-        <li>autosave level when test level is clicked in editor</li>
-        <li>more distinguishable cycled blocks</li>
-        <li>undo/redo in editor</li>
-        <li>confusion block that messes up controls</li>
-        <li>+ other betterifications</li>
-        <li>added penland5's <a href="penland/render.html">rendering engine</a></li>
-      </ul>
-      <p>Of commit 41 and 42:</p>
-      <ul>
-        <li>added block icons to editor</li>
-        <li>added <a href="mspaint.html">ms paint</a></li>
-        <li>player doesn't show anymore until a level is rendered</li>
-        <li>fixed the air/solid/lava cycled blocks' textures</li>
-        <li>recolored player to black</li>
-      </ul>
-      <p>Of commit 40:</p>
-      <ul>
-        <li>fixed collisions</li>
-      </ul>
-      <p>Of commit 39:</p>
-      <ul>
-        <li>autoscrolling</li>
-        <li>spacebar doesn't scroll now</li>
-        <li>fixed ladders (again)</li>
-        <li>editted levels now save as a cookie</li>
-      </ul>
-      <p>Of commit 38:</p>
-      <ul>
-        <li>credited yllie</li>
-        <li>you can now teleport into lava and other uncollidables with the transparent powerup</li>
-        <li>gravity blocks that reverse gravity</li>
-        <li>midas touch autoactivates now</li>
-        <li>air, solid, and lava cycle through into different blocks with same physics but different looks (i.e. invisible lava)</li>
-        <li>text blocks now an option in level maker</li>
-        <li>redesigned text display</li>
-        <li>load featured level button</li>
-      </ul>
-      <p>Of commit 37:</p>
-      <ul>
-        <li>credits and changelog section</li>
-        <li>rage mode powerup - superspeed, higher jump, immunity to lava and fire (warning: collision glitches!)</li>
-        <li>midas touch powerup - turns collidables into gold</li>
-        <li>transparent powerup - teleports you through blocks (press s to tp down)</li>
-        <li>fixed ladders</li>
-        <li>recolored nojump</li>
-        <li>topOnly interactions work underwater</li>
-        <li>the "sun" level-bit now won't be impossible</li>
-      </ul>
-    </div>
     <div class="level" style="height: 0px;width: 0px;margin-top: 30px;">
     </div>
     <p id="message" style="display: none;"></p>
+    <div id="tools">
+        <a href="maker/" id="editer"><i class="material-icons">mode_edit</i></a><i class="material-icons dropdown">add_box<ul>
+          <li class="dropheader"><strong>Play...</strong></li>
+          <li id="loadopen">level from code</li>
+          <li onclick="createRandomLevel()">randomly generated level</li>
+        </ul></i><i class="material-icons dropdown">list<ul>
+          <li class="dropheader"><strong>Play...</strong></li>
+          <li onclick="example(0);">Untitled by Steven</li>
+          <li onclick="example(1);">Untitled by Zach</li>
+          <li onclick="example(2);">Untitled-2 by Zach</li>
+          <li onclick="example(3);">Recursive Death by Sean</li>
+          <li onclick="example(4);">Slammer by Sean</li>
+        </ul></i><i class="material-icons dropdown">playlist_add<ul>
+          <li class="dropheader"><strong>Submit...</strong></li>
+          <li><a href="../submit.html">level</a></li>
+          <li><a href="submit.html">level-bit</a></li>
+        </ul></i><i class="material-icons dropdown">power_settings_new<ul id="powerup">
+          <li class="dropheader"><strong>Spawn in...</strong></li>
+          <li onclick="setBlock(0,-40,'a');render();pus++"><i class="material-icons">invert_colors</i>lava to solid</li>
+          <li onclick="setBlock(0,-40,'i');render();pus++"><i class="material-icons">local_drink</i>liquification</li>
+          <li onclick="setBlock(0,-40,'p');render();pus++"><i class="material-icons">cloud_upload</i>pillar</li>
+          <li onclick="setBlock(0,-40,';');render();pus++"><i class="material-icons">file_download</i>slammer</li>
+          <li onclick="setBlock(0,-40,'o');render();pus++"><i class="material-icons">accessibility</i>rage</li>
+          <li onclick="setBlock(0,-40,'m');render();pus++"><i class="material-icons">attach_money</i>midas' touch</li>
+          <li onclick="setBlock(0,-40,'t');render();pus++"><i class="material-icons">swap_horiz</i>transparent block</li>
+          <li onclick="setBlock(0,-40,'C');render();pus++"><i class="material-icons">beenhere</i>checkpoint</li>
+        </ul></i><i class="material-icons" id="joystick">videogame_asset</i><i class="material-icons" onclick="document.querySelector('.newtext').style.display='block';" id="helptext">help</i><i class="material-icons dropdown">more_horiz<ul>
+          <li class="dropheader"><strong>Other links</strong></li>
+          <li><a href="../keypresses.html">keypress/collision test</a></li>
+          <li><a href="../levelplaytest.html">original platformre</a></li>
+          <li><a href="/?penland">Penland 5</a></li>
+          <li><a href="https://gamedemos.github.io/platform/">gamedemos' fork</a></li>
+          <li><a href="creds.html">credits</a></li>
+          <li><a href="updates.html">changelog</a></li>
+        </ul></i>
+    </div>
 
     <script src="../sheep.js"></script>
     <script src="randomparts.js"></script>

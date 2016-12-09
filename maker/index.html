@@ -6,7 +6,6 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
 body {
-  font-family: monospace;
   margin: 10px;
   margin-top: 70px;
   margin-bottom: 50px;
@@ -137,7 +136,7 @@ textarea {
   pointer-events: none;
 }
 input[type=number] {
-  width: 30px;
+  width: 40px;
   border-radius: 15px;
   padding: 5px;
   height: 20px;
@@ -270,7 +269,7 @@ input[type=number] {
   height: 40px;
   width: 100%;
   bottom: 0;
-  background: black;
+  background: rgba(0,0,0,0.8);
   display: block;
   left: 0;
   box-shadow: 0 0 3px rgba(0,0,0,0.5);
@@ -324,7 +323,7 @@ input[type=number] {
 #tools ul {
   display: none;
 }
-#tools .dropdown:hover ul {
+#tools .dropdown:hover ul, #tools .dropdown.hover ul {
   background: rgba(255,255,255,0.8);
   display: block;
   bottom: 40px;
@@ -335,24 +334,24 @@ input[type=number] {
   padding: 5px;
   color: #333;
 }
-#tools .dropdown:hover ul li {
+#tools .dropdown:hover ul li, #tools .dropdown.hover ul li {
   height: 20px;
   font-size: 20px;
   cursor: pointer;
   padding: 5px;
   -webkit-user-select: none;
 }
-#tools .dropdown:hover ul .dropheader {
+#tools .dropdown:hover ul .dropheader, #tools .dropdown.hover ul .dropheader {
   cursor: auto;
   -webkit-user-select: text;
 }
-#tools .dropdown:hover ul li:not(.dropheader):hover {
+#tools .dropdown:hover ul li:not(.dropheader):hover, #tools .dropdown.hover ul li:not(.dropheader):hover {
   background: rgba(0,0,0,0.1);
 }
-#tools .dropdown:hover ul li:not(.dropheader):active {
+#tools .dropdown:hover ul li:not(.dropheader):active, #tools .dropdown.hover ul li:not(.dropheader):active {
   background: rgba(0,0,0,0.2);
 }
-#tools .dropdown:hover ul li a {
+#tools .dropdown:hover ul li a, #tools .dropdown.hover ul li a {
   text-decoration: none;
   color: #333;
 }
@@ -372,6 +371,7 @@ input[type=number] {
   width: 100%;
   padding: 0;
   border: none;
+  resize: none;
 }
 .new button {
   bottom: 100px;
@@ -474,6 +474,9 @@ input[type=number] {
         <li><a href="../keypresses.html">keypress/collision test</a></li>
         <li><a href="../levelplaytest.html">original platformre</a></li>
         <li><a href="/?penland">Penland 5</a></li>
+        <li><a href="https://gamedemos.github.io/platform/maker/">gamedemos' fork</a></li>
+        <li><a href="../creds.html">credits</a></li>
+        <li><a href="../updates.html">changelog</a></li>
       </ul></i>
     </div>
 

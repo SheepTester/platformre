@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Credits - Platformre</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <style>
+body {
+  margin: 10px;
+  margin-bottom: 50px;
+  background: #E9EEF2;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  color: #333;
+}
+#return {
+  display: block;
+  position: fixed;
+  height: 40px;
+  width: 40px;
+  left: 10px;
+  bottom: 10px;
+  border-radius: 50%;
+  background-color: rgba(0,0,0,0.8);
+  background-image: url('icons/materialicon_chevron_left.svg');
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  background-size: 40px;
+  transition: box-shadow 0.2s;
+}
+#return:hover {
+  box-shadow: 0 0 5px rgba(0,0,0,0.7);
+}
+#return:active {
+  box-shadow: 0 0 1px rgba(0,0,0,0.5);
+}
+#return:hover:after {
+  content: "Go back";
+  position: absolute;
+  background-color: rgba(255,255,255,0.8);
+  box-shadow: 0 0 3px rgba(0,0,0,0.2);
+  color: #333;
+  font-size: 12px;
+  display: inline-block;
+  white-space: nowrap;
+  top: -20px;
+  padding: 3px;
+  left: -5px;
+}
+    </style>
+  </head>
+  <body>
+    <h1>Credits</h1>
+    <ul>
+      <li>Material Design for the colors and the icons.</li>
+      <li>Mateo, Zach, Steven, Alan, and me for testing this out and pointing out my mistakes.</li>
+      <li>Also them for ideas.</li>
+      <li>The 6th graders (as of 2016-2017) of JLS for testing this and finding glitches.</li>
+      <li><a href="https://scratch.mit.edu/users/Yllie/">Yllie</a> for block ideas from their Ultimate Game Creator.</li>
+      <li>I am Sean. Nice to meat you.</li>
+    </ul>
+    <div id="return" onclick="window.history.back()"></div>
+
+    <script src="../sheep.js"></script>
+<!-- MADE BY SEAN -->
+  </body>
+</html>

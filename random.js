@@ -1,4 +1,4 @@
-var levels=[[],[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
+var levels=[[],[["Congrats!",'','',''],"g````g","L    `","`0123`",]];
 if(!localStorage.getItem('level')) {
   localStorage.setItem('level',JSON.stringify([[],
     "@@@@@@@@@@@@@@@@@+@@",
@@ -21,6 +21,8 @@ function startPlaying() {
     wow=setInterval(play,33);
   }
   time=Date.now();
+  deaths=0;
+  pus=0;
 }
 function render(level) {
   var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav","conf","fade","unes","unet"],
@@ -41,7 +43,7 @@ function render(level) {
     }
   }
   document.querySelector(".level").innerHTML=data;
-  document.querySelector(".level").style.height=(levels[level].length*40-40)+"px";
+  document.querySelector(".level").style.height=(levels[level].length*40)+"px";
 }
 var wDown=false,aDown=false,dDown=false,sDown=false,pausd=true,spaceDown=false;
 document.body.onkeydown=function(e){
@@ -90,6 +92,10 @@ document.body.onkeydown=function(e){
       pausd=!pausd;
       break;
   }
+  if(e.keyCode>=37&&e.keyCode<=40){
+    e.preventDefault();
+    return false;
+  }
 };
 document.body.onkeyup=function(e){
   switch (e.keyCode) {
@@ -123,7 +129,7 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýádn".split(''),danger="#éí",power="",powerupdelay=-1,v,time,play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýádn".split(''),danger="#éí",power="",powerupdelay=-1,v,time,deaths,pus,play=function(){
   x+=xv;y+=yv;
   // updateLevel();
   var nearBys=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)],
@@ -389,8 +395,10 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`i
   if (getBlock(40,0)=="R") xv-=2;
   if (getBlock(0,-40)=="B") yv+=2;
   document.querySelector("#player").style.left=x+"px";
-  document.querySelector("#player").style.bottom=y+"px";
-  if (v) window.scrollTo(x-document.body.scrollWidth/3,document.body.scrollHeight-document.body.clientHeight-y);
+  document.querySelector("#player").style.bottom=(y+40)+"px";
+  // levels[level].length*40-40
+  // levels[level][0].length*40-40
+  window.scrollTo(x-window.innerWidth/2+20,document.body.scrollHeight-(window.innerHeight/2)-y-20);
 };
 function getBlock(nx,ny,getDebugInfo) {
   var getDebugInfo;
@@ -423,9 +431,15 @@ function die(type) {
   }
   if (type=="win") {
     document.querySelector("#player").className="winner";
-    console.log("Time for level "+lev+": "+((Date.now()-time)/1000)+" secs");
+    console.log("Time taken for level "+lev+": "+((Date.now()-time)/1000)+" secs");
+    console.log("Death count for level "+lev+": "+deaths+" deaths");
+    console.log("Extra powerups used for level "+lev+": "+pus+" powerups");
+    levels[1][0][1]=((Date.now()-time)/1000)+" secs";
+    levels[1][0][2]=deaths+" deaths";
+    levels[1][0][3]=deaths+" extra powerups";
   } else {
     document.querySelector("#player").className="die";
+    deaths++;
   }
   setTimeout(function(){
     if (document.querySelector("#player").className=="winner") {
@@ -433,6 +447,8 @@ function die(type) {
       cpx=40;
       cpy=40;
       time=Date.now();
+      deaths=0;
+      pus=0;
     }
     xv=0,yv=0,x=cpx,y=cpy,power='';
     play();
@@ -522,22 +538,30 @@ function createRandomLevel() {
   level.splice(0,0,"@".repeat(48));
 
   level.splice(0,0,["This is a randomly generated level with 4 floors of mini-platformer-ness.","Next floor!","Almost there!"]);
-  levels=[level,[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
+  levels=[level,[["Congrats!",'','',''],"g````g","L    `","`0123`",]];
   startPlaying();
 }
+document.querySelector("#loadopen").onclick=function(){
+  document.querySelector('.new').style.display="block";
+  document.querySelector("textarea").value="";
+  document.querySelector("textarea").focus();
+}
 document.querySelector("#load").onclick=function(){
-  levels=[JSON.parse(document.querySelector("textarea").value),[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
+  document.querySelector('.new').style.display="none";
+  levels=[JSON.parse(document.querySelector("textarea").value),[["Congrats!",'','',''],"g````g","L    `","`0123`",]];
   startPlaying();
+}
+document.querySelector("#close").onclick=function(){
+  document.querySelector('.new').style.display="none";
 }
 function example(id) {
   if (id!=-1) {
-    levels=[exampleLevels[id],[["Congrats! The time is posted in the Javascript console."],"`g`","g g","`0`",]];
-    document.querySelector('select').blur();
+    levels=[exampleLevels[id],[["Congrats!",'','',''],"g````g","L    `","`0123`",]];
     startPlaying();
   }
 }
 document.querySelector("#joystick").onclick=function(){
-  document.body.removeChild(document.querySelector("#joystick"));
+  document.querySelector("#tools").removeChild(document.querySelector("#joystick"));
   document.body.onkeyup = document.body.onkeydown = "";
   document.querySelector("#joistik").className="";
   var joy=function(e) {
@@ -605,6 +629,15 @@ function updateLevel() {
     }
   }
   if (changes) render();
+}
+document.querySelector("#tools").ontouchstart=function(e){
+  if (/\bdropdown\b/.test(e.target.className)) {
+    if (e.target.className.includes("hover")) e.target.className=e.target.className.replace(/ hover/g,'');
+    else e.target.className+=" hover";
+  }
+}
+document.querySelector("#closet").onclick=function(){
+  document.querySelector('.newtext').style.display="none";
 }
 startPlaying();
 /* MADE BY SEAN */
