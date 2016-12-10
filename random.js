@@ -394,6 +394,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB|&gsa`
   if (getBlock(-40,0)=="L") xv+=2;
   if (getBlock(40,0)=="R") xv-=2;
   if (getBlock(0,-40)=="B") yv+=2;
+  if (getBlock(0,40)=="|") yv-=2;
   document.querySelector("#player").style.left=x+"px";
   document.querySelector("#player").style.bottom=(y+40)+"px";
   // levels[level].length*40-40
@@ -632,9 +633,9 @@ function updateLevel() {
   if (changes) render();
 }
 document.querySelector("#tools").ontouchstart=function(e){
+  if (document.querySelector(".hover")) document.querySelector(".hover").className=document.querySelector(".hover").className.replace(/ hover/g,'');
   if (/\bdropdown\b/.test(e.target.className)) {
-    if (e.target.className.includes("hover")) e.target.className=e.target.className.replace(/ hover/g,'');
-    else e.target.className+=" hover";
+    e.target.className+=" hover";
   }
 }
 document.querySelector("#closet").onclick=function(){

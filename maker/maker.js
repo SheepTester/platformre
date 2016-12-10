@@ -360,6 +360,9 @@ document.querySelector("#tools").ontouchstart=function(e){
     e.target.className+=" hover";
   }
 }
+document.querySelector("#closett").onclick=function(){
+  document.querySelector('.newhelp').style.display="none";
+}
 /*
 [[],
 "@@@@@@@@",
