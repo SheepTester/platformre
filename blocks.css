@@ -24,10 +24,11 @@
 .right {background-color:#004D40;background-image:url(icons/materialicon_chevron_right.svg);background-position:center;background-repeat:no-repeat;}
 .text {background-color:#eee;background-image:url(icons/materialicon_title.svg);background-position:center;background-repeat:no-repeat;}
 .check {background-color:#4CAF50;background-image:url(icons/materialicon_beenhere.svg);background-position:center;background-repeat:no-repeat;}
-.fanL, .fanR, .fanB {background-color:#607D8B;}
+.fanL, .fanR, .fanB, .fanT {background-color:#607D8B;}
 .fanL:before {content:'';border-right:5px solid rgba(255,255,255,0.2);display:block;height:40px;}
 .fanR:before {content:'';border-left:5px solid rgba(255,255,255,0.2);display:block;height:40px;}
 .fanB:before {content:'';border-top:5px solid rgba(255,255,255,0.2);display:block;}
+.fanT:before {content:'';border-bottom:5px solid rgba(255,255,255,0.2);display:block;height:35px;}
 .ajump {background-color:#E91E63;background-image:url(icons/materialicon_arrow_upward.svg);background-position:center;background-repeat:no-repeat;}
 .gold {background:#FFC107;background-image:url(icons/iceshine.svg);background-position:center;background-repeat:no-repeat;}
 .sand {background:#FFCC80;}

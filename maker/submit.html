@@ -47,19 +47,22 @@ body {
   left: -5px;
 }
 textarea {
-  font-family: monospace;
-  font-size: inherit;
-  width: 100%;
+  font-family: monospace !important;
+  font-size: 14px !important;
+  width: calc(100% - 10px);
   height: 300px;
   border: 1px solid #B8BDC0;
   border-radius: 5px;
   padding: 5px;
 }
-input[type=submit] {
+input {
   border-radius: 15px;
   padding: 5px;
   border: 1px solid #B8BDC0;
   background: white;
+  font-size: inherit;
+}
+input[type=submit] {
   cursor: pointer;
 }
     </style>

@@ -11,11 +11,11 @@ if(!localStorage.getItem('level')) {
 }
 var level=JSON.parse(localStorage.getItem('level')),hist=[JSON.parse(JSON.stringify(level)).slice(1)],redoHist=[];
 var paletteIdToPaletteLabel={
-  space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",amp:"autojumppad",g:"gold",s:"sand",a:"lavatosolidpowerup",backtick:"usedpowerup",i:"liquificationpowerup",p:"pillarpowerup",f:"fire",e:"ladder",semi:"slammerpowerup",o:"ragepowerup",m:"midastouchpowerup",t:"transparentblockspowerup",ý:"solidlava",á:"invisiblesolid",é:"dangeroussolid",í:"invisiblelava",ó:"transparentsolid",ú:"transparentlava",y:"gravity",u:"confusion",d:"fadingblock",n:"unstablesolid",q:"unstableair"
+  space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",quote:"downfan",amp:"autojumppad",g:"gold",s:"sand",a:"lavatosolidpowerup",backtick:"usedpowerup",i:"liquificationpowerup",p:"pillarpowerup",f:"fire",e:"ladder",semi:"slammerpowerup",o:"ragepowerup",m:"midastouchpowerup",t:"transparentblockspowerup",ý:"solidlava",á:"invisiblesolid",é:"dangeroussolid",í:"invisiblelava",ó:"transparentsolid",ú:"transparentlava",y:"gravity",u:"confusion",d:"fadingblock",n:"unstablesolid",q:"unstableair"
 },paletteLabelToClassName={
-  air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB",autojumppad:"ajump topOnly",gold:"gold",sand:"sand",lavatosolidpowerup:"antilava topOnly",usedpowerup:"nopower",liquificationpowerup:"liquify topOnly",pillarpowerup:"pillar topOnly",fire:"fire",ladder:"ladder",slammerpowerup:"slam topOnly",ragepowerup:"rage topOnly",midastouchpowerup:"midas topOnly",transparentblockspowerup:"trans topOnly",solidlava:"sl",invisiblesolid:"sa",dangeroussolid:"ls",invisiblelava:"la",transparentsolid:"as",transparentlava:"al",gravity:"grav",text:"text topOnly",confusion:"conf",fadingblock:"fade",unstablesolid:"unes",unstableair:"unet"
+  air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB",downfan:"fanT",autojumppad:"ajump topOnly",gold:"gold",sand:"sand",lavatosolidpowerup:"antilava topOnly",usedpowerup:"nopower",liquificationpowerup:"liquify topOnly",pillarpowerup:"pillar topOnly",fire:"fire",ladder:"ladder",slammerpowerup:"slam topOnly",ragepowerup:"rage topOnly",midastouchpowerup:"midas topOnly",transparentblockspowerup:"trans topOnly",solidlava:"sl",invisiblesolid:"sa",dangeroussolid:"ls",invisiblelava:"la",transparentsolid:"as",transparentlava:"al",gravity:"grav",text:"text topOnly",confusion:"conf",fadingblock:"fade",unstablesolid:"unes",unstableair:"unet"
 },paletteLabelToSymbol={
-  air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B",autojumppad:"&",gold:"g",sand:"s",lavatosolidpowerup:"a",usedpowerup:"`",liquificationpowerup:"i",pillarpowerup:"p",fire:"f",ladder:"e",slammerpowerup:";",ragepowerup:"o",midastouchpowerup:"m",transparentblockspowerup:"t",solidlava:"ý",invisiblesolid:"á",dangeroussolid:"é",invisiblelava:"í",transparentsolid:"ó",transparentlava:"ú",gravity:"y",confusion:"u",fadingblock:"d",unstablesolid:"n",unstableair:"q"
+  air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B",downfan:"|",autojumppad:"&",gold:"g",sand:"s",lavatosolidpowerup:"a",usedpowerup:"`",liquificationpowerup:"i",pillarpowerup:"p",fire:"f",ladder:"e",slammerpowerup:";",ragepowerup:"o",midastouchpowerup:"m",transparentblockspowerup:"t",solidlava:"ý",invisiblesolid:"á",dangeroussolid:"é",invisiblelava:"í",transparentsolid:"ó",transparentlava:"ú",gravity:"y",confusion:"u",fadingblock:"d",unstablesolid:"n",unstableair:"q"
 },paletteLabelToDesc={
   air:"The normal invisible thing that you can't collide into.",
   solid:"An ordinary block that hurts if you run and jump into it, so don't.",
@@ -28,7 +28,7 @@ var paletteIdToPaletteLabel={
   water:"A liquid that you can swim in without dying too quickly.",
   leftconveyorbelt:"Stand on it and you magically move to the left.",rightconveyorbelt:"Stand on it and you magically move to the left.",
   checkpoint:"After standing on this you'll resurrect here when you die.",
-  leftfan:"Pushes you to the left.",rightfan:"Pushes you to the right.",upfan:"Pushes you upwards and allows you to swim through the air.",
+  leftfan:"Pushes you to the left.",rightfan:"Pushes you to the right.",upfan:"Pushes you upwards and allows you to swim through the air.",downfan:"A decorational block that just finishes the family of fans.",
   autojumppad:"Makes you jump higher and also does it for you.",
   gold:"A shiny decorational block to make you feel rich even though you aren't.",sand:"A boring decorational block.",
   lavatosolidpowerup:"Turns dangerous blocks into their solid lookalikes.",usedpowerup:"An uninteresting block.",liquificationpowerup:"Creates water and ice and things.",pillarpowerup:"Creates a pillar when you jump and also sets your resurrection point.",
@@ -107,8 +107,6 @@ document.querySelector("#palette").onmouseout=function(e){
 }
 document.querySelector("#palette").onclick=document.querySelector("#palette").ontouchstart=function(e){
   if (/icon2/i.test(e.target.className)) {
-    // document.querySelector("#current").innerHTML=e.target.dataset.label;
-    // document.querySelector("#curB").className=paletteLabelToClassName[e.target.dataset.label];
     document.querySelector(".sel").className=document.querySelector(".sel").className.replace(" sel",'');
     e.target.className+=" sel";
   }
@@ -174,6 +172,28 @@ document.body.onkeydown=function(e){
     case 38:
       level.splice(0,0,paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label].repeat(level[0].length));
       break;
+    case 13:
+      if (e.ctrlKey) {
+        window.location='../';
+        e.preventDefault();
+      }
+      break;
+    case 89:
+      if (e.ctrlKey) {
+        redo();
+        e.preventDefault();
+      }
+      break;
+    case 90:
+      if (e.ctrlKey) {
+        if (e.shiftKey) {
+          redo();
+        } else {
+          undo();
+        }
+        e.preventDefault();
+      }
+      break;
   }
   if(e.keyCode>=37&&e.keyCode<=40){
     ANEDITHASBEENMADE();
@@ -193,7 +213,7 @@ document.querySelector("#width").onchange=function(){
     }
   } else if (level[0].length<w) {
     for (var i=0;i<level.length;i++) {
-      level[i]+=paletteLabelToSymbol[document.querySelector("#current").innerHTML].repeat(w-level[i].length);
+      level[i]+=paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label].repeat(w-level[i].length);
     }
   }
   ANEDITHASBEENMADE()
@@ -210,7 +230,7 @@ document.querySelector("#height").onchange=function(){
   } else if (level.length<h) {
     var j=level.length;
     for (var i=0;i<h-j;i++) {
-      level.splice(0,0,paletteLabelToSymbol[document.querySelector("#current").innerHTML].repeat(level[0].length));
+      level.splice(0,0,paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label].repeat(level[0].length));
     }
   }
   ANEDITHASBEENMADE()
@@ -281,6 +301,13 @@ document.querySelector("#loadopen").onclick=function(){
     render();
   }
 }
+function example(id) {
+  level=exampleLevels[id*3];
+  for (var i=0;i<level[0].length;i++) {
+    document.querySelector("#i"+i).value=level[0][i];
+  }
+  render();
+}
 document.querySelector("#close").onclick=function(){
   document.querySelector('.new').style.display="none";
 }
@@ -303,7 +330,8 @@ document.querySelector("#test").onclick=function(){
   }
   render();
 }*/
-document.querySelector("#undo").onclick=function(){
+document.querySelector("#undo").onclick=undo;
+function undo() {
   if (hist.length-1) {
     redoHist.push(hist.pop());
     level=JSON.parse(JSON.stringify(hist[hist.length-1]));
@@ -314,7 +342,7 @@ document.querySelector("#undo").onclick=function(){
   if (redoHist.length) document.querySelector("#redo").className=document.querySelector("#redo").className.replace(/ dis/g,'');
   else document.querySelector("#redo").className+=" dis";
 }
-document.querySelector("#redo").onclick=function(){
+function redo() {
   if (redoHist.length) {
     hist.push(redoHist.pop());
     level=JSON.parse(JSON.stringify(hist[hist.length-1]));
@@ -325,10 +353,11 @@ document.querySelector("#redo").onclick=function(){
   if (redoHist.length) document.querySelector("#redo").className=document.querySelector("#redo").className.replace(/ dis/g,'');
   else document.querySelector("#redo").className+=" dis";
 }
+document.querySelector("#redo").onclick=redo;
 document.querySelector("#tools").ontouchstart=function(e){
+  if (document.querySelector(".hover")) document.querySelector(".hover").className=document.querySelector(".hover").className.replace(/ hover/g,'');
   if (/\bdropdown\b/.test(e.target.className)) {
-    if (e.target.className.includes("hover")) e.target.className=e.target.className.replace(/ hover/g,'');
-    else e.target.className+=" hover";
+    e.target.className+=" hover";
   }
 }
 /*

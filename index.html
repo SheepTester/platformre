@@ -3,6 +3,9 @@
   <head>
     <title>Platformre</title>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- let's see if iOS doesn't automatically zoom out with big levels... -->
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
     <style>
@@ -129,9 +132,9 @@ span:active {
   opacity: 0.5;
   transition: transform .2s;
 }
-#joistik img:hover {
+/*#joistik img:hover {
   opacity: 1;
-}
+}*/
 #move {
   height: 200px;
   left: 30px;
@@ -382,17 +385,12 @@ span:active {
           <li class="dropheader"><strong>Play...</strong></li>
           <li id="loadopen">level from code</li>
           <li onclick="createRandomLevel()">randomly generated level</li>
-        </ul></i><i class="material-icons dropdown">list<ul>
+        </ul></i><i class="material-icons dropdown">list<ul id="EXAMPLES">
           <li class="dropheader"><strong>Play...</strong></li>
-          <li onclick="example(0);">Untitled by Steven</li>
-          <li onclick="example(1);">Untitled by Zach</li>
-          <li onclick="example(2);">Untitled-2 by Zach</li>
-          <li onclick="example(3);">Recursive Death by Sean</li>
-          <li onclick="example(4);">Slammer by Sean</li>
         </ul></i><i class="material-icons dropdown">playlist_add<ul>
           <li class="dropheader"><strong>Submit...</strong></li>
-          <li><a href="../submit.html">level</a></li>
-          <li><a href="submit.html">level-bit</a></li>
+          <li><a href="submit.html">level</a></li>
+          <li><a href="maker/submit.html">level-bit</a></li>
         </ul></i><i class="material-icons dropdown">power_settings_new<ul id="powerup">
           <li class="dropheader"><strong>Spawn in...</strong></li>
           <li onclick="setBlock(0,-40,'a');render();pus++"><i class="material-icons">invert_colors</i>lava to solid</li>
@@ -405,8 +403,8 @@ span:active {
           <li onclick="setBlock(0,-40,'C');render();pus++"><i class="material-icons">beenhere</i>checkpoint</li>
         </ul></i><i class="material-icons" id="joystick">videogame_asset</i><i class="material-icons" onclick="document.querySelector('.newtext').style.display='block';" id="helptext">help</i><i class="material-icons dropdown">more_horiz<ul>
           <li class="dropheader"><strong>Other links</strong></li>
-          <li><a href="../keypresses.html">keypress/collision test</a></li>
-          <li><a href="../levelplaytest.html">original platformre</a></li>
+          <li><a href="keypresses.html">keypress/collision test</a></li>
+          <li><a href="levelplaytest.html">original platformre</a></li>
           <li><a href="/?penland">Penland 5</a></li>
           <li><a href="https://gamedemos.github.io/platform/">gamedemos' fork</a></li>
           <li><a href="creds.html">credits</a></li>
@@ -416,6 +414,7 @@ span:active {
 
     <script src="../sheep.js"></script>
     <script src="randomparts.js"></script>
+    <script src="maker/examples.js"></script>
     <script src='random.js'></script>
 <!-- MADE BY SEAN -->
   </body>

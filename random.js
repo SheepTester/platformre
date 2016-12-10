@@ -25,8 +25,8 @@ function startPlaying() {
   pus=0;
 }
 function render(level) {
-  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav","conf","fade","unes","unet"],
-  ids="@#+^=v*w<>CLRB&gsa`ipfe;omtýéóúyudnq",
+  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","fanT","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav","conf","fade","unes","unet"],
+  ids="@#+^=v*w<>CLRB|&gsa`ipfe;omtýéóúyudnq",
   data="<div id='player'></div>",level;
   if (level===undefined) {
     level=lev;
@@ -129,7 +129,7 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB&gsa`ip;omtýádn".split(''),danger="#éí",power="",powerupdelay=-1,v,time,deaths,pus,play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB|&gsa`ip;omtýádn".split(''),danger="#éí",power="",powerupdelay=-1,v,time,deaths,pus,play=function(){
   x+=xv;y+=yv;
   // updateLevel();
   var nearBys=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)],
@@ -436,7 +436,7 @@ function die(type) {
     console.log("Extra powerups used for level "+lev+": "+pus+" powerups");
     levels[1][0][1]=((Date.now()-time)/1000)+" secs";
     levels[1][0][2]=deaths+" deaths";
-    levels[1][0][3]=deaths+" extra powerups";
+    levels[1][0][3]=pus+" extra powerups";
   } else {
     document.querySelector("#player").className="die";
     deaths++;
@@ -556,7 +556,7 @@ document.querySelector("#close").onclick=function(){
 }
 function example(id) {
   if (id!=-1) {
-    levels=[exampleLevels[id],[["Congrats!",'','',''],"g````g","L    `","`0123`",]];
+    levels=[exampleLevels[id*3],[["Congrats!",'','',''],"g````g","L    `","`0123`",]];
     startPlaying();
   }
 }
@@ -564,6 +564,7 @@ document.querySelector("#joystick").onclick=function(){
   document.querySelector("#tools").removeChild(document.querySelector("#joystick"));
   document.body.onkeyup = document.body.onkeydown = "";
   document.querySelector("#joistik").className="";
+  document.querySelector("#plause").src=pausd?"icons/play.svg":"icons/pause.svg";
   var joy=function(e) {
     var xDiff=e.changedTouches[0].clientX-130,yDiff=e.changedTouches[0].clientY-document.querySelector("#joistik img").getBoundingClientRect().top-100;
     wDown=false;aDown=false;dDown=false;sDown=false;
