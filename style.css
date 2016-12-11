@@ -1,0 +1,341 @@
+body {
+  margin: 10px;
+  margin-bottom: 50px;
+  background: #E9EEF2;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+}
+#player {
+  position: absolute;
+  background: #212121;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+}
+.level {
+  position: absolute;
+  left: 0;
+  top: -30px;
+}
+.levelBlock {
+  height: 40px;
+  width: 40px;
+  position: absolute;
+}
+@keyframes diePainfully {
+  from {opacity:1;transform:scale(1);}
+  to {opacity:0;transform:scale(0);}
+}
+.die {
+  opacity: 0;
+  transform: scale(0);
+  animation: diePainfully 0.5s;
+}
+@keyframes congrats {
+  from {transform:scale(1);opacity:1;}
+  to {transform:scale(2);opacity:0;}
+}
+.winner {
+  opacity: 0;
+  transform: scale(2);
+  animation: congrats 0.5s;
+}
+button, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+}
+textarea {
+  display: block;
+  width: 200px;
+  height: 200px;
+}
+button {
+  cursor: pointer;
+}
+#load {
+  cursor: pointer;
+}
+#load:hover {
+  background: gray;
+}
+#load:active {
+  background: black;
+  color: white;
+}
+#message {
+  margin: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 50px;
+  text-align: center;
+  font-size: 30px;
+  color: white;
+  background: -webkit-linear-gradient(rgba(0,0,0,0.8), transparent);
+  background: -moz-linear-gradient(rgba(0,0,0,0.8), transparent);
+  background: linear-gradient(rgba(0,0,0,0.8), transparent);
+  /*-webkit-text-fill-color: white;
+  -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: black;*/
+}
+textarea {
+  display: block;
+  font-family: inherit;
+  font-size: inherit;
+  width: 200px;
+  height: 200px;
+  border: 1px solid #333;
+}
+span {
+  cursor: pointer;
+  background: #eee;
+}
+span:hover {
+  background: gray;
+}
+span:active {
+  background: black;
+  color: white;
+}
+.atoscrol {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  background: rgba(255,255,255,0.4);
+  z-index: 1000;
+  left: 0;
+}
+.atoscrol span{background:rgba(0,0,0,0.2);}
+.atoscrol span:hover{background:rgba(0,0,0,0.5);}
+.atoscrol span:active{background:black;}
+.notactive {
+  display: none;
+}
+#joistik img {
+  position: fixed;
+  z-index: 200;
+  opacity: 0.5;
+  transition: transform .2s;
+}
+/*#joistik img:hover {
+  opacity: 1;
+}*/
+#move {
+  height: 200px;
+  left: 30px;
+  bottom: 30px;
+}
+#brake {
+  height: 100px;
+  right: 30px;
+  bottom: 30px;
+}
+#restart {
+  height: 50px;
+  right: 55px;
+  bottom: 150px;
+}
+#plause {
+  height: 50px;
+  right: 55px;
+  bottom: 220px;
+}
+#powerup>li:hover:after {
+  background: rgba(255,255,255,0.8);
+  position: absolute;
+  transform: translateX(10px);
+}
+#powerup>li:nth-child(2):hover:after {content:'turn lava into solid';}
+#powerup>li:nth-child(3):hover:after {content:'summon water';}
+#powerup>li:nth-child(4):hover:after {content:'zoom upwards';}
+#powerup>li:nth-child(5):hover:after {content:'diggy diggy hole';}
+#powerup>li:nth-child(6):hover:after {content:'super speed';}
+#powerup>li:nth-child(7):hover:after {content:'make gold';}
+#powerup>li:nth-child(8):hover:after {content:'teleport through blocks';}
+#powerup>li:nth-child(9):hover:after {content:'save yourself';}
+.material-icons {
+  font-size: 0.8em;
+}
+#editer {
+  /*font-size: 1.5em;*/
+}
+#tools {
+  position: fixed;
+  height: 40px;
+  width: 100%;
+  bottom: 0;
+  background: rgba(0,0,0,0.8);
+  display: block;
+  left: 0;
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+#tools i {
+  color: white;
+  font-size: 40px;
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+}
+#tools i:after {
+  content: '';
+  background: rgba(255,255,255,0.3);
+  height: 0;
+  width: 40px;
+  display: block;
+  position: absolute;
+  bottom: 0;
+  transition: height 0.2s;
+}
+#tools i:hover:after {
+  height: 40px;
+}
+#tools .dropdown ul li i {
+  color: #333;
+  font-size: 20px;
+  height: 20px;
+  width: 20px;
+}
+#tools .dropdown ul li i:after {
+  content: normal;
+}
+#tools i:hover:before, #tools i.hover:before {
+  background: white;
+  position: absolute;
+  color: #333;
+  background: rgba(255,255,255,0.8);
+  top: -25px;
+  font-size: 15px;
+  padding: 5px;
+  font-family: 'Open Sans', sans-serif;
+}
+#editer i:hover:before, #editer i.hover:before {
+  content: 'Edit level';
+}
+#joystick:hover:before, #joystick.hover:before {
+  content: 'Enable joystick for touchscreens';
+}
+#tools ul {
+  display: none;
+}
+#tools .dropdown:hover ul, #tools .dropdown.hover ul {
+  background: rgba(255,255,255,0.8);
+  display: block;
+  bottom: 40px;
+  position: absolute;
+  list-style: none;
+  margin: 0;
+  padding: 5px;
+  font-family: 'Open Sans', sans-serif;
+  color: #333;
+}
+#tools .dropdown:hover ul li, #tools .dropdown.hover ul li {
+  height: 20px;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  -webkit-user-select: none;
+}
+#tools .dropdown:hover ul .dropheader, #tools .dropdown.hover ul .dropheader {
+  cursor: auto;
+  -webkit-user-select: text;
+}
+#tools .dropdown:hover ul li:not(.dropheader):hover, #tools .dropdown.hover ul li:not(.dropheader):hover {
+  background: rgba(0,0,0,0.1);
+}
+#tools .dropdown:hover ul li:not(.dropheader):active, #tools .dropdown.hover ul li:not(.dropheader):active {
+  background: rgba(0,0,0,0.2);
+}
+#tools .dropdown:hover ul li a, #tools .dropdown.hover ul li a {
+  text-decoration: none;
+  color: #333;
+}
+.new, .newtext {
+  background: rgba(0,0,0,0.8);
+  position: fixed;
+  padding: 100px;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1010;
+  display: none;
+}
+.new textarea {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  border: none;
+  resize: none;
+}
+.new button {
+  bottom: 100px;
+  border: none;
+  position: absolute;
+  background: none;
+  color: #333;
+  padding: 0 2px;
+}
+#load {
+  right: 100px;
+  border-top: 2px solid #2196F3;
+  border-left: 2px solid #2196F3;
+  border-top-left-radius: 5px;
+}
+#load:hover {
+  background: #2196F3;
+  color: white;
+}
+#load:active {
+  background: #1976D2;
+  border-color: #1976D2;
+}
+#close {
+  left: 100px;
+  border-top: 2px solid #f44336;
+  border-right: 2px solid #f44336;
+  border-top-right-radius: 5px;
+}
+#close:hover {
+  background: #f44336;
+}
+#close:active {
+  background: #d32f2f;
+  border-color: #d32f2f;
+}
+.newtext #closet {
+  background: #f44336;
+  border-radius: 50%;
+  height: 20px;
+  width: 20px;
+  border: none;
+  display: block;
+  position: absolute;
+  top: 100px;
+  right: 90px;
+  margin: 5px;
+}
+.newtext #closet:hover {
+  background: #ef5350;
+}
+.newtext #closet:active {
+  background: #d32f2f;
+}
+.newtext #help {
+  height: 100%;
+  width: 100%;
+  background: #eee;
+  border-radius: 5px;
+  padding: 5px;
+  overflow: auto;
+}
+#helptext:hover:before, #helptext.hover:before {
+  content: 'See how to play the game.';
+}
+.newtext #help img {
+  height: 16px;
+}

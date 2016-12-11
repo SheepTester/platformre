@@ -1,21 +1,45 @@
-var levels=[[],[["Congrats!",'','',''],"g````g","L    `","`0123`",]];
+var levels=[[],[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
 if(!localStorage.getItem('level')) {
-  localStorage.setItem('level',JSON.stringify([[],
+  localStorage.setItem('level',JSON.stringify([[{cpx:80,cpy:80},"Hello world!"],
     "@@@@@@@@@@@@@@@@@+@@",
     "@              @@w@@",
     "@               www@",
     "@   @===@       www@",
     "@     #         www@",
     "@     #        @w@@@",
-    "@v^@@###*>><<**@@@@@",
+    "@v^@0###*>><<**@@@@@",
   ]));
 }
 levels[0]=JSON.parse(localStorage.getItem('level'));
+if (!levels[0][0].length||typeof levels[0][0][0]!='object') {
+  levels[0].splice(0,0,{cpx:40,cpy:40});
+  localStorage.setItem('level',JSON.stringify(levels[0]));
+}
+function registerNBT(nbt) {
+  cpx=40;cpy=40;
+  if (nbt) {
+    if (nbt.cpx) cpx=nbt.cpx;
+    if (nbt.cpy) cpy=nbt.cpy;
+    if (nbt.initPowerup) {
+      power=nbt.initPowerup;
+      clearTimeout(powerupdelay);
+      powerupdelay=0;
+    } else {
+      power='';
+    }
+    if (nbt.initPowerupLength) {
+      powerupdelay=setTimeout(function(){
+        power='';
+      },nbt.initPowerupLength*1000);
+    }
+  }
+  x=cpx;y=cpy;
+}
 function startPlaying() {
   lev=0;
   render(0);
-  xv=0,yv=0,x=40,y=40;
-  window.scrollTo(0,document.body.scrollHeight);
+  xv=0,yv=0;
+  registerNBT(levels[0][0][0]);
   if (pausd) {
     pausd=false;
     wow=setInterval(play,33);
@@ -129,7 +153,7 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB|&gsa`ip;omtýádn".split(''),danger="#éí",power="",powerupdelay=-1,v,time,deaths,pus,play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB|&gsa`ip;omtýádn".split(''),danger="#éí",power,powerupdelay=-1,v,time,deaths,pus,play=function(){
   x+=xv;y+=yv;
   // updateLevel();
   var nearBys=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)],
@@ -297,7 +321,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB|&gsa`
   }
   if (/[0-9]/.test(getBlock(0,-16))) { /* display text */
     if (levels[lev][0][Number(getBlock(0,-16))]!==undefined) {
-      document.querySelector("#message").textContent=levels[lev][0][Number(getBlock(0,-16))];
+      document.querySelector("#message").textContent=levels[lev][0][Number(getBlock(0,-16))+1];
       document.querySelector("#message").style.display="block";
     }
   } else if (power) {
@@ -435,9 +459,9 @@ function die(type) {
     console.log("Time taken for level "+lev+": "+((Date.now()-time)/1000)+" secs");
     console.log("Death count for level "+lev+": "+deaths+" deaths");
     console.log("Extra powerups used for level "+lev+": "+pus+" powerups");
-    levels[1][0][1]=((Date.now()-time)/1000)+" secs";
-    levels[1][0][2]=deaths+" deaths";
-    levels[1][0][3]=pus+" extra powerups";
+    levels[1][0][2]=((Date.now()-time)/1000)+" secs";
+    levels[1][0][3]=deaths+" deaths";
+    levels[1][0][4]=pus+" extra powerups";
   } else {
     document.querySelector("#player").className="die";
     deaths++;
@@ -445,13 +469,14 @@ function die(type) {
   setTimeout(function(){
     if (document.querySelector("#player").className=="winner") {
       lev++;render(lev);
-      cpx=40;
-      cpy=40;
+      registerNBT(levels[lev][0][0]);
       time=Date.now();
       deaths=0;
       pus=0;
+    } else {
+      x=cpx,y=cpy,power='';
     }
-    xv=0,yv=0,x=cpx,y=cpy,power='';
+    xv=0,yv=0;
     play();
     if (pausd) {
       pausd=false;
@@ -539,7 +564,7 @@ function createRandomLevel() {
   level.splice(0,0,"@".repeat(48));
 
   level.splice(0,0,["This is a randomly generated level with 4 floors of mini-platformer-ness.","Next floor!","Almost there!"]);
-  levels=[level,[["Congrats!",'','',''],"g````g","L    `","`0123`",]];
+  levels=[level,[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
   startPlaying();
 }
 document.querySelector("#loadopen").onclick=function(){
@@ -549,7 +574,7 @@ document.querySelector("#loadopen").onclick=function(){
 }
 document.querySelector("#load").onclick=function(){
   document.querySelector('.new').style.display="none";
-  levels=[JSON.parse(document.querySelector("textarea").value),[["Congrats!",'','',''],"g````g","L    `","`0123`",]];
+  levels=[JSON.parse(document.querySelector("textarea").value),[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
   startPlaying();
 }
 document.querySelector("#close").onclick=function(){
@@ -557,8 +582,21 @@ document.querySelector("#close").onclick=function(){
 }
 function example(id) {
   if (id!=-1) {
-    levels=[exampleLevels[id*3],[["Congrats!",'','',''],"g````g","L    `","`0123`",]];
+    levels=[JSON.parse(JSON.stringify(exampleLevels[id*3])),[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
     startPlaying();
+  }
+}
+if (window.location.search) {
+  var levelcodefromurl=decodeURIComponent(window.location.href.slice(window.location.href.lastIndexOf('?')+1));
+  try {
+    levels=[JSON.parse(levelcodefromurl),[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
+    levelcodefromurl=false;
+  }
+  catch(err) {
+    // window.location=window.location.href.slice(0,window.location.href.lastIndexOf('?'));
+  }
+  finally {
+    if (!levelcodefromurl) startPlaying();
   }
 }
 document.querySelector("#joystick").onclick=function(){

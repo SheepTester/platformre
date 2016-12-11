@@ -1,15 +1,19 @@
 if(!localStorage.getItem('level')) {
-  localStorage.setItem('level',JSON.stringify([[],
+  localStorage.setItem('level',JSON.stringify([[{cpx:80,cpy:80},"Hello world!"],
     "@@@@@@@@@@@@@@@@@+@@",
     "@              @@w@@",
     "@               www@",
     "@   @===@       www@",
     "@     #         www@",
     "@     #        @w@@@",
-    "@v^@@###*>><<**@@@@@",
+    "@v^@0###*>><<**@@@@@",
   ]));
 }
 var level=JSON.parse(localStorage.getItem('level')),hist=[JSON.parse(JSON.stringify(level)).slice(1)],redoHist=[];
+if (!level[0].length||typeof level[0][0]!='object') {
+  level.splice(0,0,{cpx:40,cpy:40});
+  localStorage.setItem('level',JSON.stringify(level));
+}
 var paletteIdToPaletteLabel={
   space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",quote:"downfan",amp:"autojumppad",g:"gold",s:"sand",a:"lavatosolidpowerup",backtick:"usedpowerup",i:"liquificationpowerup",p:"pillarpowerup",f:"fire",e:"ladder",semi:"slammerpowerup",o:"ragepowerup",m:"midastouchpowerup",t:"transparentblockspowerup",ý:"solidlava",á:"invisiblesolid",é:"dangeroussolid",í:"invisiblelava",ó:"transparentsolid",ú:"transparentlava",y:"gravity",u:"confusion",d:"fadingblock",n:"unstablesolid",q:"unstableair"
 },paletteLabelToClassName={
@@ -52,22 +56,19 @@ for (var i=0;i<10;i++) {
 }
 document.querySelector("#text").innerHTML+=inputStuff;
 document.head.innerHTML+="<style>"+textStyle+"</style>";
-for (var i=0;i<level[0].length;i++) {
-  document.querySelector("#i"+i).value=level[0][i];
+fillInNBT(level[0][0]);
+if (level[0].length>1) {
+  for (var i=1;i<level[0].length;i++) {
+    document.querySelector("#i"+(i-1)).value=level[0][i];
+  }
 }
 var innerht='',blockClasses=[],ids="";
 //textStyle="";
 for (var span in paletteIdToPaletteLabel) {
-  // var ssss=paletteLabelToClassName[paletteIdToPaletteLabel[span]];
-  // if (ssss.indexOf(' ')>-1) ssss=ssss.slice(0,ssss.indexOf(' '));
-  // innerht+='<div class="hoverthing '+ssss+'hoverthingTHING"><div class="icon"><div class="'+paletteLabelToClassName[paletteIdToPaletteLabel[span]]+'"></div></div><span class="blkTyp" id="'+span+'">'+paletteIdToPaletteLabel[span]+'</span></div> ';
   innerht+='<div class="icon2 '+paletteLabelToClassName[paletteIdToPaletteLabel[span]]+'" data-label="'+paletteIdToPaletteLabel[span]+'"></div>';
   blockClasses.push(paletteLabelToClassName[paletteIdToPaletteLabel[span]]);
-  // <div class="info"><b>'+paletteIdToPaletteLabel[span]+'</b><br>'+paletteLabelToDesc[paletteIdToPaletteLabel[span]]+'</div>
   ids+=paletteLabelToSymbol[paletteIdToPaletteLabel[span]];
-  //textStyle+="."+ssss+"hoverthingTHING:hover:after {content:\""+paletteLabelToDesc[paletteIdToPaletteLabel[span]]+"\";}";
 }
-//document.head.innerHTML+="<style>"+textStyle+"</style>";
 function render() {
   var data="";
   if (typeof level[0]=="object") {
@@ -250,28 +251,34 @@ function highlight(element) { // based off http://stackoverflow.com/questions/98
 document.querySelector("#done").onclick=function(){
   document.querySelector('.new').style.display="block";
   document.querySelector('#close').innerHTML="Close";
-  var texts=[],blankForever=-1;
-  for (var i=0;i<10;i++) {
-    texts.push("\""+document.querySelector("#i"+i).value+"\"");
-    if (document.querySelector("#i"+i).value) blankForever=i;
-  }
-  texts.splice(blankForever+1);
-  if (texts.length) texts="\n"+texts.join(",\n")+"\n";
-  else texts="";
-  document.querySelector("textarea").value="[["+texts+"],\n\""+level.join("\",\n\"")+"\"\n]";
-  document.querySelector("textarea").select();
-};
-function save() {
-  var texts=[],blankForever=-1,danewcode;
-  if (typeof level[0]=="object") {
-    level.splice(0,1);
-  }
-  danewcode=level;
+  var texts=[],blankForever=-1,nbt={};
+  nbt.cpx=Number(document.querySelector("#cpx").value);
+  nbt.cpy=Number(document.querySelector("#cpy").value);
+  texts.push(nbt);
   for (var i=0;i<10;i++) {
     texts.push(document.querySelector("#i"+i).value);
     if (document.querySelector("#i"+i).value) blankForever=i;
   }
-  texts.splice(blankForever+1);
+  texts.splice(blankForever+2);
+  blankForever=JSON.parse(JSON.stringify(level));
+  blankForever.splice(0,0,texts);
+  document.querySelector("textarea").value=JSON.stringify(blankForever);
+  document.querySelector("textarea").select();
+};
+function save() {
+  var texts=[],blankForever=-1,danewcode,nbt={};
+  if (typeof level[0]=="object") {
+    level.splice(0,1);
+  }
+  danewcode=JSON.parse(JSON.stringify(level));
+  nbt.cpx=Number(document.querySelector("#cpx").value);
+  nbt.cpy=Number(document.querySelector("#cpy").value);
+  texts.push(nbt);
+  for (var i=0;i<10;i++) {
+    texts.push(document.querySelector("#i"+i).value);
+    if (document.querySelector("#i"+i).value) blankForever=i;
+  }
+  texts.splice(blankForever+2);
   danewcode.splice(0,0,texts);
   localStorage.setItem('level',JSON.stringify(danewcode));
 }
@@ -281,6 +288,35 @@ document.querySelector("#doneBit").onclick=function(){
   document.querySelector('#close').innerHTML="Close";
   document.querySelector("textarea").value="[\n  \""+level.join("\",\n  \"")+"\"\n],";
   document.querySelector("textarea").select();
+}
+document.querySelector("#doneLink").onclick=function(){
+  document.querySelector('.new').style.display="block";
+  document.querySelector('#close').innerHTML="Close";
+  var texts=[],blankForever=-1,nbt={};
+  nbt.cpx=Number(document.querySelector("#cpx").value);
+  nbt.cpy=Number(document.querySelector("#cpy").value);
+  texts.push(nbt);
+  for (var i=0;i<10;i++) {
+    texts.push(document.querySelector("#i"+i).value);
+    if (document.querySelector("#i"+i).value) blankForever=i;
+  }
+  texts.splice(blankForever+2);
+  blankForever=JSON.parse(JSON.stringify(level));
+  blankForever.splice(0,0,texts);
+  blankForever=encodeURIComponent(JSON.stringify(blankForever));
+  document.querySelector("textarea").value="https://sheeptester.github.io/platformre/?"+blankForever;
+  document.querySelector("textarea").select();
+};
+function fillInNBT(nbt) {
+  if (nbt) {
+    if (nbt.cpx) document.querySelector("#cpx").value=nbt.cpx;
+    else document.querySelector("#cpx").value=40;
+    if (nbt.cpy) document.querySelector("#cpy").value=nbt.cpy;
+    else document.querySelector("#cpy").value=40;
+  } else {
+    document.querySelector("#cpx").value=40;
+    document.querySelector("#cpy").value=40;
+  }
 }
 document.querySelector("#loadopen").onclick=function(){
   document.querySelector('.new').style.display="block";
@@ -295,16 +331,20 @@ document.querySelector("#loadopen").onclick=function(){
     document.querySelector('.new').style.display="none";
     document.querySelector('.new').removeChild(document.querySelector('#load'));
     level=JSON.parse(document.querySelector("textarea").value);
-    for (var i=0;i<level[0].length;i++) {
-      document.querySelector("#i"+i).value=level[0][i];
+    fillInNBT(level[0][0]);
+    for (var i=1;i<11;i++) {
+      if (level[0][i]) document.querySelector("#i"+(i-1)).value=level[0][i];
+      else document.querySelector("#i"+(i-1)).value='';
     }
     render();
   }
 }
 function example(id) {
-  level=exampleLevels[id*3];
-  for (var i=0;i<level[0].length;i++) {
-    document.querySelector("#i"+i).value=level[0][i];
+  level=JSON.parse(JSON.stringify(exampleLevels[id*3]));
+  fillInNBT(level[0][0]);
+  for (var i=1;i<11;i++) {
+    if (level[0][i]) document.querySelector("#i"+(i-1)).value=level[0][i];
+    else document.querySelector("#i"+(i-1)).value='';
   }
   render();
 }
@@ -362,7 +402,16 @@ document.querySelector("#tools").ontouchstart=function(e){
 }
 document.querySelector("#closett").onclick=function(){
   document.querySelector('.newhelp').style.display="none";
-}
+};
+document.querySelector("#reset").onclick=function(){
+  if (confirm("Are you sure you want to reset the cookie's level code?\nOnly reset if something very wrong has happened to your cookie and it's now corrupted and making things not work.")) {
+    localStorage.removeItem('level');
+    window.location.reload();
+  }
+};
+/*window.onbeforeunload = function() {
+  return '';
+};*/
 /*
 [[],
 "@@@@@@@@",

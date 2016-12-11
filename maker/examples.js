@@ -104,7 +104,7 @@ var exampleLevels=[
     "*yyyyyyyy*y*",
     "********p***"
   ],"Teh Bleu Levle"," Sean",
-  [["Welcome to the factory"],
+  [[{},"Welcome to the factory"],
     "`||||||||`",
     "LR||LLRee+",
     "LeeR||ReRR",
