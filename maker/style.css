@@ -452,6 +452,30 @@ input[type=number] {
 #helptext:hover:before, #helptext.hover:before {
   content: 'See how to edit a level.';
 }
-#cpx, #cpy {
-  width: 70px;
+.newtext input[type=number] {
+  width: 80px;
+}
+.newtext #initpow {
+  border-radius: 15px;
+  padding: 5px;
+  height: 20px;
+  background: white;
+  border: 1px solid #B8BDC0;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+.newtext #initpow ul {
+  margin: 0;
+  padding: 0;
+  display: none;
+  position: absolute;
+  background: rgba(255,255,255,0.8);
+  list-style: none;
+  padding: 5px;
+}
+.newtext #initpow:hover ul {
+  display: inline-block;
+}
+.newtext #initpow ul li:hover {
+  background: rgba(0,0,0,0.1);
 }

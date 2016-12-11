@@ -23,14 +23,14 @@ function registerNBT(nbt) {
     if (nbt.initPowerup) {
       power=nbt.initPowerup;
       clearTimeout(powerupdelay);
-      powerupdelay=0;
+      if (nbt.initPowerupLength) {
+        powerupdelay=setTimeout(function(){
+          power='';
+        },nbt.initPowerupLength*1000);
+      }
+      else powerupdelay=0;
     } else {
       power='';
-    }
-    if (nbt.initPowerupLength) {
-      powerupdelay=setTimeout(function(){
-        power='';
-      },nbt.initPowerupLength*1000);
     }
   }
   x=cpx;y=cpy;
@@ -49,8 +49,8 @@ function startPlaying() {
   pus=0;
 }
 function render(level) {
-  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","fanT","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav","conf","fade","unes","unet"],
-  ids="@#+^=v*w<>CLRB|&gsa`ipfe;omtýéóúyudnq",
+  var blockClasses=["ground","lava","win","jump topOnly","mud topOnly","nojump topOnly","ice","water","left topOnly","right topOnly","check topOnly","fanL","fanR","fanB","fanT","ajump topOnly","gold","sand","antilava topOnly","nopower","liquify topOnly","pillar topOnly","fire","ladder","slam topOnly","rage topOnly","midas topOnly","trans topOnly","sl","ls","as","al","grav","conf","fade","unes","unet","SHEEPER"],
+  ids="@#+^=v*w<>CLRB|&gsa`ipfe;omtýéóúyudnqh",
   data="<div id='player'></div>",level;
   if (level===undefined) {
     level=lev;
@@ -153,7 +153,7 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB|&gsa`ip;omtýádn".split(''),danger="#éí",power,powerupdelay=-1,v,time,deaths,pus,play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB|&gsa`ip;omtýádnh".split(''),danger="#éí",power,powerupdelay=-1,v,time,deaths,pus,play=function(){
   x+=xv;y+=yv;
   // updateLevel();
   var nearBys=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)],
@@ -475,6 +475,15 @@ function die(type) {
       pus=0;
     } else {
       x=cpx,y=cpy,power='';
+      if (levels[lev][0][0].initPowerup) {
+        power=levels[lev][0][0].initPowerup;
+        if (levels[lev][0][0].initPowerupLength) {
+          powerupdelay=setTimeout(function(){
+            power='';
+          },nbt.initPowerupLength*1000);
+        }
+        else powerupdelay=0;
+      }
     }
     xv=0,yv=0;
     play();
@@ -518,7 +527,11 @@ function createRandomLevel() {
       floorlength-=k+4;
       nextbit=parts[k][rand(0,parts[k].length-1)];
       for (var i=0;i<5;i++) {
-        if ((nextbit[i][0]==" "||nextbit[i][0]=="w")&&(level[i][level[i].length-1]==" "||level[i][level[i].length-1]=="w")) {
+        if (
+          (!collide.includes(nextbit[i][0])&&!danger.includes(nextbit[i][0])&&nextbit[i][0]!=".")
+          &&
+          (!collide.includes(level[i][level[i].length-1])&&!danger.includes(level[i][level[i].length-1])&&level[i][level[i].length-1]!=".")
+        ) {
           break;
         }
       }
@@ -569,6 +582,8 @@ function createRandomLevel() {
 }
 document.querySelector("#loadopen").onclick=function(){
   document.querySelector('.new').style.display="block";
+  document.querySelector("#close").innerHTML="Cancel";
+  document.querySelector("#load").style.display="block";
   document.querySelector("textarea").value="";
   document.querySelector("textarea").focus();
 }
@@ -580,6 +595,36 @@ document.querySelector("#load").onclick=function(){
 document.querySelector("#close").onclick=function(){
   document.querySelector('.new').style.display="none";
 }
+document.querySelector("#done").onclick=function(){
+  document.querySelector('.new').style.display="block";
+  document.querySelector('#close').innerHTML="Close";
+  document.querySelector("#load").style.display="none";
+  document.querySelector("textarea").value=JSON.stringify(levels[lev]);
+  document.querySelector("textarea").select();
+};
+document.querySelector("#doneBit").onclick=function(){
+  document.querySelector('.new').style.display="block";
+  document.querySelector('#close').innerHTML="Close";
+  document.querySelector("#load").style.display="none";
+  document.querySelector("textarea").value="[\n  \""+levels[lev].slice(1).join("\",\n  \"")+"\"\n],";
+  document.querySelector("textarea").select();
+}
+document.querySelector("#doneLink").onclick=function(){
+  document.querySelector('.new').style.display="block";
+  document.querySelector('#close').innerHTML="Close";
+  document.querySelector("#load").style.display="none";
+  function encode(str) {
+    var r='';
+    for (var i=0;i<str.length;i++) {
+      var t=str[i].charCodeAt().toString(16);
+      if (t.length<2) t='0'+t;
+      r+=t;
+    }
+    return r;
+  }
+  document.querySelector("textarea").value="https://sheeptester.github.io/platformre/?"+encode(JSON.stringify(levels[lev]));
+  document.querySelector("textarea").select();
+};
 function example(id) {
   if (id!=-1) {
     levels=[JSON.parse(JSON.stringify(exampleLevels[id*3])),[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
@@ -587,7 +632,15 @@ function example(id) {
   }
 }
 if (window.location.search) {
-  var levelcodefromurl=decodeURIComponent(window.location.href.slice(window.location.href.lastIndexOf('?')+1));
+  function decode(str) {
+    var r='';
+    for (var i=0;i<str.length;i+=2) {
+      var t=str[i].charCodeAt().toString(16);
+      r+=String.fromCharCode(parseInt(str[i]+str[i+1],16));
+    }
+    return r;
+  }
+  var levelcodefromurl=decode(window.location.href.slice(window.location.href.lastIndexOf('?')+1));
   try {
     levels=[JSON.parse(levelcodefromurl),[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
     levelcodefromurl=false;
@@ -679,5 +732,11 @@ document.querySelector("#tools").ontouchstart=function(e){
 document.querySelector("#closet").onclick=function(){
   document.querySelector('.newtext').style.display="none";
 }
+document.querySelector("#reset").onclick=function(){
+  if (confirm("Are you sure you want to reset the cookie's level code?\nOnly reset if something very wrong has happened to your cookie and it's now corrupted and making things not work.")) {
+    localStorage.removeItem('level');
+    window.location.reload();
+  }
+};
 startPlaying();
 /* MADE BY SEAN */

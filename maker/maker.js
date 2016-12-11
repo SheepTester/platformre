@@ -15,11 +15,11 @@ if (!level[0].length||typeof level[0][0]!='object') {
   localStorage.setItem('level',JSON.stringify(level));
 }
 var paletteIdToPaletteLabel={
-  space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",quote:"downfan",amp:"autojumppad",g:"gold",s:"sand",a:"lavatosolidpowerup",backtick:"usedpowerup",i:"liquificationpowerup",p:"pillarpowerup",f:"fire",e:"ladder",semi:"slammerpowerup",o:"ragepowerup",m:"midastouchpowerup",t:"transparentblockspowerup",ý:"solidlava",á:"invisiblesolid",é:"dangeroussolid",í:"invisiblelava",ó:"transparentsolid",ú:"transparentlava",y:"gravity",u:"confusion",d:"fadingblock",n:"unstablesolid",q:"unstableair"
+  space:"air",at:"solid",hash:"lava",plus:"destination",carrot:"jumpboost",v:"stickyground",aster:"ice",equals:"mud",w:"water",less:"leftconveyorbelt",great:"rightconveyorbelt",c:"checkpoint",r:"leftfan",l:"rightfan",b:"upfan",quote:"downfan",amp:"autojumppad",g:"gold",s:"sand",a:"lavatosolidpowerup",backtick:"usedpowerup",i:"liquificationpowerup",p:"pillarpowerup",f:"fire",e:"ladder",semi:"slammerpowerup",o:"ragepowerup",m:"midastouchpowerup",t:"transparentblockspowerup",ý:"solidlava",á:"invisiblesolid",é:"dangeroussolid",í:"invisiblelava",ó:"transparentsolid",ú:"transparentlava",y:"gravity",u:"confusion",d:"fadingblock",n:"unstablesolid",q:"unstableair",h:"SHEEP"
 },paletteLabelToClassName={
-  air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB",downfan:"fanT",autojumppad:"ajump topOnly",gold:"gold",sand:"sand",lavatosolidpowerup:"antilava topOnly",usedpowerup:"nopower",liquificationpowerup:"liquify topOnly",pillarpowerup:"pillar topOnly",fire:"fire",ladder:"ladder",slammerpowerup:"slam topOnly",ragepowerup:"rage topOnly",midastouchpowerup:"midas topOnly",transparentblockspowerup:"trans topOnly",solidlava:"sl",invisiblesolid:"sa",dangeroussolid:"ls",invisiblelava:"la",transparentsolid:"as",transparentlava:"al",gravity:"grav",text:"text topOnly",confusion:"conf",fadingblock:"fade",unstablesolid:"unes",unstableair:"unet"
+  air:"air",solid:"ground",lava:"lava",destination:"win",jumpboost:"jump topOnly",stickyground:"nojump topOnly",ice:"ice",mud:"mud topOnly",water:"water",leftconveyorbelt:"left topOnly",rightconveyorbelt:"right topOnly",checkpoint:"check topOnly",leftfan:"fanR",rightfan:"fanL",upfan:"fanB",downfan:"fanT",autojumppad:"ajump topOnly",gold:"gold",sand:"sand",lavatosolidpowerup:"antilava topOnly",usedpowerup:"nopower",liquificationpowerup:"liquify topOnly",pillarpowerup:"pillar topOnly",fire:"fire",ladder:"ladder",slammerpowerup:"slam topOnly",ragepowerup:"rage topOnly",midastouchpowerup:"midas topOnly",transparentblockspowerup:"trans topOnly",solidlava:"sl",invisiblesolid:"sa",dangeroussolid:"ls",invisiblelava:"la",transparentsolid:"as",transparentlava:"al",gravity:"grav",text:"text topOnly",confusion:"conf",fadingblock:"fade",unstablesolid:"unes",unstableair:"unet",SHEEP:"SHEEPER"
 },paletteLabelToSymbol={
-  air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B",downfan:"|",autojumppad:"&",gold:"g",sand:"s",lavatosolidpowerup:"a",usedpowerup:"`",liquificationpowerup:"i",pillarpowerup:"p",fire:"f",ladder:"e",slammerpowerup:";",ragepowerup:"o",midastouchpowerup:"m",transparentblockspowerup:"t",solidlava:"ý",invisiblesolid:"á",dangeroussolid:"é",invisiblelava:"í",transparentsolid:"ó",transparentlava:"ú",gravity:"y",confusion:"u",fadingblock:"d",unstablesolid:"n",unstableair:"q"
+  air:" ",solid:"@",lava:"#",destination:"+",jumpboost:"^",stickyground:"v",ice:"*",mud:"=",water:"w",leftconveyorbelt:"<",rightconveyorbelt:">",checkpoint:"C",leftfan:"R",rightfan:"L",upfan:"B",downfan:"|",autojumppad:"&",gold:"g",sand:"s",lavatosolidpowerup:"a",usedpowerup:"`",liquificationpowerup:"i",pillarpowerup:"p",fire:"f",ladder:"e",slammerpowerup:";",ragepowerup:"o",midastouchpowerup:"m",transparentblockspowerup:"t",solidlava:"ý",invisiblesolid:"á",dangeroussolid:"é",invisiblelava:"í",transparentsolid:"ó",transparentlava:"ú",gravity:"y",confusion:"u",fadingblock:"d",unstablesolid:"n",unstableair:"q",SHEEP:"h"
 },paletteLabelToDesc={
   air:"The normal invisible thing that you can't collide into.",
   solid:"An ordinary block that hurts if you run and jump into it, so don't.",
@@ -43,7 +43,8 @@ var paletteIdToPaletteLabel={
   gravity:"Reverses gravity; powerups and related blocks won't work while you're on the ceiling.",
   confusion:"Your controls are messed around with.",
   fadingblock:"Pillars create this block; fades away into air after a bit when near the player.",
-  unstablesolid:"Turns transparent after a bit when near the player.",unstableair:"Turns solid after a bit when near the player."
+  unstablesolid:"Turns transparent after a bit when near the player.",unstableair:"Turns solid after a bit when near the player.",
+  SHEEP:"A WONDERFUL BLOCK THAT HAS A SHEEP FACE ON IT.",
 };
 var inputStuff="",textStyle="";
 for (var i=0;i<10;i++) {
@@ -251,10 +252,8 @@ function highlight(element) { // based off http://stackoverflow.com/questions/98
 document.querySelector("#done").onclick=function(){
   document.querySelector('.new').style.display="block";
   document.querySelector('#close').innerHTML="Close";
-  var texts=[],blankForever=-1,nbt={};
-  nbt.cpx=Number(document.querySelector("#cpx").value);
-  nbt.cpy=Number(document.querySelector("#cpy").value);
-  texts.push(nbt);
+  var texts=[],blankForever=-1;
+  texts.push(getNbt());
   for (var i=0;i<10;i++) {
     texts.push(document.querySelector("#i"+i).value);
     if (document.querySelector("#i"+i).value) blankForever=i;
@@ -266,14 +265,12 @@ document.querySelector("#done").onclick=function(){
   document.querySelector("textarea").select();
 };
 function save() {
-  var texts=[],blankForever=-1,danewcode,nbt={};
+  var texts=[],blankForever=-1,danewcode;
   if (typeof level[0]=="object") {
     level.splice(0,1);
   }
   danewcode=JSON.parse(JSON.stringify(level));
-  nbt.cpx=Number(document.querySelector("#cpx").value);
-  nbt.cpy=Number(document.querySelector("#cpy").value);
-  texts.push(nbt);
+  texts.push(getNbt());
   for (var i=0;i<10;i++) {
     texts.push(document.querySelector("#i"+i).value);
     if (document.querySelector("#i"+i).value) blankForever=i;
@@ -292,10 +289,8 @@ document.querySelector("#doneBit").onclick=function(){
 document.querySelector("#doneLink").onclick=function(){
   document.querySelector('.new').style.display="block";
   document.querySelector('#close').innerHTML="Close";
-  var texts=[],blankForever=-1,nbt={};
-  nbt.cpx=Number(document.querySelector("#cpx").value);
-  nbt.cpy=Number(document.querySelector("#cpy").value);
-  texts.push(nbt);
+  var texts=[],blankForever=-1;
+  texts.push(getNbt());
   for (var i=0;i<10;i++) {
     texts.push(document.querySelector("#i"+i).value);
     if (document.querySelector("#i"+i).value) blankForever=i;
@@ -303,8 +298,17 @@ document.querySelector("#doneLink").onclick=function(){
   texts.splice(blankForever+2);
   blankForever=JSON.parse(JSON.stringify(level));
   blankForever.splice(0,0,texts);
-  blankForever=encodeURIComponent(JSON.stringify(blankForever));
-  document.querySelector("textarea").value="https://sheeptester.github.io/platformre/?"+blankForever;
+  function encode(str) {
+    var r='';
+    for (var i=0;i<str.length;i++) {
+      var t=str[i].charCodeAt().toString(16);
+      if (t.length<2) t='0'+t;
+      r+=t;
+    }
+    return r;
+  }
+  blankForever=encode(JSON.stringify(blankForever));
+  document.querySelector("textarea").value="https://sheeptester.github.io/platformre/maker/?"+blankForever;
   document.querySelector("textarea").select();
 };
 function fillInNBT(nbt) {
@@ -313,10 +317,24 @@ function fillInNBT(nbt) {
     else document.querySelector("#cpx").value=40;
     if (nbt.cpy) document.querySelector("#cpy").value=nbt.cpy;
     else document.querySelector("#cpy").value=40;
+    if (nbt.initPowerup) document.querySelector(".newtext #initpow span").innerHTML=nbt.initPowerup;
+    else document.querySelector(".newtext #initpow span").innerHTML='none';
+    if (nbt.initPowerupLength) document.querySelector(".newtext #initpowlen").value=nbt.initPowerupLength;
+    else document.querySelector(".newtext #initpowlen").value='';
   } else {
     document.querySelector("#cpx").value=40;
     document.querySelector("#cpy").value=40;
+    document.querySelector(".newtext #initpow span").innerHTML='none';
+    document.querySelector(".newtext #initpowlen").value='';
   }
+}
+function getNbt() {
+  var nbt={};
+  nbt.cpx=Number(document.querySelector("#cpx").value);
+  nbt.cpy=Number(document.querySelector("#cpy").value);
+  if (document.querySelector(".newtext #initpow span").innerHTML!='none') nbt.initPowerup=document.querySelector(".newtext #initpow span").innerHTML;
+  if (document.querySelector(".newtext #initpowlen").value) nbt.initPowerupLength=Number(document.querySelector(".newtext #initpowlen").value);
+  return nbt;
 }
 document.querySelector("#loadopen").onclick=function(){
   document.querySelector('.new').style.display="block";
@@ -347,6 +365,39 @@ function example(id) {
     else document.querySelector("#i"+(i-1)).value='';
   }
   render();
+}
+if (window.location.search) {
+  function decode(str) {
+    var r='';
+    for (var i=0;i<str.length;i+=2) {
+      var t=str[i].charCodeAt().toString(16);
+      r+=String.fromCharCode(parseInt(str[i]+str[i+1],16));
+    }
+    return r;
+  }
+  var levelcodefromurl=decode(window.location.href.slice(window.location.href.lastIndexOf('?')+1));
+  try {
+    level=JSON.parse(levelcodefromurl);
+    levelcodefromurl=false;
+  }
+  catch(err) {
+    // window.location=window.location.href.slice(0,window.location.href.lastIndexOf('?'));
+  }
+  finally {
+    if (!levelcodefromurl) {
+    fillInNBT(level[0][0]);
+    for (var i=1;i<11;i++) {
+        if (level[0][i]) document.querySelector("#i"+(i-1)).value=level[0][i];
+        else document.querySelector("#i"+(i-1)).value='';
+      }
+      render();
+    }
+  }
+}
+document.querySelector('.newtext #initpow ul').onclick=function(e){
+  if (e.target.tagName=="LI") {
+    document.querySelector('.newtext #initpow span').innerHTML=e.target.innerHTML;
+  }
 }
 document.querySelector("#close").onclick=function(){
   document.querySelector('.new').style.display="none";

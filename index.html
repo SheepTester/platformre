@@ -71,20 +71,28 @@
           <li onclick="createRandomLevel()">randomly generated level</li>
         </ul></i><i class="material-icons dropdown">view_list<ul id="EXAMPLES">
           <li class="dropheader"><strong>Play...</strong></li>
+        </ul></i><i class="material-icons dropdown">file_download<ul>
+          <li class="dropheader"><strong>Get...</strong></li>
+          <li id="reset"><i class="material-icons">build</i> reset cookie</li>
+          <li id="done">get level code</li>
+          <li id="doneBit">get level-bit code</li>
+          <li id="doneLink"><i class="material-icons">link</i> link to this level</li>
+          <li id="save">save to cookie</li>
         </ul></i><i class="material-icons dropdown">playlist_add<ul>
           <li class="dropheader"><strong>Submit...</strong></li>
           <li><a href="submit.html">level</a></li>
           <li><a href="maker/submit.html">level-bit</a></li>
         </ul></i><i class="material-icons dropdown">power_settings_new<ul id="powerup">
           <li class="dropheader"><strong>Spawn in...</strong></li>
-          <li onclick="setBlock(0,-40,'a');render();pus++"><i class="material-icons">invert_colors</i>lava to solid</li>
-          <li onclick="setBlock(0,-40,'i');render();pus++"><i class="material-icons">local_drink</i>liquification</li>
-          <li onclick="setBlock(0,-40,'p');render();pus++"><i class="material-icons">cloud_upload</i>pillar</li>
-          <li onclick="setBlock(0,-40,';');render();pus++"><i class="material-icons">file_download</i>slammer</li>
-          <li onclick="setBlock(0,-40,'o');render();pus++"><i class="material-icons">accessibility</i>rage</li>
-          <li onclick="setBlock(0,-40,'m');render();pus++"><i class="material-icons">attach_money</i>midas' touch</li>
-          <li onclick="setBlock(0,-40,'t');render();pus++"><i class="material-icons">swap_horiz</i>transparent block</li>
-          <li onclick="setBlock(0,-40,'C');render();pus++"><i class="material-icons">beenhere</i>checkpoint</li>
+          <li onclick="setBlock(0,-40,'a');render();pus++"><i class="material-icons">invert_colors</i> lava to solid</li>
+          <li onclick="setBlock(0,-40,'i');render();pus++"><i class="material-icons">local_drink</i> liquification</li>
+          <li onclick="setBlock(0,-40,'p');render();pus++"><i class="material-icons">cloud_upload</i> pillar</li>
+          <li onclick="setBlock(0,-40,';');render();pus++"><i class="material-icons">file_download</i> slammer</li>
+          <li onclick="setBlock(0,-40,'o');render();pus++"><i class="material-icons">accessibility</i> rage</li>
+          <li onclick="setBlock(0,-40,'m');render();pus++"><i class="material-icons">attach_money</i> midas' touch</li>
+          <li onclick="setBlock(0,-40,'t');render();pus++"><i class="material-icons">swap_horiz</i> transparent block</li>
+          <li onclick="setBlock(0,-40,'C');render();pus++"><i class="material-icons">beenhere</i> checkpoint</li>
+          <li onclick="setBlock(0,-40,'h');render();"><img src="icons/sheep.jpg"/> THE SHEEP</li>
         </ul></i><i class="material-icons" id="joystick">videogame_asset</i><i class="material-icons" onclick="document.querySelector('.newtext').style.display='block';" id="helptext">help</i><i class="material-icons dropdown">more_horiz<ul>
           <li class="dropheader"><strong>Other links</strong></li>
           <li><a href="keypresses.html">keypress/collision test</a></li>

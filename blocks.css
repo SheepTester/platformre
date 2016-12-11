@@ -47,6 +47,7 @@
 .fade {animation:fade 1s linear infinite alternate;}
 .unes {background:#827717;}
 .unet {background:#F0F4C3;}
+.SHEEPER {background-image:url(icons/sheep.jpg);background-position:center;background-repeat:no-repeat;background-size: cover;}
 @keyframes fade {
   from {background:#1B5E20;}
   to {background:#388E3C;}

@@ -16,7 +16,16 @@
     <div class="newtext">
       <div id="text">
         <div id="closet"></div>
-        Spawn X: <input type="text" placeholder="Spawn X" id="cpx" value="40"> Y: <input type="text" placeholder="Spawn Y" id="cpy" value="40"><br>
+        Spawn X: <input type="number" placeholder="Spawn X" id="cpx" value="40"> Y: <input type="number" placeholder="Spawn Y" id="cpy" value="40"><br>
+        Starting powerup: <span id="initpow"><span>none</span><ul>
+          <li>none</li>
+          <li>antilava</li>
+          <li>liquify</li>
+          <li>pillar</li>
+          <li>slam</li>
+          <li>rage</li>
+          <li>trans</li>
+        </ul></span> for <input type="number" placeholder="Duration" id="initpowlen"> secs (leave blank for eternity)<br>
       </div>
     </div>
     <div class="new">
@@ -57,7 +66,7 @@
         <li id="reset"><i class="material-icons">build</i> reset cookie</li>
         <li id="done">get level code</li>
         <li id="doneBit">get level-bit code</li>
-        <li id="doneLink"><i class="material-icons">link</i> link to level</li>
+        <li id="doneLink"><i class="material-icons">link</i> link to this level</li>
         <li id="loadopen">import level by code</li>
         <li id="save">save to cookie</li>
       </ul></i><i class="material-icons dropdown">view_list<ul id="EXAMPLES">
