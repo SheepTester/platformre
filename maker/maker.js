@@ -106,9 +106,9 @@ document.querySelector("#palette").onmouseover=function(e){
   if (/icon2/.test(e.target.className)&&!document.querySelector('#info')) {
   var s=document.createElement("div");
   s.id="info";
-    if (e.target.id=="PICKER") s.innerHTML='<b>Block picker</b><br>Click on a block with this selected and it\'ll select that block.';
-    else paletteLabelToClassName.innerHTML='<div class="'+paletteLabelToClassName[e.target.dataset.label]+'"></div><b>'+e.target.dataset.label+'</b><br>'+paletteLabelToDesc[e.target.dataset.label];
-    document.querySelector('#palette').parentNode.insertBefore(s,document.querySelector('#palette').nextSibling);
+  if (e.target.id=="PICKER") s.innerHTML='<b>Block picker</b><br>Click on a block with this selected and it\'ll select that block.';
+  else s.innerHTML='<div class="'+paletteLabelToClassName[e.target.dataset.label]+'"></div><b>'+e.target.dataset.label+'</b><br>'+paletteLabelToDesc[e.target.dataset.label];
+  document.querySelector('#palette').parentNode.insertBefore(s,document.querySelector('#palette').nextSibling);
   }
 }
 document.querySelector("#palette").onmouseout=function(e){
