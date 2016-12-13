@@ -45,6 +45,14 @@ var paletteIdToPaletteLabel={
   fadingblock:"Pillars create this block; fades away into air after a bit when near the player.",
   unstablesolid:"Turns transparent after a bit when near the player.",unstableair:"Turns solid after a bit when near the player.",
   SHEEP:"A WONDERFUL BLOCK THAT HAS A SHEEP FACE ON IT.",
+},levDat={
+  // 'nbtKeyExample':{'def':'defaultValue','sel':'css selector for box'},
+  'cpx':{'def':40,'sel':'#cpx','num':1},
+  'cpy':{'def':40,'sel':'#cpy','num':1},
+  'initPowerup':{'def':'none','sel':'.newtext #initpow span','issel':1,'opt':'none'},
+  'initPowerupLength':{'def':'','sel':'.newtext #initpowlen','num':1},
+  'SHEEPurl':{'def':'','sel':'.newtext #sheepurl'},
+  'SHEEPphys':{'def':'solid','sel':'.newtext #sheepphys span','issel':1,'opt':'transparent'},
 };
 var inputStuff="",textStyle="";
 for (var i=0;i<10;i++) {
@@ -96,9 +104,10 @@ document.querySelector("#palette").innerHTML+=innerht;
 document.querySelector(".icon2.ground").className+=" sel";
 document.querySelector("#palette").onmouseover=function(e){
   if (/icon2/.test(e.target.className)&&!document.querySelector('#info')) {
-    var s=document.createElement("div");
-    s.innerHTML='<div class="'+paletteLabelToClassName[e.target.dataset.label]+'"></div><b>'+e.target.dataset.label+'</b><br>'+paletteLabelToDesc[e.target.dataset.label];
-    s.id="info";
+  var s=document.createElement("div");
+  s.id="info";
+    if (e.target.id=="PICKER") s.innerHTML='<b>Block picker</b><br>Click on a block with this selected and it\'ll select that block.';
+    else paletteLabelToClassName.innerHTML='<div class="'+paletteLabelToClassName[e.target.dataset.label]+'"></div><b>'+e.target.dataset.label+'</b><br>'+paletteLabelToDesc[e.target.dataset.label];
     document.querySelector('#palette').parentNode.insertBefore(s,document.querySelector('#palette').nextSibling);
   }
 }
@@ -148,11 +157,19 @@ function ANEDITHASBEENMADE() {
 function doSomething(target) {
   if (target.className.slice(0,10)=="levelBlock") {
     var row=Number(target.parentNode.id.slice(1)),col=Number(target.id.slice(1));
-    target.className="levelBlock "+paletteLabelToClassName[document.querySelectorAll(".sel")[0].dataset.label];
-    level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label]+level[row].slice(col+1);
+    if (document.querySelectorAll(".sel")[0].dataset.label=="PICKER") {
+      document.querySelector(".sel").className=document.querySelector(".sel").className.replace(" sel",'');
+      document.querySelector('.icon2.'+target.className.slice(11).replace(/ /g,'.')).className+=" sel";
+      document.querySelector(".sel").scrollIntoView();
+    } else {
+      target.className="levelBlock "+paletteLabelToClassName[document.querySelectorAll(".sel")[0].dataset.label];
+      level[row]=level[row].slice(0,col)+paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label]+level[row].slice(col+1);
+    }
   }
 }
 document.body.onkeydown=function(e){
+  var currentblock=document.querySelectorAll(".sel")[0].dataset.label;
+  if (currentblock=="PICKER") currentblock="air";
   switch (e.keyCode) {
     case 37:
       if (level[0].length>3) {
@@ -163,7 +180,7 @@ document.body.onkeydown=function(e){
       break;
     case 39:
       for (var i=0;i<level.length;i++) {
-        level[i]+=paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label];
+        level[i]+=paletteLabelToSymbol[currentblock];
       }
       break;
     case 40:
@@ -172,7 +189,7 @@ document.body.onkeydown=function(e){
       }
       break;
     case 38:
-      level.splice(0,0,paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label].repeat(level[0].length));
+      level.splice(0,0,paletteLabelToSymbol[currentblock].repeat(level[0].length));
       break;
     case 13:
       if (e.ctrlKey) {
@@ -196,6 +213,10 @@ document.body.onkeydown=function(e){
         e.preventDefault();
       }
       break;
+    case 67:
+      document.querySelector(".sel").className=document.querySelector(".sel").className.replace(" sel",'');
+      document.querySelector('#PICKER').className+=" sel";
+      break;
   }
   if(e.keyCode>=37&&e.keyCode<=40){
     ANEDITHASBEENMADE();
@@ -204,6 +225,8 @@ document.body.onkeydown=function(e){
   }
 };
 document.querySelector("#width").onchange=function(){
+  var currentblock=document.querySelectorAll(".sel")[0].dataset.label;
+  if (currentblock=="PICKER") currentblock="air";
   var w=Number(document.querySelector("#width").value);
   if (w<3) {
     w=3;
@@ -215,13 +238,15 @@ document.querySelector("#width").onchange=function(){
     }
   } else if (level[0].length<w) {
     for (var i=0;i<level.length;i++) {
-      level[i]+=paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label].repeat(w-level[i].length);
+      level[i]+=paletteLabelToSymbol[currentblock].repeat(w-level[i].length);
     }
   }
   ANEDITHASBEENMADE()
   render();
 };
 document.querySelector("#height").onchange=function(){
+  var currentblock=document.querySelectorAll(".sel")[0].dataset.label;
+  if (currentblock=="PICKER") currentblock="air";
   var h=Number(document.querySelector("#height").value);
   if (h<3) {
     h=3;
@@ -232,7 +257,7 @@ document.querySelector("#height").onchange=function(){
   } else if (level.length<h) {
     var j=level.length;
     for (var i=0;i<h-j;i++) {
-      level.splice(0,0,paletteLabelToSymbol[document.querySelectorAll(".sel")[0].dataset.label].repeat(level[0].length));
+      level.splice(0,0,paletteLabelToSymbol[currentblock].repeat(level[0].length));
     }
   }
   ANEDITHASBEENMADE()
@@ -313,27 +338,33 @@ document.querySelector("#doneLink").onclick=function(){
 };
 function fillInNBT(nbt) {
   if (nbt) {
-    if (nbt.cpx) document.querySelector("#cpx").value=nbt.cpx;
-    else document.querySelector("#cpx").value=40;
-    if (nbt.cpy) document.querySelector("#cpy").value=nbt.cpy;
-    else document.querySelector("#cpy").value=40;
-    if (nbt.initPowerup) document.querySelector(".newtext #initpow span").innerHTML=nbt.initPowerup;
-    else document.querySelector(".newtext #initpow span").innerHTML='none';
-    if (nbt.initPowerupLength) document.querySelector(".newtext #initpowlen").value=nbt.initPowerupLength;
-    else document.querySelector(".newtext #initpowlen").value='';
+    for (var key in levDat) {
+      if (levDat[key].issel) {
+        if (nbt[key]) document.querySelector(levDat[key].sel).innerHTML=nbt[key];
+        else document.querySelector(levDat[key].sel).innerHTML=levDat[key].def;
+      } else {
+        if (nbt[key]) document.querySelector(levDat[key].sel).value=nbt[key];
+        else document.querySelector(levDat[key].sel).value=levDat[key].def;
+      }
+    }
   } else {
-    document.querySelector("#cpx").value=40;
-    document.querySelector("#cpy").value=40;
-    document.querySelector(".newtext #initpow span").innerHTML='none';
-    document.querySelector(".newtext #initpowlen").value='';
+    for (var key in levDat) {
+      if (levDat[key].issel) document.querySelector(levDat[key].sel).innerHTML=levDat[key].def;
+      else document.querySelector(levDat[key].sel).value=levDat[key].def;
+    }
   }
 }
 function getNbt() {
   var nbt={};
-  nbt.cpx=Number(document.querySelector("#cpx").value);
-  nbt.cpy=Number(document.querySelector("#cpy").value);
-  if (document.querySelector(".newtext #initpow span").innerHTML!='none') nbt.initPowerup=document.querySelector(".newtext #initpow span").innerHTML;
-  if (document.querySelector(".newtext #initpowlen").value) nbt.initPowerupLength=Number(document.querySelector(".newtext #initpowlen").value);
+  for (var key in levDat) {
+    var val;
+    if (levDat[key].issel) val=document.querySelector(levDat[key].sel).innerHTML;
+    else val=document.querySelector(levDat[key].sel).value;
+    if (val&&(!levDat[key].opt||val!=levDat[key].opt)) {
+      if (levDat[key].num) nbt[key]=Number(val);
+      else nbt[key]=val;
+    }
+  }
   return nbt;
 }
 document.querySelector("#loadopen").onclick=function(){
@@ -397,6 +428,11 @@ if (window.location.search) {
 document.querySelector('.newtext #initpow ul').onclick=function(e){
   if (e.target.tagName=="LI") {
     document.querySelector('.newtext #initpow span').innerHTML=e.target.innerHTML;
+  }
+}
+document.querySelector('.newtext #sheepphys ul').onclick=function(e){
+  if (e.target.tagName=="LI") {
+    document.querySelector('.newtext #sheepphys span').innerHTML=e.target.innerHTML;
   }
 }
 document.querySelector("#close").onclick=function(){

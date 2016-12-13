@@ -32,6 +32,15 @@ function registerNBT(nbt) {
     } else {
       power='';
     }
+    if (nbt.SHEEPurl) {
+      document.querySelector('#SHEEPIMG').innerHTML=".SHEEPER{background-image:url("+nbt.SHEEPurl+");}";
+    }
+    if (nbt.SHEEPphys) {
+      if (collide.includes('h')) collide.splice(collide.indexOf('h'),1);
+      if (danger.includes('h')) danger.splice(danger.indexOf('h'),1);
+      if (nbt.SHEEPphys=='solid') collide.push('h');
+      else if (nbt.SHEEPphys=='dangerous') danger.push('h');
+    }
   }
   x=cpx;y=cpy;
 }
@@ -153,7 +162,7 @@ document.body.onkeyup=function(e){
   }
 };
 /* plattformre script based off those from Scratch */
-var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB|&gsa`ip;omtýádnh".split(''),danger="#éí",power,powerupdelay=-1,v,time,deaths,pus,play=function(){
+var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB|&gsa`ip;omtýádn".split(''),danger="#éí".split(''),power,powerupdelay=-1,v,time,deaths,pus,play=function(){
   x+=xv;y+=yv;
   // updateLevel();
   var nearBys=[getBlock(-10,-10),getBlock(10,-10),getBlock(-10,10),getBlock(10,10)],
@@ -480,7 +489,7 @@ function die(type) {
         if (levels[lev][0][0].initPowerupLength) {
           powerupdelay=setTimeout(function(){
             power='';
-          },nbt.initPowerupLength*1000);
+          },levels[lev][0][0].initPowerupLength*1000);
         }
         else powerupdelay=0;
       }

@@ -10,14 +10,18 @@
     <link rel="stylesheet" type="text/css" href="style.css">
   </head>
   <body>
-    <div id="palette"><i class="arrow" id="mleft"></i><i class="arrow" id="mrite"></i></div>
+    <div id="palette">
+      <i class="arrow" id="mleft"></i>
+      <i class="arrow" id="mrite"></i>
+      <img class="icon2" id="PICKER" data-label="PICKER" src="../icons/materialicon_colorize.svg"/>
+    </div>
     <i class="material-icons do dis" id="undo">undo</i><i class="material-icons do dis" id="redo">redo</i><p id="size">Width: <input type="number" min="3" id="width"/> Height: <input type="number" min="3" id="height"/></p>
     <div class="level"></div>
     <div class="newtext">
       <div id="text">
         <div id="closet"></div>
-        Spawn X: <input type="number" placeholder="Spawn X" id="cpx" value="40"> Y: <input type="number" placeholder="Spawn Y" id="cpy" value="40"><br>
-        Starting powerup: <span id="initpow"><span>none</span><ul>
+        Spawn X: <input type="number" placeholder="Spawn X" id="cpx" value="40"/> Y: <input type="number" placeholder="Spawn Y" id="cpy" value="40"/><br>
+        Starting powerup: <span id="initpow" class="select"><span>none</span><ul>
           <li>none</li>
           <li>antilava</li>
           <li>liquify</li>
@@ -25,7 +29,13 @@
           <li>slam</li>
           <li>rage</li>
           <li>trans</li>
-        </ul></span> for <input type="number" placeholder="Duration" id="initpowlen"> secs (leave blank for eternity)<br>
+        </ul></span> for <input type="number" placeholder="Duration" id="initpowlen"/> secs (leave blank for eternity)<br>
+        Image URL for SHEEP block: <input type="text" placeholder="Image URL" id="sheepurl"/><br>
+        SHEEP block acts like a <span id="sheepphys" class="select"><span>transparent</span><ul>
+          <li>solid</li>
+          <li>transparent</li>
+          <li>dangerous</li>
+        </ul></span> block<br>
       </div>
     </div>
     <div class="new">
@@ -48,6 +58,7 @@
         <p><b>ctrl+Z</b> undo</p>
         <p><b>ctrl+shift+Z</b> or <b>ctrl+Y</b> redo</p>
         <p><b>ctrl+enter</b> test the level</p>
+        <p><b>c</b> equip the block picker tool</p>
         <h2>How to use the <em>very</em> complicated bottom bar thing</h2>
         <p><i class="material-icons">play_circle_filled</i> test the level in the <a href="../">player</a>.</p>
         <p><i class="material-icons">save</i> get the level code or import someone else's or save it to the cookie where the level is kept.</p>

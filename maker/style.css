@@ -204,16 +204,6 @@ input[type=number] {
   width: 40px;
   margin: 10px;
 }
-/*.select:hover .info:before {
-  content: "";
-  width: 0;
-  height: 0;
-  border-left: 15px solid transparent;
-  border-right: 15px solid transparent;
-  border-bottom: 15px solid white;
-  position: absolute;;
-  transform: translateY(-15px);
-}*/
 #palette .arrow {
   background-color: rgba(0,0,0,0.3);
   position: fixed;
@@ -231,14 +221,14 @@ input[type=number] {
 }
 #palette #mleft {left:0;background-image:url('../icons/materialicon_chevron_left.svg');}
 #palette #mrite {right:0;background-image:url('../icons/materialicon_chevron_right.svg');}
-#palette .icon2:first-of-type {margin-left: 50px;}
-#palette .icon2:last-of-type {margin-right: 50px;}
+#palette .icon2:nth-child(3) {margin-left: 50px;}
+#palette .icon2:last-child {margin-right: 50px;}
 .sel {
   border: 5px solid rgba(255,255,255,0.3);
   margin: 5px 0;
 }
-#palette .sel.icon2:first-of-type {margin-left: 45px;}
-#palette .sel.icon2:last-of-type {margin-right: 45px;}
+#palette .sel.icon2:nth-child(3) {margin-left: 45px;}
+#palette .sel.icon2:last-child {margin-right: 45px;}
 .do {
   font-size: 20px;
   border-radius: 50%;
@@ -311,7 +301,7 @@ input[type=number] {
   content: 'Save and test level';
 }
 #edittext:hover:before {
-  content: 'Edit text blocks';
+  content: 'Edit text blocks and other level data';
 }
 #tools ul {
   display: none;
@@ -455,7 +445,7 @@ input[type=number] {
 .newtext input[type=number] {
   width: 80px;
 }
-.newtext #initpow {
+.newtext .select {
   border-radius: 15px;
   padding: 5px;
   height: 20px;
@@ -463,8 +453,10 @@ input[type=number] {
   border: 1px solid #B8BDC0;
   margin-bottom: 5px;
   cursor: pointer;
+  margin-bottom: 5px;
+  display: inline-block;
 }
-.newtext #initpow ul {
+.newtext .select ul {
   margin: 0;
   padding: 0;
   display: none;
@@ -473,9 +465,12 @@ input[type=number] {
   list-style: none;
   padding: 5px;
 }
-.newtext #initpow:hover ul {
-  display: inline-block;
+.newtext .select:hover ul {
+  display: block;
 }
-.newtext #initpow ul li:hover {
+.newtext .select ul li:hover {
   background: rgba(0,0,0,0.1);
+}
+#PICKER {
+
 }
