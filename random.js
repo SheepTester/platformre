@@ -585,7 +585,7 @@ function createRandomLevel() {
   }
   level.splice(0,0,"@".repeat(48));
 
-  level.splice(0,0,["This is a randomly generated level with 4 floors of mini-platformer-ness.","Next floor!","Almost there!"]);
+  level.splice(0,0,[{cpx:40,cpy:40},"This is a randomly generated level with 4 floors of mini-platformer-ness.","Next floor!","Almost there!"]);
   levels=[level,[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
   startPlaying();
 }
@@ -677,6 +677,10 @@ document.querySelector("#joystick").onclick=function(){
     e.preventDefault();
     return false;
   }
+  document.ontouchmove=function(e){
+    e.preventDefault();
+    return false;
+  }
   document.querySelector("#move").ontouchstart=joy;
   document.querySelector("#move").ontouchmove=joy;
   document.querySelector("#move").ontouchend=function(e) {
@@ -746,6 +750,23 @@ document.querySelector("#reset").onclick=function(){
     localStorage.removeItem('level');
     window.location.reload();
   }
+};
+function save() {
+  var texts=[],blankForever=-1,danewcode;
+  if (typeof level[0]=="object") {
+    level.splice(0,1);
+  }
+  danewcode=JSON.parse(JSON.stringify(level));
+  texts.push(getNbt());
+  for (var i=0;i<10;i++) {
+    texts.push(document.querySelector("#i"+i).value);
+    if (document.querySelector("#i"+i).value) blankForever=i;
+  }
+  texts.splice(blankForever+2);
+  danewcode.splice(0,0,texts);
+}
+document.querySelector("#save").onclick=function(){
+  localStorage.setItem('level',JSON.stringify(levels[lev]));
 };
 startPlaying();
 /* MADE BY SEAN */

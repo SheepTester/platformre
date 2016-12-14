@@ -10,7 +10,7 @@ if(!localStorage.getItem('level')) {
   ]));
 }
 var level=JSON.parse(localStorage.getItem('level')),hist=[JSON.parse(JSON.stringify(level)).slice(1)],redoHist=[];
-if (!level[0].length||typeof level[0][0]!='object') {
+if (!level[0].length||typeof level[0][0]!='object') { // for the level data things
   level.splice(0,0,{cpx:40,cpy:40});
   localStorage.setItem('level',JSON.stringify(level));
 }
@@ -49,10 +49,10 @@ var paletteIdToPaletteLabel={
   // 'nbtKeyExample':{'def':'defaultValue','sel':'css selector for box'},
   'cpx':{'def':40,'sel':'#cpx','num':1},
   'cpy':{'def':40,'sel':'#cpy','num':1},
-  'initPowerup':{'def':'none','sel':'.newtext #initpow span','issel':1,'opt':'none'},
+  'initPowerup':{'def':'none','sel':'.newtext #initpow span','issel':1},
   'initPowerupLength':{'def':'','sel':'.newtext #initpowlen','num':1},
   'SHEEPurl':{'def':'','sel':'.newtext #sheepurl'},
-  'SHEEPphys':{'def':'solid','sel':'.newtext #sheepphys span','issel':1,'opt':'transparent'},
+  'SHEEPphys':{'def':'transparent','sel':'.newtext #sheepphys span','issel':1},
 };
 var inputStuff="",textStyle="";
 for (var i=0;i<10;i++) {
@@ -66,6 +66,9 @@ for (var i=0;i<10;i++) {
 document.querySelector("#text").innerHTML+=inputStuff;
 document.head.innerHTML+="<style>"+textStyle+"</style>";
 fillInNBT(level[0][0]);
+for (var i=1;i<level.length;i++) {
+  level[i]=level[i].replace(/\./g,' ');
+}
 if (level[0].length>1) {
   for (var i=1;i<level[0].length;i++) {
     document.querySelector("#i"+(i-1)).value=level[0][i];
@@ -360,7 +363,7 @@ function getNbt() {
     var val;
     if (levDat[key].issel) val=document.querySelector(levDat[key].sel).innerHTML;
     else val=document.querySelector(levDat[key].sel).value;
-    if (val&&(!levDat[key].opt||val!=levDat[key].opt)) {
+    if (val&&val!=levDat[key].def) {
       if (levDat[key].num) nbt[key]=Number(val);
       else nbt[key]=val;
     }
@@ -380,6 +383,9 @@ document.querySelector("#loadopen").onclick=function(){
     document.querySelector('.new').style.display="none";
     document.querySelector('.new').removeChild(document.querySelector('#load'));
     level=JSON.parse(document.querySelector("textarea").value);
+    for (var i=1;i<level.length;i++) {
+      level[i]=level[i].replace(/\./g,' ');
+    }
     fillInNBT(level[0][0]);
     for (var i=1;i<11;i++) {
       if (level[0][i]) document.querySelector("#i"+(i-1)).value=level[0][i];
