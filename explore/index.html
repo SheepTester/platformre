@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Explore levels - Plaformre</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="In which one may find levels made by other human beings."/>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <style>
+      body {
+        margin: 10px;
+        margin-bottom: 50px;
+        background: #E9EEF2;
+        font-family: 'Open Sans', sans-serif;
+        font-size: 16px;
+        color: #333;
+      }
+      h1 {
+        margin: 10px 10px;
+      }
+      ul {
+        margin: 0;
+        padding: 0;
+      }
+      li {
+        list-style: none;
+        display: block;
+        padding: 10px;
+        font-size: 20px;
+        margin: 10px 20px;
+        border-radius: 5px;
+        background: white;
+        box-shadow: 0 0 2px rgba(0,0,0,0.1);
+        transition: box-shadow .2s;
+        cursor: pointer;
+      }
+      li:hover {
+        box-shadow: 0 0 4px rgba(0,0,0,0.2);
+      }
+      li:active {
+        box-shadow: none;
+      }
+      span {
+        display: inline-block;
+      }
+      .name {
+        padding-right: 5px;
+        font-size: 30px;
+      }
+      .maker {
+        color: #666;
+        padding-right: 5px;
+      }
+      .likecount:before {
+        content: '';
+        background: url('love_dead.svg');
+        height: 15px;
+        width: 15px;
+        background-size: contain;
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Explore levels</h1>
+    <div id='list'></div>
+
+    <script src="../sheep.js"></script>
+    <script>
+function httpGetAsync(theUrl,callback) {
+  var xmlHttp=new XMLHttpRequest();
+  xmlHttp.onreadystatechange=function(){
+    if (xmlHttp.readyState==4&&xmlHttp.status==200) callback(xmlHttp.responseText);
+  }
+  xmlHttp.open("GET",theUrl,true); // true for asynchronous
+  xmlHttp.send(null);
+}
+httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getlevel.php',function(e){
+  document.querySelector("#list").innerHTML=e;
+  var deadchildren=document.querySelector("#list ul").children;
+  for (var i=0;i<deadchildren.length;i++) {
+    var likes=deadchildren[i].dataset.likes.split('-');
+    if (likes[0]==='') likes=0;
+    else likes=likes.length;
+    deadchildren[i].innerHTML+="<span class='likecount'>"+likes+"</span>";
+  }
+});
+document.querySelector("#list").onclick=function(e){
+  if (e.target.tagName=='LI') {
+    window.location.href='../?level='+e.target.dataset.levelid;
+  }
+}
+    </script>
+  </body>
+  <!-- MADE BY SEAN -->
+</html>

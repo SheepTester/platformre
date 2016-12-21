@@ -403,31 +403,51 @@ function example(id) {
   }
   render();
 }
+function httpGetAsync(theUrl,callback) {
+  var xmlHttp=new XMLHttpRequest();
+  xmlHttp.onreadystatechange=function(){
+    if (xmlHttp.readyState==4&&xmlHttp.status==200) callback(xmlHttp.responseText);
+  }
+  xmlHttp.open("GET",theUrl,true); // true for asynchronous
+  xmlHttp.send(null);
+}
 if (window.location.search) {
-  function decode(str) {
-    var r='';
-    for (var i=0;i<str.length;i+=2) {
-      var t=str[i].charCodeAt().toString(16);
-      r+=String.fromCharCode(parseInt(str[i]+str[i+1],16));
-    }
-    return r;
-  }
-  var levelcodefromurl=decode(window.location.href.slice(window.location.href.lastIndexOf('?')+1));
-  try {
-    level=JSON.parse(levelcodefromurl);
-    levelcodefromurl=false;
-  }
-  catch(err) {
-    // window.location=window.location.href.slice(0,window.location.href.lastIndexOf('?'));
-  }
-  finally {
-    if (!levelcodefromurl) {
-    fillInNBT(level[0][0]);
-    for (var i=1;i<11;i++) {
+  if (window.location.search.slice(1,6)=='level') {
+    httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getlevel.php?id='+window.location.search.slice(7),function(e){
+      level=JSON.parse(e)[2];
+      fillInNBT(level[0][0]);
+      for (var i=1;i<11;i++) {
         if (level[0][i]) document.querySelector("#i"+(i-1)).value=level[0][i];
         else document.querySelector("#i"+(i-1)).value='';
       }
       render();
+    });
+  } else {
+    function decode(str) {
+      var r='';
+      for (var i=0;i<str.length;i+=2) {
+        var t=str[i].charCodeAt().toString(16);
+        r+=String.fromCharCode(parseInt(str[i]+str[i+1],16));
+      }
+      return r;
+    }
+    var levelcodefromurl=decode(window.location.href.slice(window.location.href.lastIndexOf('?')+1));
+    try {
+      level=JSON.parse(levelcodefromurl);
+      levelcodefromurl=false;
+    }
+    catch(err) {
+      // window.location=window.location.href.slice(0,window.location.href.lastIndexOf('?'));
+    }
+    finally {
+      if (!levelcodefromurl) {
+        fillInNBT(level[0][0]);
+        for (var i=1;i<11;i++) {
+          if (level[0][i]) document.querySelector("#i"+(i-1)).value=level[0][i];
+          else document.querySelector("#i"+(i-1)).value='';
+        }
+        render();
+      }
     }
   }
 }

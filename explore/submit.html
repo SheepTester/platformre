@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Publish a level - Platformre</title>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+    <style>
+body {
+  margin: 10px;
+  margin-bottom: 50px;
+  background: #E9EEF2;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  color: #333;
+}
+#return {
+  display: block;
+  position: fixed;
+  height: 40px;
+  width: 40px;
+  left: 10px;
+  bottom: 10px;
+  border-radius: 50%;
+  background-color: rgba(0,0,0,0.8);
+  background-image: url('../icons/materialicon_chevron_left.svg');
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  background-size: 40px;
+  transition: box-shadow 0.2s;
+}
+#return:hover {
+  box-shadow: 0 0 5px rgba(0,0,0,0.7);
+}
+#return:active {
+  box-shadow: 0 0 1px rgba(0,0,0,0.5);
+}
+#return:hover:after {
+  content: "Go back";
+  position: absolute;
+  background-color: rgba(255,255,255,0.8);
+  box-shadow: 0 0 3px rgba(0,0,0,0.2);
+  color: #333;
+  font-size: 12px;
+  display: inline-block;
+  white-space: nowrap;
+  top: -20px;
+  padding: 3px;
+  left: -5px;
+}
+textarea {
+  font-family: monospace !important;
+  font-size: 14px !important;
+  width: calc(100% - 10px);
+  height: 300px;
+  border: 1px solid #B8BDC0;
+  border-radius: 5px;
+  padding: 5px;
+}
+input {
+  border-radius: 15px;
+  padding: 5px;
+  border: 1px solid #B8BDC0;
+  background: white;
+  font-size: inherit;
+  display: block;
+  margin: 10px 0;
+}
+input[type=submit] {
+  cursor: pointer;
+}
+input[type=text] {
+  width: 250px;
+}
+input:disabled, textarea:disabled {
+  background: #ddd;
+}
+    </style>
+  </head>
+  <body>
+    <h1>Publish a level</h1>
+    <p>Click on the rectangles below and type in stuff. Relocate your cursor over the rectangles and most of the times a little tip thing will appear explaining in more detail what you are supposed to put in the rectangle.</p>
+    <p>Please make sure everything is school-appropiate and stuff please. I'd rather not get this in the blacklist thank you very much.</p>
+    <form action="http://web300.secure-secure.co.uk/thingkingland.com/sheeptester/submitlevel.php" method="POST">
+      <input type="text" id="maker" title="This is your insecure SheepTester account." disabled />
+      <input type="hidden" name="maker" id='userid'>
+      <input type="text" name="name" placeholder="Level name" title="The name of your level." />
+      <textarea title="This is the level that is saved to your cookie. If you want to change it, go to the makitor." disabled></textarea>
+      <input type="hidden" name="code" id='code' />
+      <input type="submit" id="submit" value="OK here's my level" title="Click me when you filled out the above rectangles." />
+    </form>
+    <div id="return" onclick="window.history.back()"></div>
+
+    <script src="../sheep.js"></script>
+    <script>
+if (localStorage.getItem('level')) {
+  document.querySelector('textarea').value=localStorage.getItem('level');
+  document.querySelector('#code').value=localStorage.getItem('level');
+}
+else document.querySelector("#submit").disabled=true;
+function httpGetAsync(theUrl,callback) {
+  var xmlHttp=new XMLHttpRequest();
+  xmlHttp.onreadystatechange=function(){
+    if (xmlHttp.readyState==4&&xmlHttp.status==200) callback(xmlHttp.responseText);
+  }
+  xmlHttp.open("GET",theUrl,true); // true for asynchronous
+  xmlHttp.send(null);
+}
+if (window.localStorage.getItem('userid')) {
+  httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getstuff.php?userid='+window.localStorage.getItem('userid'),function(e){
+    var data=JSON.parse(e);
+    document.querySelector("#maker").value=data.username;
+    document.querySelector("#userid").value=data.username;
+  });
+} else {
+  document.querySelector("#submit").disabled=true;
+  document.querySelector("#maker").value='Not signed in';
+}
+    </script>
+<!-- MADE BY SEAN -->
+  </body>
+</html>

@@ -640,25 +640,40 @@ function example(id) {
     startPlaying();
   }
 }
+function httpGetAsync(theUrl,callback) {
+  var xmlHttp=new XMLHttpRequest();
+  xmlHttp.onreadystatechange=function(){
+    if (xmlHttp.readyState==4&&xmlHttp.status==200) callback(xmlHttp.responseText);
+  }
+  xmlHttp.open("GET",theUrl,true); // true for asynchronous
+  xmlHttp.send(null);
+}
 if (window.location.search) {
-  function decode(str) {
-    var r='';
-    for (var i=0;i<str.length;i+=2) {
-      var t=str[i].charCodeAt().toString(16);
-      r+=String.fromCharCode(parseInt(str[i]+str[i+1],16));
+  if (window.location.search.slice(1,6)=='level') {
+    httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getlevel.php?id='+window.location.search.slice(7),function(e){
+      levels=[JSON.parse(e)[2],[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
+      startPlaying();
+    });
+  } else {
+    function decode(str) {
+      var r='';
+      for (var i=0;i<str.length;i+=2) {
+        var t=str[i].charCodeAt().toString(16);
+        r+=String.fromCharCode(parseInt(str[i]+str[i+1],16));
+      }
+      return r;
     }
-    return r;
-  }
-  var levelcodefromurl=decode(window.location.href.slice(window.location.href.lastIndexOf('?')+1));
-  try {
-    levels=[JSON.parse(levelcodefromurl),[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
-    levelcodefromurl=false;
-  }
-  catch(err) {
-    // window.location=window.location.href.slice(0,window.location.href.lastIndexOf('?'));
-  }
-  finally {
-    if (!levelcodefromurl) startPlaying();
+    var levelcodefromurl=decode(window.location.href.slice(window.location.href.lastIndexOf('?')+1));
+    try {
+      levels=[JSON.parse(levelcodefromurl),[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
+      levelcodefromurl=false;
+    }
+    catch(err) {
+      // window.location=window.location.href.slice(0,window.location.href.lastIndexOf('?'));
+    }
+    finally {
+      if (!levelcodefromurl) startPlaying();
+    }
   }
 }
 document.querySelector("#joystick").onclick=function(){
