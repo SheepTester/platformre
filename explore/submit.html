@@ -47,13 +47,15 @@ body {
   left: -5px;
 }
 textarea {
-  font-family: monospace !important;
-  font-size: 14px !important;
   width: calc(100% - 10px);
   height: 300px;
   border: 1px solid #B8BDC0;
   border-radius: 5px;
   padding: 5px;
+}
+textarea:last-of-type {
+  font-family: monospace !important;
+  font-size: 14px !important;
 }
 input {
   border-radius: 15px;
@@ -80,9 +82,10 @@ input:disabled, textarea:disabled {
     <p>Click on the rectangles below and type in stuff. Relocate your cursor over the rectangles and most of the times a little tip thing will appear explaining in more detail what you are supposed to put in the rectangle.</p>
     <p>Please make sure everything is school-appropiate and stuff please. I'd rather not get this in the blacklist thank you very much.</p>
     <form action="http://web300.secure-secure.co.uk/thingkingland.com/sheeptester/submitlevel.php" method="POST">
+      <input type="text" name="name" placeholder="Level name" title="The name of your level." />
+      <textarea title="Describe your level." name="desc" placeholder="Description"></textarea>
       <input type="text" id="maker" title="This is your insecure SheepTester account." disabled />
       <input type="hidden" name="maker" id='userid'>
-      <input type="text" name="name" placeholder="Level name" title="The name of your level." />
       <textarea title="This is the level that is saved to your cookie. If you want to change it, go to the makitor." disabled></textarea>
       <input type="hidden" name="code" id='code' />
       <input type="submit" id="submit" value="OK here's my level" title="Click me when you filled out the above rectangles." />
@@ -92,7 +95,7 @@ input:disabled, textarea:disabled {
     <script src="../sheep.js"></script>
     <script>
 if (localStorage.getItem('level')) {
-  document.querySelector('textarea').value=localStorage.getItem('level');
+  document.querySelector('textarea:last-of-type').value=localStorage.getItem('level');
   document.querySelector('#code').value=localStorage.getItem('level');
 }
 else document.querySelector("#submit").disabled=true;

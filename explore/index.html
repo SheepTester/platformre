@@ -33,22 +33,45 @@
         transition: box-shadow .2s;
         cursor: pointer;
       }
+      li, li * {
+        transition: all .5s;
+      }
       li:hover {
         box-shadow: 0 0 4px rgba(0,0,0,0.2);
       }
       li:active {
         box-shadow: none;
       }
-      span {
+      li.sel {
+        box-shadow: 0 0 4px rgba(0,0,0,0.3);
+        margin: 10px 10px;
+        cursor: default;
+      }
+      li span {
         display: inline-block;
+      }
+      li.sel span {
+        display: block;
       }
       .name {
         padding-right: 5px;
         font-size: 30px;
       }
+      .sel .name {
+        font-size: 40px;
+      }
       .maker {
-        color: #666;
+        color: #999;
         padding-right: 5px;
+      }
+      .maker:hover {
+        text-decoration: underline;
+      }
+      .desc {
+        padding-right: 5px;
+      }
+      .sel .desc {
+        white-space: pre;
       }
       .likecount:before {
         content: '';
@@ -58,14 +81,59 @@
         background-size: contain;
         display: inline-block;
       }
+      .liking.likecount:before {
+        background-image: url('love_neardeath.svg');
+      }
+      .play, .edit {
+        display: none;
+      }
+      .sel .play, .sel .edit, .sel .likecount {
+        display: inline-block;
+        padding: 2px 5px;
+        cursor: pointer;
+      }
+      .sel .play:hover {
+        background: #4CAF50;
+        color: white;
+      }
+      .sel .edit:hover {
+        background: #009688;
+        color: white;
+      }
     </style>
   </head>
   <body>
     <h1>Explore levels</h1>
     <div id='list'></div>
 
-    <script src="../sheep.js"></script>
+    <script src="../../sheep.js"></script>
     <script>
+    function searchToObject(search) {
+      var result={};
+      for (var i=1;i<search.length;i++) {
+        var nextAmpersand=search.indexOf('&',i);
+        var name;
+        if (nextAmpersand>-1) {
+          name=search.slice(i,nextAmpersand);
+          i=nextAmpersand;
+        } else {
+          name=search.slice(i);
+          i=search.length;
+        }
+        if (name.indexOf('=')>-1) {
+          var value=name.slice(name.indexOf('=')+1);
+          name=name.slice(0,name.indexOf('='));
+          if (!isNaN(Number(value))) value=Number(value);
+          else if (value=='true'||value=='✔') value=true;
+          else if (value=='false'||value=='✖') value=false;
+          result[name]=value;
+        } else {
+          result[name]=true;
+        }
+      }
+      return result;
+    }
+    var $_GET=searchToObject(location.search);
 function httpGetAsync(theUrl,callback) {
   var xmlHttp=new XMLHttpRequest();
   xmlHttp.onreadystatechange=function(){
@@ -74,19 +142,54 @@ function httpGetAsync(theUrl,callback) {
   xmlHttp.open("GET",theUrl,true); // true for asynchronous
   xmlHttp.send(null);
 }
-httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getlevel.php',function(e){
+httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getlevel.php'+($_GET['maker']?'?maker='+$_GET['maker']:''),function(e){
   document.querySelector("#list").innerHTML=e;
   var deadchildren=document.querySelector("#list ul").children;
   for (var i=0;i<deadchildren.length;i++) {
     var likes=deadchildren[i].dataset.likes.split('-');
+    var active='';
+    if (likes.includes(window.localStorage.userid)) active=' liking';
+    console.log(likes);
     if (likes[0]==='') likes=0;
     else likes=likes.length;
-    deadchildren[i].innerHTML+="<span class='likecount'>"+likes+"</span>";
+    deadchildren[i].innerHTML+="<span class='likecount"+active+"'>"+likes+"</span><span class='play'>Play</span><span class='edit'>Edit</span>";
   }
 });
+if ($_GET['maker']) {
+  document.querySelector("h1").innerHTML=$_GET['maker']+"'s levels";
+}
 document.querySelector("#list").onclick=function(e){
+  var target;
   if (e.target.tagName=='LI') {
-    window.location.href='../?level='+e.target.dataset.levelid;
+    target=e.target;
+  } else if (e.target.tagName=='SPAN') {
+    if (e.target.className=='maker') {
+      location.href='?maker='+e.target.innerHTML;
+    } else if (e.target.className=='play') {
+      window.location.href='../?level='+e.target.dataset.levelid;
+    } else if (e.target.className=='edit') {
+      window.location.href='../maker/?level='+e.target.dataset.levelid;
+    } else if (e.target.className.includes('likecount')) {
+      var likes=e.target.parentNode.dataset.likes.split('-');
+      if (likes[0]==='') likes=[];
+      if (likes.indexOf(window.localStorage.userid)>-1) {
+        likes.splice(likes.indexOf(window.localStorage.userid),1);
+        e.target.className='likecount';
+      } else {
+        likes.push(window.localStorage.userid);
+        e.target.className='likecount liking';
+      }
+      e.target.innerHTML=likes.length;
+      likes=likes.join('-');
+      var id=e.target.parentNode.dataset.levelid;
+      e.target.parentNode.dataset.likes=likes;
+      httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getlevel.php?id='+id+'&like='+likes,function(){});
+    } else target=e.target.parentNode;
+  }
+  if (target) {
+    var iffy=target.className!='sel';
+    if (document.querySelector(".sel")) document.querySelector(".sel").className='';
+    if (iffy) target.className='sel';
   }
 }
     </script>
