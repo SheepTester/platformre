@@ -17,6 +17,10 @@
       h1 {
         margin: 10px 10px;
       }
+      h1 a {
+        font-size: 15px;
+        color: #666;
+      }
       ul {
         margin: 0;
         padding: 0;
@@ -149,14 +153,26 @@ httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/g
     var likes=deadchildren[i].dataset.likes.split('-');
     var active='';
     if (likes.includes(window.localStorage.userid)) active=' liking';
-    console.log(likes);
     if (likes[0]==='') likes=0;
     else likes=likes.length;
     deadchildren[i].innerHTML+="<span class='likecount"+active+"'>"+likes+"</span><span class='play'>Play</span><span class='edit'>Edit</span>";
   }
+  var deadarray=[];
+  for (var i in deadchildren) {
+    if (deadchildren[i].nodeType == 1) deadarray.push(deadchildren[i]);
+  }
+  deadarray.sort(function(a,b){
+    a=Number(a.querySelector('.likecount').innerHTML);
+    b=Number(b.querySelector('.likecount').innerHTML);
+    if (a>b) return -1;
+    else return 1;
+  });
+  for (i = 0; i < deadarray.length; ++i) {
+    document.querySelector("#list ul").appendChild(deadarray[i]);
+  }
 });
 if ($_GET['maker']) {
-  document.querySelector("h1").innerHTML=$_GET['maker']+"'s levels";
+  document.querySelector("h1").innerHTML=$_GET['maker']+"'s levels <a href='../explore/'>Back</a>";
 }
 document.querySelector("#list").onclick=function(e){
   var target;
@@ -166,9 +182,9 @@ document.querySelector("#list").onclick=function(e){
     if (e.target.className=='maker') {
       location.href='?maker='+e.target.innerHTML;
     } else if (e.target.className=='play') {
-      window.location.href='../?level='+e.target.dataset.levelid;
+      window.location.href='../?level='+e.target.parentNode.dataset.levelid;
     } else if (e.target.className=='edit') {
-      window.location.href='../maker/?level='+e.target.dataset.levelid;
+      window.location.href='../maker/?level='+e.target.parentNode.dataset.levelid;
     } else if (e.target.className.includes('likecount')) {
       var likes=e.target.parentNode.dataset.likes.split('-');
       if (likes[0]==='') likes=[];

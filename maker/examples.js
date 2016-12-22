@@ -126,7 +126,9 @@ if (loc=="/platformre"||loc=="/maker") {
   document.querySelector("#EXAMPLES").innerHTML+=vroom;
 }
 try {
-  SHEEP.dismiss('platformreexplore');
-  SHEEP.notify('You can now play other people\'s levels!','/platformre/explore');
+  if (!SHEEP.dismissed.platformreexplore) {
+    SHEEP.dismiss('platformreexplore');
+    SHEEP.notify('You can now play other people\'s levels!','/platformre/explore');
+  }
 } catch (e) {console.log(e);}
 /* MADE BY SEAN */
