@@ -648,10 +648,22 @@ function httpGetAsync(theUrl,callback) {
   xmlHttp.open("GET",theUrl,true); // true for asynchronous
   xmlHttp.send(null);
 }
+var leveldat=[];
 if (window.location.search) {
   if (window.location.search.slice(1,6)=='level') {
     httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getlevel.php?id='+window.location.search.slice(7),function(e){
-      levels=[JSON.parse(e)[2],[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
+      var s=document.querySelectorAll(".notpublic");
+      for (var i=0;i<s.length;i++) {
+        s[i].className='';
+      }
+      leveldat=JSON.parse(e)[0];
+      if (user==leveldat[1]) {
+        var s=document.querySelectorAll(".notmine");
+        for (var i=0;i<s.length;i++) {
+          s[i].className='';
+        }
+      }
+      levels=[JSON.parse(e)[1],[[{initPowerup:'liquify'},"Congrats!",'','',''],"g````g","L    `","`0123`",]];
       startPlaying();
     });
   } else {
@@ -783,5 +795,20 @@ function save() {
 document.querySelector("#save").onclick=function(){
   localStorage.setItem('level',JSON.stringify(levels[lev]));
 };
+var user;
+if (window.localStorage.getItem('userid')) {
+  httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getstuff.php?userid='+window.localStorage.getItem('userid'),function(e){
+    var data=JSON.parse(e);
+    user=data.username;
+    document.querySelector("#user").textContent=user;
+    document.querySelector("#user").style.fontWeight='bold';
+    if (leveldat.length>0&&leveldat[1]==user) {
+      var s=document.querySelectorAll(".notmine");
+      for (var i=0;i<s.length;i++) {
+        s[i].className='';
+      }
+    }
+  });
+}
 startPlaying();
 /* MADE BY SEAN */

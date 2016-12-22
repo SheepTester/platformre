@@ -16,10 +16,20 @@
       }
       h1 {
         margin: 10px 10px;
+        display: inline-block;
+        font-weight: normal;
+      }
+      #user {
+        display: inline-block;
+        margin: 10px;
       }
       h1 a {
         font-size: 15px;
         color: #666;
+        text-decoration: none;
+      }
+      h1 a:hover {
+        text-decoration: underline;
       }
       ul {
         margin: 0;
@@ -107,37 +117,37 @@
     </style>
   </head>
   <body>
-    <h1>Explore levels</h1>
+    <h1>Explore levels <a href='../'>Return to Platformre</a> <a href='submit.html'>Publish a level</a></h1> <p id='user'>signed out</p>
     <div id='list'></div>
 
     <script src="../../sheep.js"></script>
     <script>
-    function searchToObject(search) {
-      var result={};
-      for (var i=1;i<search.length;i++) {
-        var nextAmpersand=search.indexOf('&',i);
-        var name;
-        if (nextAmpersand>-1) {
-          name=search.slice(i,nextAmpersand);
-          i=nextAmpersand;
-        } else {
-          name=search.slice(i);
-          i=search.length;
-        }
-        if (name.indexOf('=')>-1) {
-          var value=name.slice(name.indexOf('=')+1);
-          name=name.slice(0,name.indexOf('='));
-          if (!isNaN(Number(value))) value=Number(value);
-          else if (value=='true'||value=='✔') value=true;
-          else if (value=='false'||value=='✖') value=false;
-          result[name]=value;
-        } else {
-          result[name]=true;
-        }
-      }
-      return result;
+function searchToObject(search) {
+  var result={};
+  for (var i=1;i<search.length;i++) {
+    var nextAmpersand=search.indexOf('&',i);
+    var name;
+    if (nextAmpersand>-1) {
+      name=search.slice(i,nextAmpersand);
+      i=nextAmpersand;
+    } else {
+      name=search.slice(i);
+      i=search.length;
     }
-    var $_GET=searchToObject(location.search);
+    if (name.indexOf('=')>-1) {
+      var value=name.slice(name.indexOf('=')+1);
+      name=name.slice(0,name.indexOf('='));
+      if (!isNaN(Number(value))) value=Number(value);
+      else if (value=='true'||value=='✔') value=true;
+      else if (value=='false'||value=='✖') value=false;
+      result[name]=value;
+    } else {
+      result[name]=true;
+    }
+  }
+  return result;
+}
+var $_GET=searchToObject(location.search);
 function httpGetAsync(theUrl,callback) {
   var xmlHttp=new XMLHttpRequest();
   xmlHttp.onreadystatechange=function(){
@@ -172,7 +182,7 @@ httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/g
   }
 });
 if ($_GET['maker']) {
-  document.querySelector("h1").innerHTML=$_GET['maker']+"'s levels <a href='../explore/'>Back</a>";
+  document.querySelector("h1").innerHTML=$_GET['maker']+"'s levels <a href='?'>Back</a>";
 }
 document.querySelector("#list").onclick=function(e){
   var target;
@@ -185,7 +195,11 @@ document.querySelector("#list").onclick=function(e){
       window.location.href='../?level='+e.target.parentNode.dataset.levelid;
     } else if (e.target.className=='edit') {
       window.location.href='../maker/?level='+e.target.parentNode.dataset.levelid;
-    } else if (e.target.className.includes('likecount')) {
+    } /*else if (e.target.className=='name'&&e.target.parentNode.className=='sel') {
+      if (e.target.parentNode.querySelector(".maker").innerHTML==user) {
+        e.target.contentEditable=true;
+      }
+    } */else if (e.target.className.includes('likecount')&&window.localStorage.userid) {
       var likes=e.target.parentNode.dataset.likes.split('-');
       if (likes[0]==='') likes=[];
       if (likes.indexOf(window.localStorage.userid)>-1) {
@@ -207,6 +221,14 @@ document.querySelector("#list").onclick=function(e){
     if (document.querySelector(".sel")) document.querySelector(".sel").className='';
     if (iffy) target.className='sel';
   }
+}
+var user;
+if (window.localStorage.getItem('userid')) {
+  httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getstuff.php?userid='+window.localStorage.getItem('userid'),function(e){
+    var data=JSON.parse(e);
+    user=data.username;
+    document.querySelector("#user").textContent=user;
+  });
 }
     </script>
   </body>

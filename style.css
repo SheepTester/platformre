@@ -344,3 +344,10 @@ span:active {
 .newtext #help img {
   height: 16px;
 }
+#tools .dropdown:hover ul li.notpublic, #tools .dropdown:hover ul li.notmine {
+  color: rgba(0,0,0,0.5);
+  cursor: default;
+}
+#tools .dropdown:hover ul li.notpublic:hover, #tools .dropdown:hover ul li.notmine:hover {
+  background: none;
+}
