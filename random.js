@@ -692,9 +692,9 @@ document.querySelector("#joystick").onclick=function(){
   document.querySelector("#tools").removeChild(document.querySelector("#joystick"));
   document.body.onkeyup = document.body.onkeydown = "";
   document.querySelector("#joistik").className="";
-  document.querySelector("#plause").src=pausd?"icons/play.svg":"icons/pause.svg";
+  document.querySelector("#plause").style.backgroundImage='url("'+(pausd?"icons/play.svg":"icons/pause.svg")+'")';
   var joy=function(e) {
-    var xDiff=e.changedTouches[0].clientX-130,yDiff=e.changedTouches[0].clientY-document.querySelector("#joistik img").getBoundingClientRect().top-100;
+    var xDiff=e.changedTouches[0].clientX-130,yDiff=e.changedTouches[0].clientY-document.querySelector("#move").getBoundingClientRect().top-100;
     wDown=false;aDown=false;dDown=false;sDown=false;
     if (xDiff>30) dDown=true;
     else if (xDiff<-30) aDown=true;
@@ -723,20 +723,20 @@ document.querySelector("#joystick").onclick=function(){
     spaceDown=false;
     e.preventDefault();
   }
-  document.querySelector("#restart").onclick=function() {
+  document.querySelector("#restart").ontouchstart=function() {
     die();
   }
-  document.querySelector("#plause").onclick=function() {
+  document.querySelector("#plause").ontouchstart=function() {
     if (pausd) wow=setInterval(play,33);
     else {
       clearInterval(wow);
       document.querySelector("#message").textContent="Paused";
       document.querySelector("#message").style.display="block";
     }
-    document.querySelector("#plause").src=pausd?"icons/pause.svg":"icons/play.svg";
+    document.querySelector("#plause").style.backgroundImage='url("'+(pausd?"icons/pause.svg":"icons/play.svg")+'")';
     pausd=!pausd;
   }
-  document.querySelector("#sheepmenu").style.display="none";
+  document.querySelector("sheepmenu").style.display="none";
 }
 function updateLevel() {
   var changes=0;

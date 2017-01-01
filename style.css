@@ -117,7 +117,7 @@ span:active {
 .notactive {
   display: none;
 }
-#joistik img {
+#joistik joystick {
   position: fixed;
   z-index: 200;
   opacity: 0.5;
@@ -127,24 +127,32 @@ span:active {
   opacity: 1;
 }*/
 #move {
+  width: 200px;
   height: 200px;
   left: 30px;
-  bottom: 30px;
+  bottom: 40px; /* added 10px for the bottom bar */
+  background-image: url('icons/joystick.svg');
 }
 #brake {
+  width: 100px;
   height: 100px;
   right: 30px;
-  bottom: 30px;
+  bottom: 40px;
+  background-image: url('icons/brake.svg');
 }
 #restart {
+  width: 50px;
   height: 50px;
   right: 55px;
-  bottom: 150px;
+  bottom: 160px;
+  background-image: url('icons/materialicon_refresh.svg');
 }
 #plause {
+  width: 50px;
   height: 50px;
   right: 55px;
-  bottom: 220px;
+  bottom: 230px;
+  background-image: url('icons/pause.svg');
 }
 #powerup>li:hover:after {
   background: rgba(255,255,255,0.8);
