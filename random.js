@@ -432,7 +432,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB|&gsa`
   document.querySelector("#player").style.bottom=(y+40)+"px";
   // levels[level].length*40-40
   // levels[level][0].length*40-40
-  window.scrollTo(x-window.innerWidth/2+20,document.body.scrollHeight-(window.innerHeight/2)-y-20);
+  window.scrollTo(x-window.innerWidth/2+20,levels[lev].length*40-(window.innerHeight/2)-y-20);
 };
 function getBlock(nx,ny,getDebugInfo) {
   var getDebugInfo;
