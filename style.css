@@ -184,12 +184,15 @@ span:active {
   box-shadow: 0 0 3px rgba(0,0,0,0.5);
   z-index: 1000;
 }
-#tools i {
+#tools > i, #tools > a > i {
   color: white;
-  font-size: 40px;
+  font-size: 30px;
   height: 40px;
   width: 40px;
   cursor: pointer;
+  padding: 5px;
+  box-sizing: border-box;
+  position: relative;
 }
 #tools i:after {
   content: '';
@@ -200,6 +203,9 @@ span:active {
   position: absolute;
   bottom: 0;
   transition: height 0.2s;
+  left: 0;
+  box-sizing: border-box;
+  padding: 0 5px;
 }
 #tools i:hover:after {
   height: 40px;
@@ -222,6 +228,7 @@ span:active {
   font-size: 15px;
   padding: 5px;
   font-family: 'Open Sans', sans-serif;
+  left: 0;
 }
 #editer i:hover:before, #editer i.hover:before {
   content: 'Edit level';
@@ -231,6 +238,7 @@ span:active {
 }
 #tools ul {
   display: none;
+  left: 0;
 }
 #tools .dropdown:hover ul, #tools .dropdown.hover ul {
   background: rgba(255,255,255,0.8);
