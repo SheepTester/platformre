@@ -116,6 +116,21 @@ var exampleLevels=[
     "LeRLBRLeeR",
     "`0BBBBBBB`"
   ],"Factoyr"," Sean",
+  [[{"cpx":80,"cpy":80},"Hello world!"],
+    "@############################",
+    "@w   w    +@     íqyqq    ###",
+    "@  w   ww@@@ í    qyqq     ##",
+    "@ @@@@m@@         qqqq     *#",
+    "@  w w            qqqq      #",
+    "@^       @ @   == qqyq      #",
+    "@      @@###@@    qqyq  C*  #",
+    "@##* @@||#||#|ééé**@@@&&@   #",
+    "@@@@@ywyywwwwwuuuuuuíuuu@  *#",
+    "@ @# ywwwwyyyyuuíuuuuuuu@*  #",
+    "@ @# yyyyyywwwuuuuuuuuuuL   #",
+    "@    wwwwwwwyyuuuuuuuuuu    #",
+    "@C***&&&&&&&&&@@@@@@@@@@@@&&@"
+  ],"a level - remake"," Anonymous",
 ];
 var loc=window.location.pathname.slice(window.location.pathname.lastIndexOf('/',window.location.pathname.lastIndexOf('/')-1),window.location.pathname.lastIndexOf('/'));
 if (loc=="/platformre"||loc=="/maker") {
