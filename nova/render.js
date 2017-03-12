@@ -20,7 +20,15 @@ function Render(canvas,BLOCKHEIGHT,colours,images,physics) {
   }
   this.scrollX=0;
   this.scrollY=0;
-  this.player={x:55,y:-225,xv:0,yv:0};
+  this.player={cx:55,cy:-225,xv:0,yv:0,x:0,y:0,
+    die:_=>{
+      this.player.x=this.player.cx;
+      this.player.y=this.player.cy;
+      this.player.xv=0;
+      this.player.yv=0;
+    },
+  };
+  this.player.die();
   this.frame=_=>{
     var scrollX=this.scrollX;
     scrollY=this.scrollY;
@@ -40,7 +48,9 @@ function Render(canvas,BLOCKHEIGHT,colours,images,physics) {
         if ((t.last&&t.last.t)!==(level[i]&&level[i][j]&&level[i][j].t)) {
           if (t.last&&t.last.t!=='air') {
             rect("#"+colours[t.last.t],t.x,t.y,BLOCKHEIGHT,j-t.c);
-            if (typeof images[t.last.t]==='object') for (var k=0;k<j-t.c;k++) c.drawImage(images[t.last.t],t.x+k*BLOCKHEIGHT,t.y,BLOCKHEIGHT,BLOCKHEIGHT);
+            if (typeof images[t.last.t]==='object')
+              for (var k=0;k<j-t.c;k++)
+                c.drawImage(images[t.last.t],t.x+k*BLOCKHEIGHT+BLOCKHEIGHT/5,t.y+BLOCKHEIGHT/5,BLOCKHEIGHT*0.6,BLOCKHEIGHT*0.6);
           }
           t.x+=(j-t.c)*BLOCKHEIGHT;
           t.c=j;
@@ -64,6 +74,7 @@ function Render(canvas,BLOCKHEIGHT,colours,images,physics) {
       y=Math.floor(-(this.player.y+dy)/BLOCKHEIGHT);
       return level[y]&&level[y][x]||{t:'air'};
     };
+    o=(input1,input2)=>input1===undefined?input2:input1;
     var keys={
       left:keypresses[37]||keypresses[65],
       right:keypresses[39]||keypresses[68],
@@ -107,15 +118,27 @@ function Render(canvas,BLOCKHEIGHT,colours,images,physics) {
       physics[blockAt(-14,-13).t].hardness,
       physics[blockAt(13,-13).t].hardness
     ].includes('liquid')) {
-      // if (keys.up)
-    } else if (physics[blockAt(-14,-15).t].hardness==='solid'||physics[blockAt(13,-15).t].hardness==='solid') {
-      if ((keys.left||keys.right)&&Math.abs(this.player.xv)<10) {
-        if (keys.left) this.player.xv-=1.5;
-        if (keys.right) this.player.xv+=1.5;
+      if (keys.space) {
+        this.player.xv*=0.8;
+        this.player.yv*=0.8;
+      } else {
+        this.player.xv*=0.95;
+        this.player.yv*=0.95;
       }
-      else this.player.xv*=0.8;
-      if (keys.up) this.player.yv=8;
-      if (keys.space) this.player.xv*=0.3;
+      if (keys.up) this.player.yv+=1;
+      if (keys.left) this.player.xv-=1;
+      if (keys.right) this.player.xv+=1;
+      if (keys.down) this.player.yv-=1;
+    } else if (physics[blockAt(-14,-15).t].hardness==='solid'||physics[blockAt(13,-15).t].hardness==='solid') {
+      var blockPhys=physics[blockAt(0,-15).t];
+      if (blockPhys.xboost!==undefined) this.player.xv+=blockPhys.xboost;
+      if ((keys.left||keys.right)&&Math.abs(this.player.xv)<(o(blockPhys.maxspeed,10))) {
+        if (keys.left) this.player.xv-=o(blockPhys.acceleration,1.5);
+        if (keys.right) this.player.xv+=o(blockPhys.acceleration,1.5);
+      }
+      else this.player.xv*=o(blockPhys.friction,0.8);
+      if (keys.up) this.player.yv=o(blockPhys.yboost,8);
+      if (keys.space) this.player.xv*=o(blockPhys.breakforce,0.3);
     }
     else this.player.yv-=0.5;
     window.requestAnimationFrame(this.frame);

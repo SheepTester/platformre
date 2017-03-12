@@ -29,7 +29,7 @@ var testlevel=[
   "@   @===@       www@",
   "@     #         www@",
   "@     #        @w@@@",
-  "@v^@@@@@*>><<**@@@@@"
+  "@v^@@###*>><<**@@@@@"
 ],
 ids={
   ' ':'air',
@@ -69,12 +69,12 @@ physics={
   lava:{hardness:'liquid'},
   win:{hardness:'solid'},
   water:{hardness:'liquid'},
-  mud:{hardness:'solid'},
-  ice:{hardness:'solid'},
-  left:{hardness:'solid'},
-  right:{hardness:'solid'},
-  jump:{hardness:'solid'},
-  stick:{hardness:'solid'},
+  mud:{hardness:'solid',friction:0.5,acceleration:0.5,maxspeed:5},
+  ice:{hardness:'solid',friction:0.95,acceleration:0.5,maxspeed:15,breakforce:0.7},
+  left:{hardness:'solid',xboost:-3},
+  right:{hardness:'solid',xboost:3},
+  jump:{hardness:'solid',yboost:15},
+  stick:{hardness:'solid',yboost:0},
 },
 level={};
 (function() {
@@ -86,6 +86,9 @@ level={};
   var render=new Render(document.querySelector('#stage'),40,colours,images,physics);
   window.requestAnimationFrame(render.frame);
   window.onresize=render.resize;
+  document.addEventListener("keydown",e=>{
+    if (e.keyCode===82) render.player.die();
+  },false);
 }());
     </script>
   </body>
