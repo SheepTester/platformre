@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Novan Platformludon</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="adding the player and things"/>
+    <style>
+      body {
+        margin: 0;
+        font-size: 0;
+        background: #E9EEF2;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id='stage'></canvas>
+
+    <script src="../../sheep.js"></script>
+    <script src="render.js" charset="utf-8"></script>
+    <script>
+var testlevel=[
+  "@@@@@@@@@@@@@@@@@+@@",
+  "@              @@w@@",
+  "@               www@",
+  "@   @===@       www@",
+  "@     #         www@",
+  "@     #        @w@@@",
+  "@v^@@@@@*>><<**@@@@@"
+],
+ids={
+  ' ':'air',
+  '@':'ground',
+  '#':'lava',
+  '+':'win',
+  'w':'water',
+  '=':'mud',
+  '*':'ice',
+  '<':'left',
+  '>':'right',
+  '^':'jump',
+  'v':'stick',
+},
+colours={
+  ground:'262121',
+  lava:'FF5722',
+  win:'8BC34A',
+  water:'2196F3',
+  mud:'795548',
+  ice:'00BCD4',
+  left:'009688',
+  right:'004D40',
+  jump:'9C27B0',
+  stick:'FFC107',
+},
+images={
+  win:'../icons/materialicon_flag.svg',
+  left:'../icons/materialicon_chevron_left.svg',
+  right:'../icons/materialicon_chevron_right.svg',
+  jump:'../icons/materialicon_keyboard_arrow_up.svg',
+  stick:'../icons/materialicon_block.svg',
+},
+physics={
+  air:{hardness:'transparent'},
+  ground:{hardness:'solid'},
+  lava:{hardness:'liquid'},
+  win:{hardness:'solid'},
+  water:{hardness:'liquid'},
+  mud:{hardness:'solid'},
+  ice:{hardness:'solid'},
+  left:{hardness:'solid'},
+  right:{hardness:'solid'},
+  jump:{hardness:'solid'},
+  stick:{hardness:'solid'},
+},
+level={};
+(function() {
+  for (var i=0;i<testlevel.length;i++) {
+    level[i]={};
+    for (var j=0;j<testlevel[i].length;j++) level[i][j]={t:ids[testlevel[i][j]]}; // t: type
+  }
+  Render.loadImages(images);
+  var render=new Render(document.querySelector('#stage'),40,colours,images,physics);
+  window.requestAnimationFrame(render.frame);
+  window.onresize=render.resize;
+}());
+    </script>
+  </body>
+  <!-- MADE BY SEAN -->
+</html>

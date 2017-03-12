@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Desegnu Novan Platformludon</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="Work in progress"/>
+    <style>
+      body {
+        margin: 0;
+        font-size: 0;
+        background: #E9EEF2;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+      center {
+        display: block;
+        position: fixed;
+        height: 100%;
+        width: 1px;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        box-shadow: 0 0 3px red;
+        background-color: red;
+      }
+      center#m {
+        height: 1px;
+        width: 100%;
+        margin: auto 0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id='stage'></canvas>
+    <!-- <center></center>
+    <center id='m'></center> -->
+
+    <script src="../../sheep.js"></script>
+    <script>
+var testlevel=[
+  "@@@@@@@@@@@@@@@",
+  "@         @@@+@",
+  "@  @@@@@      @",
+  "@         @ @@@",
+  "@@@@@#@@@@@@@@@",
+];
+var PIXEL_RATIO=(function(){
+  // http://stackoverflow.com/questions/15661339/how-do-i-fix-blurry-text-in-my-html5-canvas
+  var ctx=document.createElement("canvas").getContext("2d"),
+  dpr=window.devicePixelRatio||1,
+  bsr=ctx.webkitBackingStorePixelRatio||
+    ctx.mozBackingStorePixelRatio||
+    ctx.msBackingStorePixelRatio||
+    ctx.oBackingStorePixelRatio||
+    ctx.backingStorePixelRatio||1;
+  return dpr/bsr;
+})();
+(function() {
+  var canvas,
+  c,
+  level={},
+  scrollX,
+  scrollY,
+  t={},
+  BLOCKHEIGHT=40,
+  colours={
+    ground:'262121',
+    lava:'FF5722',
+    win:'8BC34A'
+  },
+  images={
+    win:'../icons/materialicon_flag.svg'
+  };
+  for (var i=0;i<testlevel.length;i++) {
+    level[i]={};
+    for (var j=0;j<testlevel[i].length;j++) level[i][j]={t:testlevel[i][j]==='@'?'ground':(testlevel[i][j]==='#'?'lava':(testlevel[i][j]==='+'?'win':'air'))}; // t: type
+  }
+  canvas=document.querySelector('#stage');
+  canvas.width=innerWidth*PIXEL_RATIO;
+  canvas.height=innerHeight*PIXEL_RATIO;
+  canvas.style.width=innerWidth+'px';
+  canvas.style.height=innerHeight+'px';
+  c=canvas.getContext('2d');
+  c.scale(PIXEL_RATIO,PIXEL_RATIO);
+  function rect(backgroundColour,x,y,sideLength,len) {
+    len=len||1;
+    c.fillStyle=backgroundColour;
+    c.fillRect(x,y,sideLength*len,sideLength);
+  }
+  scrollX=0;
+  scrollY=0;
+  window.requestAnimationFrame(frame);
+  function frame() {
+    canvas.width=canvas.width;
+    c.scale(PIXEL_RATIO,PIXEL_RATIO);
+    t.startI=Math.floor((scrollY-Math.floor(innerHeight/BLOCKHEIGHT)*BLOCKHEIGHT/2)/BLOCKHEIGHT);
+    t.startJ=Math.floor((scrollX-Math.floor(innerWidth/BLOCKHEIGHT)*BLOCKHEIGHT/2)/BLOCKHEIGHT);
+    t.height=Math.ceil(innerHeight/BLOCKHEIGHT)*BLOCKHEIGHT;
+    t.width=Math.ceil(innerWidth/BLOCKHEIGHT)*BLOCKHEIGHT;
+    t.x=-(scrollX<0?scrollX+Math.ceil(scrollX/-BLOCKHEIGHT)*BLOCKHEIGHT:scrollX)%BLOCKHEIGHT;
+    t.y=-(scrollY<0?scrollY+Math.ceil(scrollY/-BLOCKHEIGHT)*BLOCKHEIGHT:scrollY)%BLOCKHEIGHT;
+    t.destY=Math.floor(scrollY/BLOCKHEIGHT)+t.height/BLOCKHEIGHT+1;
+    for (var i=Math.floor(scrollY/BLOCKHEIGHT);i<t.destY;i++) {
+      t.c=Math.floor(scrollX/BLOCKHEIGHT);
+      t.destX=Math.floor(scrollX/BLOCKHEIGHT)+t.width/BLOCKHEIGHT+1;
+      for (var j=t.c;j<t.destX;j++) {
+        if ((t.last&&t.last.t)!==(level[i]&&level[i][j]&&level[i][j].t)) {
+          if (t.last&&t.last.t!=='air') {
+            rect("#"+colours[t.last.t],t.x,t.y,BLOCKHEIGHT,j-t.c);
+            if (typeof images[t.last.t]==='object') c.drawImage(images[t.last.t],t.x,t.y,BLOCKHEIGHT,BLOCKHEIGHT);
+          }
+          t.x+=(j-t.c)*BLOCKHEIGHT;
+          t.c=j;
+          t.last=level[i]&&level[i][j];
+        }
+      }
+      if (t.last&&t.last.t!=='air') {
+        rect("#"+colours[t.last.t],t.x,t.y,BLOCKHEIGHT,j-t.c);
+        if (typeof images[t.last.t]==='object') c.drawImage(images[t.last.t],t.x,t.y,BLOCKHEIGHT,BLOCKHEIGHT);
+      }
+      t.x+=(j-t.c)*BLOCKHEIGHT-t.width-BLOCKHEIGHT;
+      t.y+=BLOCKHEIGHT;
+      t.last=undefined;
+    }
+    scrollX+=(-mouse.x-scrollX)/5;
+    scrollY+=(-mouse.y-scrollY)/5;
+    window.requestAnimationFrame(frame);
+  }
+  function loadImages() {
+    for (var span in images) {
+      (span=>{
+        var img=new Image();
+        img.src=images[span];
+        img.onload=e=>images[span]=img;
+      })(span);
+    }
+  }
+  loadImages();
+}());
+var mouse={x:0,y:0};
+document.onmousemove=e=>{
+  mouse.x=e.clientX;
+  mouse.y=e.clientY;
+};
+    </script>
+  </body>
+  <!-- MADE BY SEAN -->
+</html>
