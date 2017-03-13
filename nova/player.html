@@ -44,37 +44,18 @@ ids={
   '^':'jump',
   'v':'stick',
 },
-colours={
-  ground:'262121',
-  lava:'FF5722',
-  win:'8BC34A',
-  water:'2196F3',
-  mud:'795548',
-  ice:'00BCD4',
-  left:'009688',
-  right:'004D40',
-  jump:'9C27B0',
-  stick:'FFC107',
-},
-images={
-  win:'../icons/materialicon_flag.svg',
-  left:'../icons/materialicon_chevron_left.svg',
-  right:'../icons/materialicon_chevron_right.svg',
-  jump:'../icons/materialicon_keyboard_arrow_up.svg',
-  stick:'../icons/materialicon_block.svg',
-},
 physics={
   air:{hardness:'transparent'},
-  ground:{hardness:'solid'},
-  lava:{hardness:'liquid'},
-  win:{hardness:'solid'},
-  water:{hardness:'liquid'},
-  mud:{hardness:'solid',friction:0.5,acceleration:0.5,maxspeed:5},
-  ice:{hardness:'solid',friction:0.95,acceleration:0.5,maxspeed:15,breakforce:0.7},
-  left:{hardness:'solid',xboost:-3},
-  right:{hardness:'solid',xboost:3},
-  jump:{hardness:'solid',yboost:15},
-  stick:{hardness:'solid',yboost:0},
+  ground:{hardness:'solid',colour:'262121'},
+  lava:{hardness:'liquid',colour:'FF5722'},
+  win:{hardness:'solid',colour:'8BC34A',image:'../icons/materialicon_flag.svg',imageSize:1},
+  water:{hardness:'liquid',colour:'2196F3'},
+  mud:{hardness:'solid',friction:0.5,acceleration:0.5,maxspeed:5,colour:'795548'},
+  ice:{hardness:'solid',friction:0.95,acceleration:0.5,maxspeed:15,breakforce:0.7,colour:'00BCD4'},
+  left:{hardness:'solid',xboost:-3,colour:'009688',image:'../icons/materialicon_chevron_left.svg',imageSize:0.6},
+  right:{hardness:'solid',xboost:3,colour:'004D40',image:'../icons/materialicon_chevron_right.svg',imageSize:0.6},
+  jump:{hardness:'solid',yboost:15,colour:'9C27B0',image:'../icons/materialicon_keyboard_arrow_up.svg',imageSize:0.6,topOnly:true},
+  stick:{hardness:'solid',yboost:0,colour:'FFC107',image:'../icons/materialicon_block.svg',imageSize:0.6},
 },
 level={};
 (function() {
@@ -82,8 +63,8 @@ level={};
     level[i]={};
     for (var j=0;j<testlevel[i].length;j++) level[i][j]={t:ids[testlevel[i][j]]}; // t: type
   }
-  Render.loadImages(images);
-  var render=new Render(document.querySelector('#stage'),40,colours,images,physics);
+  Render.loadImages(physics);
+  var render=new Render(document.querySelector('#stage'),40,physics);
   window.requestAnimationFrame(render.frame);
   window.onresize=render.resize;
   document.addEventListener("keydown",e=>{
