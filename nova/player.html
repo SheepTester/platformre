@@ -23,13 +23,13 @@
     <script src="render.js" charset="utf-8"></script>
     <script>
 var testlevel=[
-  "@@@@@@@@@@@@@@@@@+@@",
-  "@              @@w@@",
-  "@               www@",
-  "@   @===@       www@",
-  "@     #         www@",
+  "@@@@@@@@@@@>=*v@@+@@",
+  "@          yyyy@@w@@",
+  "@           yyyywww@",
+  "@   @===@    yyywww@",
+  "@     #       yywww@",
   "@     #        @w@@@",
-  "@v^@@###*>><<**@@@@@"
+  "@v^&@###*>><<**@@@@@"
 ],
 ids={
   ' ':'air',
@@ -43,12 +43,14 @@ ids={
   '>':'right',
   '^':'jump',
   'v':'stick',
+  'y':'gravity',
+  '&':'autojump',
 },
 physics={
   air:{hardness:'transparent'},
   ground:{hardness:'solid',colour:'262121'},
-  lava:{hardness:'liquid',colour:'FF5722'},
-  win:{hardness:'solid',colour:'8BC34A',image:'../icons/materialicon_flag.svg',imageSize:1},
+  lava:{hardness:'liquid',colour:'FF5722',deadly:true},
+  win:{hardness:'solid',colour:'8BC34A',image:'../icons/materialicon_flag.svg',imageSize:0.6},
   water:{hardness:'liquid',colour:'2196F3'},
   mud:{hardness:'solid',friction:0.5,acceleration:0.5,maxspeed:5,colour:'795548'},
   ice:{hardness:'solid',friction:0.95,acceleration:0.5,maxspeed:15,breakforce:0.7,colour:'00BCD4'},
@@ -56,6 +58,8 @@ physics={
   right:{hardness:'solid',xboost:3,colour:'004D40',image:'../icons/materialicon_chevron_right.svg',imageSize:0.6},
   jump:{hardness:'solid',yboost:15,colour:'9C27B0',image:'../icons/materialicon_keyboard_arrow_up.svg',imageSize:0.6,topOnly:true},
   stick:{hardness:'solid',yboost:0,colour:'FFC107',image:'../icons/materialicon_block.svg',imageSize:0.6},
+  gravity:{hardness:'transparent',colour:'64B5F6',gravity:0.5},
+  autojump:{hardness:'solid',autoyboost:15,colour:'E91E63',image:'../icons/materialicon_arrow_upward.svg',imageSize:0.6,topOnly:true},
 },
 level={};
 (function() {

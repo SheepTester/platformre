@@ -71,8 +71,8 @@ function Render(canvas,BLOCKHEIGHT,physics) {
           for (var k=0;k<j-t.c;k++)
             c.drawImage(
               physics[t.last.t].imageThing,
-              t.x+k*BLOCKHEIGHT+BLOCKHEIGHT*(0.5-physics[t.last.t].imageSize/2||0.2),
-              t.y+BLOCKHEIGHT*(0.5-physics[t.last.t].imageSize/2||0.2),
+              t.x+k*BLOCKHEIGHT+BLOCKHEIGHT*(physics[t.last.t].imageSize!==undefined?0.5-physics[t.last.t].imageSize/2:0.2),
+              t.y+BLOCKHEIGHT*(physics[t.last.t].imageSize!==undefined?0.5-physics[t.last.t].imageSize/2:0.2),
               BLOCKHEIGHT*(physics[t.last.t].imageSize||0.6),
               BLOCKHEIGHT*(physics[t.last.t].imageSize||0.6)
             );
@@ -128,6 +128,13 @@ function Render(canvas,BLOCKHEIGHT,physics) {
       this.player.y=Math.floor((this.player.y+15)/40)*40-15;
       this.player.yv=0;
     }
+    var airPhys=physics[blockAt(0,0).t],
+    ground=(physics[blockAt(-14,-15).t].hardness==='solid'||physics[blockAt(13,-15).t].hardness==='solid')&&o(airPhys.gravity,-0.5)<=0;
+    if (ground) ground='down'
+    else {
+      ground=(physics[blockAt(-14,16).t].hardness==='solid'||physics[blockAt(13,16).t].hardness==='solid')&&o(airPhys.gravity,-0.5)>=0;
+      if (ground) ground='up';
+    }
     if ([
       physics[blockAt(-14,14).t].hardness,
       physics[blockAt(13,14).t].hardness,
@@ -151,18 +158,25 @@ function Render(canvas,BLOCKHEIGHT,physics) {
       if (keys.left) this.player.xv-=o(blockPhys.acceleration/1.5,1);
       if (keys.right) this.player.xv+=o(blockPhys.acceleration/1.5,1);
       if (keys.down) this.player.yv-=o(blockPhys.acceleration/1.5,1);
-    } else if (physics[blockAt(-14,-15).t].hardness==='solid'||physics[blockAt(13,-15).t].hardness==='solid') {
-      var blockPhys=physics[blockAt(0,-15).t];
+    } else if (ground) {
+      var blockPhys={};
+      if (ground==='down'&&!blockAt(0,-15).d) blockPhys=physics[blockAt(0,-15).t];
+      else if (ground==='up'&&(blockAt(0,16).d===undefined||blockAt(0,16).d===2)) blockPhys=physics[blockAt(0,16).t];
       if (blockPhys.xboost!==undefined) this.player.xv+=blockPhys.xboost;
       if ((keys.left||keys.right)&&Math.abs(this.player.xv)<(o(blockPhys.maxspeed,10))) {
         if (keys.left) this.player.xv-=o(blockPhys.acceleration,1.5);
         if (keys.right) this.player.xv+=o(blockPhys.acceleration,1.5);
       }
       else this.player.xv*=o(blockPhys.friction,0.8);
-      if (keys.up) this.player.yv=o(blockPhys.yboost,8);
+      if (keys.up&&ground==='down') this.player.yv=o(blockPhys.yboost,8);
+      if (keys.down&&ground==='up') this.player.yv=o(blockPhys.yboost,-8);
       if (keys.space) this.player.xv*=o(blockPhys.breakforce,0.3);
+      if (blockPhys.autoyboost) this.player.yv+=blockPhys.autoyboost;
+    } else this.player.yv+=o(airPhys.gravity,-0.5);
+    if (blockAt(0,0).t!=='air') {
+      var blockPhys=physics[blockAt(0,-15).t];
+      if (blockPhys.deadly) this.player.die();
     }
-    else this.player.yv-=0.5;
     window.requestAnimationFrame(this.frame);
   }
 }
