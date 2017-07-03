@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Agordeblaj Kaheloj</title>
+    <meta charset="UTF-8">
+    <meta name="description" content=""/>
+    <style>
+      body {
+        margin: 0;
+        font-size: 0;
+        background: #E9EEF2;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+
+    <script src="../../sheep.js"></script>
+    <script src="blocks.js"></script>
+    <script src="collide.js"></script>
+    <script>
+var canvas=document.querySelector('#stage'),
+c=canvas.getContext('2d'),
+pxratio=(window.devicePixelRatio||1)/(c.webkitBackingStorePixelRatio||c.mozBackingStorePixelRatio||c.msBackingStorePixelRatio||c.oBackingStorePixelRatio||c.backingStorePixelRatio||1);
+(window.onresize=e=>{
+  canvas.height=window.innerHeight*pxratio;
+  canvas.width=window.innerWidth*pxratio;
+  c.scale(pxratio,pxratio);
+  c.translate(window.innerWidth/2,window.innerHeight/2);
+})();
+c.fillRect(0,0,40,40);
+var paused=false,
+mouse={down:false,x:0,y:0},
+keys={};
+document.onmousedown=e=>mouse.down=true;
+document.onmousemove=e=>[mouse.x,mouse.y]=[e.clientX,e.clientY];
+document.onmouseup=e=>mouse.up=false;
+document.onkeydown=e=>{
+  switch (e.keyCode) {
+    case 80:
+      paused=!paused;
+      if (!paused) window.requestAnimationFrame(render);
+      document.body.style.backgroundColor=paused?'#888a8c':'#E9EEF2';
+      break;
+    case 82:
+      player.x=player.y=player.xv=player.yv=0;
+      break;
+    case 37:keys.left=1;break;
+    case 38:keys.up=1;break;
+    case 39:keys.right=1;break;
+    case 40:keys.down=1;break;
+  }
+};
+document.onkeyup=e=>{
+  switch (e.keyCode) {
+    case 37:keys.left=0;break;
+    case 38:keys.up=0;break;
+    case 39:keys.right=0;break;
+    case 40:keys.down=0;break;
+  }
+};
+window.onfocus=e=>{
+  if (paused) {
+    if (paused==='done') window.requestAnimationFrame(render);
+    paused=false;
+    document.body.style.backgroundColor='#E9EEF2';
+  }
+};
+window.onblur=e=>{
+  if (!paused) {
+    paused='pause please';
+    document.body.style.backgroundColor='#888a8c';
+  }
+};
+var map={},blocks=['air','air','solid','water','solid'];
+function generate(w,h) {
+  var _h=h;
+  while (w--) {
+    while (h--) map[`${w},${h}`]=blocks[h];
+    h=_h;
+  }
+}
+generate(10,5);
+var BLOCKSIZE=40,scroll={x:0,y:0},
+WIDTH=0.75,
+HEIGHT=0.75,
+player=new Collidable(WIDTH,HEIGHT,(x,y)=>(x=map[`${x},${y}`],x=x&&blockData[x]?blockData[x].solid:false));
+function blocksHave(blockArray,prop,value=false) {
+  for (var i=0;i<blockArray.length;i++) if (blockArray[i]&&(value?blockData[blockArray[i]][prop]===value:blockData[blockArray[i]][prop])) return true;
+  return false;
+}
+function blocksAllHave(blockArray,prop,value=false) {
+  for (var i=0;i<blockArray.length;i++) if (!blockArray[i]||(value?blockData[blockArray[i]][prop]!==value:!blockData[blockArray[i]][prop])) return false;
+  return true;
+}
+function render() {
+  c.clearRect(-window.innerWidth/2,-window.innerHeight/2,window.innerWidth,window.innerHeight);
+  for (var pos in map) {
+    var type=map[pos],
+    x=+pos.slice(0,pos.indexOf(',')),
+    y=+pos.slice(pos.indexOf(',')+1);
+    c.fillStyle=blockData[type].colour;
+    c.fillRect(x*BLOCKSIZE+scroll.x,y*BLOCKSIZE+scroll.y,BLOCKSIZE,BLOCKSIZE);
+  }
+  var touchings={
+    all:[],
+    inside:[],
+    sides:[],
+    top:[],
+    left:[],
+    bottom:[],
+    right:[]
+  };
+  var t;
+  for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++)
+    for (var j=Math.floor(player.y),len2=Math.ceil(player.y+HEIGHT);j<len2;j++) {
+      t=map[`${i},${j}`];
+      touchings.all.push(t);touchings.inside.push(t);
+    }
+  if (player.x%1===0) for (var i=Math.floor(player.y),len=Math.ceil(player.y+HEIGHT);i<len;i++) {
+    t=map[`${player.x-1},${i}`];
+    touchings.all.push(t);touchings.sides.push(t);touchings.left.push(t);
+  }
+  if ((player.x+WIDTH)%1===0) for (var i=Math.floor(player.y),len=Math.ceil(player.y+HEIGHT);i<len;i++) {
+    t=map[`${player.x+WIDTH},${i}`];
+    touchings.all.push(t);touchings.sides.push(t);touchings.right.push(t);
+  }
+  if (player.y%1===0) for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++) {
+    t=map[`${i},${player.y-1}`];
+    touchings.all.push(t);touchings.sides.push(t);touchings.top.push(t);
+  }
+  if ((player.y+HEIGHT)%1===0) for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++) {
+    t=map[`${i},${player.y+HEIGHT}`];
+    touchings.all.push(t);touchings.sides.push(t);touchings.bottom.push(t);
+  }
+  player.yv+=0.0109;
+  if (blocksHave(touchings.bottom,'solid')) {
+    player.xv*=0.85;
+    if (keys.left&&!keys.right) player.xv-=0.03;
+    else if (!keys.left&&keys.right) player.xv+=0.03;
+    if (keys.up) player.yv-=0.2;
+  }
+  player.updateVelocities();
+  player.updatePositions();
+  c.fillStyle='#E91E63';
+  c.fillRect(player.x*BLOCKSIZE+scroll.x,player.y*BLOCKSIZE+scroll.y,WIDTH*BLOCKSIZE,HEIGHT*BLOCKSIZE);
+  scroll.x+=((-player.x-WIDTH/2)*BLOCKSIZE-scroll.x)/5;
+  scroll.y+=((-player.y-HEIGHT/2)*BLOCKSIZE-scroll.y)/5;
+  if (paused==='pause please') paused='done';
+  else window.requestAnimationFrame(render);
+}
+window.requestAnimationFrame(render);
+    </script>
+  </body>
+  <!-- MADE BY SEAN -->
+</html>
