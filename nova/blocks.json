@@ -1,0 +1,35 @@
+{
+  "air":{
+    "priority":0,
+    "solid":false,
+    "colour":"transparent",
+    "xGravity":0,
+    "yGravity":0.0109,
+    "xDefaultVelocity":0,
+    "yDefaultVelocity":0,
+    "xMoveSpeed":0,
+    "yMoveSpeed":0,
+    "jumpVelocity":0,
+    "xAirResist":1,
+    "yAirResist":1
+  },
+  "solid":{
+    "priority":1,
+    "solid":true,
+    "colour":"#212121",
+    "lateralAcceleration":0.03,
+    "jumpVelocity":0.2,
+    "friction":0.8
+  },
+  "water":{
+    "priority":2,
+    "solid":false,
+    "colour":"#2196F3",
+    "xGravity":0,
+    "yGravity":0,
+    "xMoveSpeed":1,
+    "yMoveSpeed":1,
+    "xAirResistAmplifier":0.95,
+    "yAirResistAmplifier":0.95
+  }
+}

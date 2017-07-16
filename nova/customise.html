@@ -13,11 +13,13 @@
       canvas {
         width: 100%;
         height: 100%;
+        cursor: cell;
       }
     </style>
   </head>
   <body>
     <canvas id="stage"></canvas>
+    <!-- Sorry! I know canvases are boring to inspect element :/ -->
 
     <script src="../../sheep.js"></script>
     <script src="blocks.js"></script>
@@ -36,14 +38,20 @@ c.fillRect(0,0,40,40);
 var paused=false,
 mouse={down:false,x:0,y:0},
 keys={};
-document.onmousedown=e=>mouse.down=true;
-document.onmousemove=e=>[mouse.x,mouse.y]=[e.clientX,e.clientY];
-document.onmouseup=e=>mouse.up=false;
+document.onmousedown=e=>document.onmousemove(e,mouse.down=true);
+document.onmousemove=e=>[mouse.x,mouse.y]=[e.clientX-window.innerWidth/2,e.clientY-window.innerHeight/2];
+document.onmouseup=e=>mouse.down=false;
+document.ontouchstart=e=>document.ontouchmove(e,mouse.down=true);
+document.ontouchmove=e=>[mouse.x,mouse.y]=[e.changedTouches[0].clientX-window.innerWidth/2,e.changedTouches[0].clientY-window.innerHeight/2];
+document.ontouchend=e=>mouse.down=false;
 document.onkeydown=e=>{
   switch (e.keyCode) {
     case 80:
-      paused=!paused;
-      if (!paused) window.requestAnimationFrame(render);
+      if (paused) {
+        paused=false;
+        window.requestAnimationFrame(render);
+        frames=0,startTime=new Date();
+      } else paused='pause please';
       document.body.style.backgroundColor=paused?'#888a8c':'#E9EEF2';
       break;
     case 82:
@@ -53,6 +61,9 @@ document.onkeydown=e=>{
     case 38:keys.up=1;break;
     case 39:keys.right=1;break;
     case 40:keys.down=1;break;
+    case 16:keys.shift=1;break;
+    default:
+      if (e.keyCode>48&&e.keyCode<Object.keys(blockData).length+47) CURRENT_BLOCK=Object.keys(blockData)[e.keyCode-47];
   }
 };
 document.onkeyup=e=>{
@@ -61,12 +72,14 @@ document.onkeyup=e=>{
     case 38:keys.up=0;break;
     case 39:keys.right=0;break;
     case 40:keys.down=0;break;
+    case 16:keys.shift=0;break;
   }
 };
 window.onfocus=e=>{
   if (paused) {
     if (paused==='done') window.requestAnimationFrame(render);
     paused=false;
+    frames=0,startTime=new Date();
     document.body.style.backgroundColor='#E9EEF2';
   }
 };
@@ -76,36 +89,84 @@ window.onblur=e=>{
     document.body.style.backgroundColor='#888a8c';
   }
 };
-var map={},blocks=['air','air','solid','water','solid'];
+var map={},blocks=['solid:gen','air:gen','air:gen','air:gen','air:gen','solid:gen'];
 function generate(w,h) {
   var _h=h;
   while (w--) {
-    while (h--) map[`${w},${h}`]=blocks[h];
+    //* //* to enable block 1, /* to enable block 2
+    while (h--) map[`${w},${h}`]=w%9===0?'solid':blocks[h];
+    /*/
+    while (h--) map[`${w},${h}`]=blocks[Math.floor(Math.random()*blocks.length)];
+    //*/
     h=_h;
   }
 }
-generate(10,5);
+generate(10,6);
 var BLOCKSIZE=40,scroll={x:0,y:0},
 WIDTH=0.75,
 HEIGHT=0.75,
-player=new Collidable(WIDTH,HEIGHT,(x,y)=>(x=map[`${x},${y}`],x=x&&blockData[x]?blockData[x].solid:false));
+player=new Collidable(WIDTH,HEIGHT,(x,y)=>getBlockProperty(map[`${x},${y}`],'solid')),
+CAMERA_GLIDE_SPEED=5,
+CURRENT_BLOCK='air';
+player.x=player.y=1;
 function blocksHave(blockArray,prop,value=false) {
-  for (var i=0;i<blockArray.length;i++) if (blockArray[i]&&(value?blockData[blockArray[i]][prop]===value:blockData[blockArray[i]][prop])) return true;
+  for (var i=0;i<blockArray.length;i++) if (value?getBlockProperty(blockArray[i],prop)===value:getBlockProperty(blockArray[i],prop)) return true;
   return false;
 }
 function blocksAllHave(blockArray,prop,value=false) {
-  for (var i=0;i<blockArray.length;i++) if (!blockArray[i]||(value?blockData[blockArray[i]][prop]!==value:!blockData[blockArray[i]][prop])) return false;
+  for (var i=0;i<blockArray.length;i++) if (value?getBlockProperty(blockArray[i],prop)!==value:!getBlockProperty(blockArray[i],prop)) return false;
   return true;
 }
+function ridBlockState(name) {
+  if (!name) return name;
+  var t=name.indexOf(':');
+  return ~t?name.slice(0,t):name;
+}
+function getBlockState(name) {
+  if (!name) return '';
+  var t=name.indexOf(':');
+  return ~t?name.slice(t):'';
+}
+function getBlockProperty(block,prop) {
+  var state=getBlockState(block);
+  block=blockData[ridBlockState(block)];
+  if (block) {
+    if (!block[prop]&&block.states) {
+      if (block.states[state]) return block.states[state][prop];
+      else if (block.states.DEFAULT) return block.states.DEFAULT[prop];
+      else return;
+    } else return block[prop];
+  } else return;
+}
+function renderLevel() {
+  var t,tx,xblocks=Math.ceil(window.innerWidth/BLOCKSIZE)+1,
+  xoffset=Math.floor((-window.innerWidth/2-scroll.x)/BLOCKSIZE),
+  hoveredx=Math.floor((mouse.x-scroll.x)/BLOCKSIZE),
+  _yblocks=Math.ceil(window.innerHeight/BLOCKSIZE)+1,
+  ty,yblocks=_yblocks,
+  yoffset=Math.floor((-window.innerHeight/2-scroll.y)/BLOCKSIZE),
+  hoveredy=Math.floor((mouse.y-scroll.y)/BLOCKSIZE);
+  while (xblocks--) {
+    while (yblocks--) if (t=map[`${tx=xoffset+xblocks},${ty=yoffset+yblocks}`]) {
+      c.fillStyle=getBlockProperty(t,'colour');
+      if (hoveredx===tx&&hoveredy===ty) {
+        c.fillRect((tx+0.1)*BLOCKSIZE+scroll.x,(ty+0.1)*BLOCKSIZE+scroll.y,BLOCKSIZE*0.8,BLOCKSIZE*0.8);
+        if (mouse.down) map[`${tx},${ty}`]=CURRENT_BLOCK;
+      }
+      else c.fillRect(tx*BLOCKSIZE+scroll.x,ty*BLOCKSIZE+scroll.y,BLOCKSIZE,BLOCKSIZE);
+    } else if (hoveredx===tx&&hoveredy===ty) {
+      c.fillStyle='rgba(0,0,0,0.1)';
+      c.fillRect((tx+0.1)*BLOCKSIZE+scroll.x,(ty+0.1)*BLOCKSIZE+scroll.y,BLOCKSIZE*0.8,BLOCKSIZE*0.8);
+      if (mouse.down) map[`${tx},${ty}`]=CURRENT_BLOCK;
+    }
+    yblocks=_yblocks;
+  }
+}
+var frames=0,startTime=new Date(),fps=60;
 function render() {
   c.clearRect(-window.innerWidth/2,-window.innerHeight/2,window.innerWidth,window.innerHeight);
-  for (var pos in map) {
-    var type=map[pos],
-    x=+pos.slice(0,pos.indexOf(',')),
-    y=+pos.slice(pos.indexOf(',')+1);
-    c.fillStyle=blockData[type].colour;
-    c.fillRect(x*BLOCKSIZE+scroll.x,y*BLOCKSIZE+scroll.y,BLOCKSIZE,BLOCKSIZE);
-  }
+  frames++;
+  renderLevel();
   var touchings={
     all:[],
     inside:[],
@@ -114,42 +175,125 @@ function render() {
     left:[],
     bottom:[],
     right:[]
+  },properties={
+    xGravity:0,
+    yGravity:0,
+    xDefaultVelocity:0,
+    yDefaultVelocity:0,
+    xMoveSpeed:0,
+    yMoveSpeed:0,
+    xAirResist:1,
+    yAirResist:1,
+    lateralAcceleration:0,
+    jumpVelocity:0,
+    friction:0
   };
   var t;
   for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++)
     for (var j=Math.floor(player.y),len2=Math.ceil(player.y+HEIGHT);j<len2;j++) {
-      t=map[`${i},${j}`];
-      touchings.all.push(t);touchings.inside.push(t);
+      t=ridBlockState(map[`${i},${j}`]);
+      if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+      if (!~touchings.inside.indexOf(t)) touchings.inside.push(t);
     }
   if (player.x%1===0) for (var i=Math.floor(player.y),len=Math.ceil(player.y+HEIGHT);i<len;i++) {
-    t=map[`${player.x-1},${i}`];
-    touchings.all.push(t);touchings.sides.push(t);touchings.left.push(t);
+    t=ridBlockState(map[`${player.x-1},${i}`]);
+    if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+    if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+    if (!~touchings.left.indexOf(t)) touchings.left.push(t);
   }
   if ((player.x+WIDTH)%1===0) for (var i=Math.floor(player.y),len=Math.ceil(player.y+HEIGHT);i<len;i++) {
-    t=map[`${player.x+WIDTH},${i}`];
-    touchings.all.push(t);touchings.sides.push(t);touchings.right.push(t);
+    t=ridBlockState(map[`${player.x+WIDTH},${i}`]);
+    if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+    if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+    if (!~touchings.right.indexOf(t)) touchings.right.push(t);
   }
   if (player.y%1===0) for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++) {
-    t=map[`${i},${player.y-1}`];
-    touchings.all.push(t);touchings.sides.push(t);touchings.top.push(t);
+    t=ridBlockState(map[`${i},${player.y-1}`]);
+    if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+    if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+    if (!~touchings.top.indexOf(t)) touchings.top.push(t);
   }
   if ((player.y+HEIGHT)%1===0) for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++) {
-    t=map[`${i},${player.y+HEIGHT}`];
-    touchings.all.push(t);touchings.sides.push(t);touchings.bottom.push(t);
+    t=ridBlockState(map[`${i},${player.y+HEIGHT}`]);
+    if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+    if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+    if (!~touchings.bottom.indexOf(t)) touchings.bottom.push(t);
   }
-  player.yv+=0.0109;
+  for (var array in touchings) {
+    touchings[array].sort((a,b)=>(a=blockData[a]?blockData[a].priority:0,b=blockData[b]?blockData[b].priority:0,b-a));
+    touchings[array]=touchings[array].filter(a=>!!blockData[a]);
+  }
+  for (var prop in properties) {
+    properties[prop+'amp']=1;
+    properties[prop+'Is prop still unfound?']=true;
+    for (var i=0,t;i<touchings.all.length;i++) {
+      if ((t=blockData[touchings.all[i]][prop+"Amplifier"])!==undefined) properties[prop+'amp']*=t;
+      if (properties[prop+'Is prop still unfound?']&&(t=blockData[touchings.all[i]][prop])!==undefined)
+        properties[prop]=t,properties[prop+'Is prop still unfound?']=false;
+    }
+    properties[prop]*=properties[prop+'amp'];
+    delete properties[prop+'amp'];
+    delete properties[prop+'Is prop still unfound?'];
+  }
+  player.xv+=properties.xGravity;
+  player.yv+=properties.yGravity;
+  if (keys.left&&!keys.right) player.xv-=properties.xMoveSpeed;
+  else if (!keys.left&&keys.right) player.xv+=properties.xMoveSpeed;
+  if (keys.up&&!keys.down) player.yv-=properties.yMoveSpeed;
+  else if (!keys.up&&keys.down) player.yv+=properties.yMoveSpeed;
+  if (keys.shift) console.log(touchings);
+  if (blocksHave(touchings.top,'solid')) {
+    if (properties.yGravity<0) {
+      player.xv=(player.xv-properties.xDefaultVelocity)*properties.friction+properties.xDefaultVelocity;
+      if (keys.left&&!keys.right) player.xv-=properties.lateralAcceleration;
+      else if (!keys.left&&keys.right) player.xv+=properties.lateralAcceleration;
+    }
+    if (keys.down) player.yv+=properties.jumpVelocity;
+  }
   if (blocksHave(touchings.bottom,'solid')) {
-    player.xv*=0.85;
-    if (keys.left&&!keys.right) player.xv-=0.03;
-    else if (!keys.left&&keys.right) player.xv+=0.03;
-    if (keys.up) player.yv-=0.2;
+    if (properties.yGravity>0) {
+      player.xv=(player.xv-properties.xDefaultVelocity)*properties.friction+properties.xDefaultVelocity;
+      if (keys.left&&!keys.right) player.xv-=properties.lateralAcceleration;
+      else if (!keys.left&&keys.right) player.xv+=properties.lateralAcceleration;
+    }
+    if (keys.up) player.yv-=properties.jumpVelocity;
   }
+  if (blocksHave(touchings.left,'solid')) {
+    if (properties.xGravity<0) {
+      player.yv=(player.yv-properties.yDefaultVelocity)*properties.friction+properties.yDefaultVelocity;
+      if (keys.up&&!keys.down) player.yv-=properties.lateralAcceleration;
+      else if (!keys.up&&keys.down) player.yv+=properties.lateralAcceleration;
+    }
+    if (keys.down) player.yv+=properties.jumpVelocity;
+  }
+  if (blocksHave(touchings.right,'solid')) {
+    if (properties.xGravity>0) {
+      player.yv=(player.yv-properties.yDefaultVelocity)*properties.friction+properties.yDefaultVelocity;
+      if (keys.up&&!keys.down) player.yv-=properties.lateralAcceleration;
+      else if (!keys.up&&keys.down) player.yv+=properties.lateralAcceleration;
+    }
+    if (keys.up) player.yv-=properties.jumpVelocity;
+  }
+  player.xv=(player.xv-properties.xDefaultVelocity)*properties.xAirResist+properties.xDefaultVelocity;
+  player.yv=(player.yv-properties.yDefaultVelocity)*properties.yAirResist+properties.yDefaultVelocity;
+  if (blocksHave(touchings.left,'solid')&&player.xv<0||blocksHave(touchings.right,'solid')&&player.xv>0)
+    if (keys.left||keys.right) player.xv*=-0.5,
+      player.yv+=keys.up&&!blocksHave(touchings.bottom,'solid')?-0.1:keys.down&&!blocksHave(touchings.top,'solid')?0.1:0;
+  if (blocksHave(touchings.top,'solid')&&player.yv<0||blocksHave(touchings.bottom,'solid')&&player.yv>0)
+    if (keys.up||keys.bottom) player.yv*=-0.5,
+      player.xv+=keys.right&&!blocksHave(touchings.right,'solid')?-0.1:keys.left&&!blocksHave(touchings.left,'solid')?0.1:0;
   player.updateVelocities();
   player.updatePositions();
   c.fillStyle='#E91E63';
   c.fillRect(player.x*BLOCKSIZE+scroll.x,player.y*BLOCKSIZE+scroll.y,WIDTH*BLOCKSIZE,HEIGHT*BLOCKSIZE);
-  scroll.x+=((-player.x-WIDTH/2)*BLOCKSIZE-scroll.x)/5;
-  scroll.y+=((-player.y-HEIGHT/2)*BLOCKSIZE-scroll.y)/5;
+  scroll.x+=((-player.x-WIDTH/2)*BLOCKSIZE-scroll.x)/CAMERA_GLIDE_SPEED;
+  scroll.y+=((-player.y-HEIGHT/2)*BLOCKSIZE-scroll.y)/CAMERA_GLIDE_SPEED;
+  c.fillStyle='rgba(255,0,0,0.8)';
+  c.font="15px monospace";
+  c.textAlign='center';
+  fps=Math.round(frames/(new Date()-startTime)*1000);
+  c.fillText(fps,0,window.innerHeight/2-30);
+  c.fillRect(Math.sin(frames*5/fps*Math.PI)*15-5,window.innerHeight/2-15,10,10);
   if (paused==='pause please') paused='done';
   else window.requestAnimationFrame(render);
 }

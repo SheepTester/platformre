@@ -1,32 +1,118 @@
 var blockData={
-  "air":{
+  "TEMPLATE_GAS":{
     "priority":0,
     "solid":false,
-    "colour":"transparent",
+    "colour":"yellow",
     "xGravity":0,
-    "yGravity":0.0109,
+    "yGravity":0,
     "xDefaultVelocity":0,
     "yDefaultVelocity":0,
     "xMoveSpeed":0,
     "yMoveSpeed":0,
     "jumpVelocity":0,
-    "xFriction":1,
-    "yFriction":1
+    "xAirResist":1,
+    "yAirResist":1
+  },
+  "TEMPLATE_LIQUID":{
+    "priority":0,
+    "solid":false,
+    "colour":"blue",
+    "xGravity":0,
+    "yGravity":0,
+    "xDefaultVelocity":0,
+    "yDefaultVelocity":0,
+    "xMoveSpeed":0.025,
+    "yMoveSpeed":0.025,
+    "xAirResistAmplifier":0.95,
+    "yAirResistAmplifier":0.95
+  },
+  "air":{
+    "priority":0,
+    "extends":"TEMPLATE_GAS",
+    "colour":"white",
+    "yGravity":0.0109,
   },
   "solid":{
     "priority":1,
     "solid":true,
     "colour":"#212121",
-    "lateralAcceleration":0.03,
-    "jumpVelocity":0.2,
-    "xFriction":0.8,
-    "yFriction":0.8
+    "lateralAcceleration":0.0375,
+    "jumpVelocity":0.17,
+    "friction":0.7
   },
   "water":{
+    "priority":1,
+    "extends":"TEMPLATE_LIQUID",
+    "colour":"#2196F3"
+  },
+  "gravity":{
+    "priority":0,
+    "extends":"TEMPLATE_GAS",
+    "colour":"#64B5F6",
+    "yGravity":-0.0109
+  },
+  "win":{
     "priority":2,
-    "solid":false,
-    "colour":"#2196F3",
-    "xFrictionAmplifier":0.95,
-    "yFrictionAmplifier":0.95
+    "extends":"solid",
+    "colour":"#8BC34A"
+  },
+  "lava":{
+    "priority":1,
+    "extends":"TEMPLATE_LIQUID",
+    "colour":"#FF5722",
+    "xAirResistAmplifier":0.8,
+    "yAirResistAmplifier":0.8
+  },
+  "jumpboost":{
+    "priority":2,
+    "extends":"solid",
+    "colour":"#9C27B0",
+    "jumpVelocity":0.22
+  },
+  "mud":{
+    "priority":0.5,
+    "extends":"solid",
+    "colour":"#795548",
+    "lateralAcceleration":0.0125,
+    "friction":0.5
+  },
+  "ice":{
+    "priority":2,
+    "extends":"solid",
+    "colour":"#00BCD4",
+    "lateralAcceleration":0.0125,
+    "friction":0.95
+  },
+  "sticky":{
+    "priority":3,
+    "extends":"solid",
+    "colour":"#FFEB3B",
+    "jumpVelocity":0
+  },
+  "leftconveyor":{
+    "priority":1,
+    "extends":"solid",
+    "colour":"#009688",
+    "xDefaultVelocity":-0.075
+  },
+  "rightconveyor":{
+    "priority":1,
+    "extends":"solid",
+    "colour":"#004D40",
+    "xDefaultVelocity":0.075
   }
 };
+function ridExtends(block) { // also color -> colour for Trump-like people
+  if (blockData[block].extends) {
+    ridExtends(blockData[block].extends);
+    for (var prop in blockData[blockData[block].extends])
+      if (blockData[block][prop]===undefined&&blockData[blockData[block].extends][prop]!==undefined)
+        blockData[block][prop]=blockData[blockData[block].extends][prop];
+    delete blockData[block].extends;
+  }
+  if (blockData[block].color) {
+    blockData[block].colour=blockData[block].color;
+    delete blockData[block].color;
+  }
+}
+for (var block in blockData) ridExtends(block);
