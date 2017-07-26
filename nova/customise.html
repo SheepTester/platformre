@@ -4,27 +4,287 @@
     <title>Agordeblaj Kaheloj</title>
     <meta charset="UTF-8">
     <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1">
     <style>
       body {
         margin: 0;
         font-size: 0;
-        background: #E9EEF2;
+        background-color: #E9EEF2;
+        font-family: sans-serif;
+        line-height: 1;
+      }
+      body.darken {
+        background-color: #888;
       }
       canvas {
         width: 100%;
         height: 100%;
+        cursor: default;
+      }
+      body.darken canvas {
+        filter: grayscale();
+      }
+      body.edit canvas {
         cursor: cell;
+      }
+      #ui {
+        position: fixed;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+      #modetoggle {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0,0,0,0.5);
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+        padding: 5px;
+        margin: 10px;
+        border-radius: 25px;
+        height: 30px;
+        cursor: pointer;
+      }
+      #modetoggle img {
+        height: 100%;
+      }
+      #modetoggle img:first-child {
+        margin-right: 10px;
+      }
+      #modetoggle::after {
+        content: '';
+        position: absolute;
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+        background-color: rgba(0,0,0,0.5);
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        display: block;
+        top: -5px;
+        transition: left .2s;
+        z-index: -1;
+      }
+      body.play #modetoggle::after {
+        left: -5px;
+      }
+      body.edit #modetoggle::after {
+        left: 35px;
+      }
+      #ui .modeuis {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity .1s;
+      }
+      body.play #playui, body.edit #editui {
+        opacity: 1;
+        pointer-events: all;
+      }
+      #hotbar {
+        background-color: rgba(0,0,0,0.5);
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+        list-style: none;
+        margin: auto 10px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        box-sizing: border-box;
+        padding: 0;
+        height: 521px;
+        counter-reset: hotbarnumber;
+      }
+      #hotbar li {
+        display: block;
+        height: 40px;
+        width: 40px;
+        background-color: rgba(255,255,255,0.3);
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+        margin: 10px 10px;
+        position: relative;
+        cursor: pointer;
+        transition: all .2s;
+      }
+      #hotbar li:not(.equipped):hover {
+        background-color: rgba(255,255,255,0.5);
+        transform: scale(1.05);
+      }
+      #hotbar li.equipped, .openinv #hotbar #openinv {
+        background-color: rgba(255,255,255,0.8);
+        transform: scale(1.05);
+        cursor: default;
+      }
+      #hotbar li::before {
+        content: counter(hotbarnumber);
+        counter-increment: hotbarnumber;
+        position: absolute;
+        font-size: 20px;
+        line-height: 40px;
+        text-align: center;
+        width: 40px;
+        color: rgba(255,255,255,0.5);
+        text-shadow: 0 0 3px rgba(0,0,0,0.3);
+        z-index: 2;
+      }
+      #hotbar li.equipped::before, .openinv #hotbar #openinv::before {
+        color: white;
+        text-shadow: 0 0 3px rgba(0,0,0,0.4);
+      }
+      #hotbar #openinv::before {
+        content: '•••';
+      }
+      .openinv #hotbar #openinv {
+        cursor: pointer;
+      }
+      #hotbar #hotbardivider {
+        height: 1px;
+        pointer-events: none;
+        box-shadow: none;
+      }
+      #hotbar #hotbardivider::before {
+        display: none;
+      }
+      #inv {
+        position: fixed;
+        top: 0;
+        left: 80px;
+        bottom: 0;
+        right: 10px;
+        margin: auto 0;
+        height: 521px;
+        max-width: 521px;
+        background-color: rgba(0,0,0,0.5);
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+        pointer-events: none;
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all .2s;
+      }
+      .openinv #inv {
+        pointer-events: all;
+        opacity: 1;
+        transform: translateX(0);
+      }
+      #blocklist {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        margin: 5px;
+      }
+      #blocklist li {
+        display: inline-block;
+        margin: 5px;
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+        cursor: pointer;
+        transition: box-shadow .2s;
+      }
+      #blocklist li:hover {
+        box-shadow: 0 0 5px rgba(0,0,0,0.4);
+      }
+      sheep-block {
+        display: inline-block;
+        height: 40px;
+        width: 40px;
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+        z-index: 0;
+        transition: z-index .2s cubic-bezier(1,0,1,1);
+        pointer-events: none;
+      }
+      sheep-block::before {
+        content: attr(data-blockname);
+        display: table-cell;
+        position: absolute;
+        left: 90%;
+        font-size: 8px;
+        color: white;
+        background-color: rgba(0,0,0,0.5);
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+        padding: 3px;
+        z-index: 10;
+        top: 0;
+        bottom: 0;
+        height: 8px;
+        margin: auto 0;
+        margin-left: 3px;
+        border-radius: 2px;
+        /*word-wrap: break-word;*/
+        white-space: pre;
+        pointer-events: none;
+        opacity: 0;
+        transition: all .2s;
+      }
+      :hover > sheep-block {
+        z-index: 1;
+        transition: none;
+      }
+      :hover > sheep-block::before {
+        opacity: 1;
+        left: 100%;
+      }
+      sheep-action {
+        display: none;
+        position: fixed;
+        pointer-events: none;
+        z-index: 10;
+        font-size: 15vh;
+        color: white;
+        text-shadow: 0 0 10px rgba(0,0,0,0.4);
+        width: 100%;
+        top: 0;
+        bottom: 0;
+        height: 0;
+        left: 0;
+        line-height: 0;
+        margin: auto 0;
+        text-align: center;
+        white-space: pre;
+      }
+      sheep-action.animate {
+        display: block;
+        animation: poof 1.5s cubic-bezier(0,0.9,1,0.1) forwards,fadeout 0.75s cubic-bezier(1,0,1,1) 0.75s forwards;
+      }
+      sheep-action:before {
+        content: "";
+        margin-left: -100%;
+      }
+      sheep-action:after {
+        content: "";
+        margin-right: -100%;
+      }
+      @keyframes poof {
+        from {transform: scale(0);}
+        to {transform: scale(2);}
+      }
+      @keyframes fadeout {
+        from {opacity: 1;}
+        to {opacity: 0;}
       }
     </style>
   </head>
-  <body>
+  <body class='play'>
     <canvas id="stage"></canvas>
     <!-- Sorry! I know canvases are boring to inspect element :/ -->
+    <div id="ui">
+      <span id='modetoggle'><img src="../icons/materialicon_play_arrow.svg"><img src="../icons/materialicon_edit.svg"></span>
+      <div class="modeuis" id="playui"></div>
+      <div class="modeuis" id="editui">
+        <ul id='hotbar'><li id='hotbardivider'></li><li id='openinv'></li></ul>
+        <div id="inv">
+          <ul id='blocklist'></ul>
+        </div>
+      </div>
+      <sheep-action>DEKSTRA MUSKLAKO</sheep-action>
+      <!-- Here's some stuff that you can actually play with :) -->
+    </div>
 
     <script src="../../sheep.js"></script>
     <script src="blocks.js"></script>
     <script src="collide.js"></script>
     <script>
+window.onload=e=>{
 var canvas=document.querySelector('#stage'),
 c=canvas.getContext('2d'),
 pxratio=(window.devicePixelRatio||1)/(c.webkitBackingStorePixelRatio||c.mozBackingStorePixelRatio||c.msBackingStorePixelRatio||c.oBackingStorePixelRatio||c.backingStorePixelRatio||1);
@@ -36,15 +296,50 @@ pxratio=(window.devicePixelRatio||1)/(c.webkitBackingStorePixelRatio||c.mozBacki
 })();
 c.fillRect(0,0,40,40);
 var paused=false,
+editing=false,
+ui=document.querySelector('#ui'),
+modetoggle=document.querySelector('#modetoggle'),
+hotbar=document.querySelector('#hotbar'),
+openinv=document.querySelector('#openinv'),
+inv=document.querySelector('#inv'),
+blocklist=document.querySelector('#blocklist'),
+action=document.querySelector('sheep-action'),
+timeouts=[],
 mouse={down:false,x:0,y:0},
-keys={};
-document.onmousedown=e=>document.onmousemove(e,mouse.down=true);
+keys={},
+hotbarblocks='air solid water gravity win lava jumpboost mud ice'.split(' '),
+currenthoveredblock;
+hotbarblocks.equipped=0;
+document.oncontextmenu=e=>{
+  if (e.target===canvas) e.preventDefault();
+}
+document.onmousedown=e=>{
+  document.onmousemove(e,ui.contains(e.target)?0:mouse.down=true);
+  if (e.which===3&&!timeouts.rightclick) {
+    action.innerHTML='DEKSTRA MUSKLAKO';
+    action.classList.add('animate');
+    timeouts.rightclick=setTimeout(()=>(action.classList.remove('animate'),timeouts.rightclick=0),1500);
+  }
+}
 document.onmousemove=e=>[mouse.x,mouse.y]=[e.clientX-window.innerWidth/2,e.clientY-window.innerHeight/2];
 document.onmouseup=e=>mouse.down=false;
-document.ontouchstart=e=>document.ontouchmove(e,mouse.down=true);
+document.ontouchstart=e=>document.ontouchmove(e,ui.contains(e.changedTouches[0].target)?0:mouse.down=true);
 document.ontouchmove=e=>[mouse.x,mouse.y]=[e.changedTouches[0].clientX-window.innerWidth/2,e.changedTouches[0].clientY-window.innerHeight/2];
 document.ontouchend=e=>mouse.down=false;
 document.onkeydown=e=>{
+  if (e.keyCode>48&&e.keyCode<58&&editing) {
+    hotbar.children[e.keyCode-49].click();
+    if (currenthoveredblock) {
+      var t=hotbarblocks.indexOf(currenthoveredblock);
+      if (~t) {
+        hotbarblocks[t]=hotbarblocks[hotbarblocks.equipped];
+        hotbarblocks['update'+t]();
+      }
+      hotbarblocks[hotbarblocks.equipped]=currenthoveredblock;
+      hotbarblocks['update'+hotbarblocks.equipped]();
+      CURRENT_BLOCK=currenthoveredblock;
+    }
+  }
   switch (e.keyCode) {
     case 80:
       if (paused) {
@@ -52,7 +347,7 @@ document.onkeydown=e=>{
         window.requestAnimationFrame(render);
         frames=0,startTime=new Date();
       } else paused='pause please';
-      document.body.style.backgroundColor=paused?'#888a8c':'#E9EEF2';
+      paused?document.body.classList.add('darken'):document.body.classList.remove('darken');
       break;
     case 82:
       player.x=player.y=player.xv=player.yv=0;
@@ -61,9 +356,14 @@ document.onkeydown=e=>{
     case 38:keys.up=1;break;
     case 39:keys.right=1;break;
     case 40:keys.down=1;break;
+    case 65:keys.left=1;break;
+    case 87:keys.up=1;break;
+    case 68:keys.right=1;break;
+    case 83:keys.down=1;break;
     case 16:keys.shift=1;break;
-    default:
-      if (e.keyCode>48&&e.keyCode<Object.keys(blockData).length+47) CURRENT_BLOCK=Object.keys(blockData)[e.keyCode-47];
+    case 69:
+      openinv.click();
+      break;
   }
 };
 document.onkeyup=e=>{
@@ -72,6 +372,10 @@ document.onkeyup=e=>{
     case 38:keys.up=0;break;
     case 39:keys.right=0;break;
     case 40:keys.down=0;break;
+    case 65:keys.left=0;break;
+    case 87:keys.up=0;break;
+    case 68:keys.right=0;break;
+    case 83:keys.down=0;break;
     case 16:keys.shift=0;break;
   }
 };
@@ -80,15 +384,92 @@ window.onfocus=e=>{
     if (paused==='done') window.requestAnimationFrame(render);
     paused=false;
     frames=0,startTime=new Date();
-    document.body.style.backgroundColor='#E9EEF2';
+    document.body.classList.remove('darken');
   }
 };
 window.onblur=e=>{
   if (!paused) {
     paused='pause please';
-    document.body.style.backgroundColor='#888a8c';
+    document.body.classList.add('darken');
   }
 };
+modetoggle.onclick=e=>{
+  if (document.body.classList.contains('edit')) {
+    document.body.classList.remove('edit');
+    document.body.classList.add('play');
+  }
+  else {
+    document.body.classList.remove('play');
+    document.body.classList.add('edit');
+  }
+  editing=!editing;
+};
+hotbar.onclick=e=>{
+  if (e.target.tagName==='LI') {
+    if (e.target.id==='openinv') {
+      ui.classList.contains('openinv')?ui.classList.remove('openinv'):ui.classList.add('openinv');
+    } else {
+      hotbar.getElementsByClassName('equipped')[0].classList.remove('equipped');
+      e.target.classList.add('equipped');
+      hotbarblocks.equipped=getChildIndex(e.target);
+      CURRENT_BLOCK=hotbarblocks[hotbarblocks.equipped];
+    }
+  }
+};
+blocklist.onclick=e=>{
+  if (e.target.tagName==='LI') {
+    if (currenthoveredblock) {
+      var t=hotbarblocks.indexOf(currenthoveredblock);
+      if (~t) {
+        hotbarblocks[t]=hotbarblocks[hotbarblocks.equipped];
+        hotbarblocks['update'+t]();
+      }
+      hotbarblocks[hotbarblocks.equipped]=currenthoveredblock;
+      hotbarblocks['update'+hotbarblocks.equipped]();
+      CURRENT_BLOCK=currenthoveredblock;
+    }
+  }
+};
+(function() {
+  var t=document.createDocumentFragment();
+  for (var i=0;i<9;i++) {
+    var wrapper=document.createElement("li"),
+    blockelem=document.createElement("sheep-block");
+    if (i===0) wrapper.classList.add('equipped');
+    ((i,blockelem)=>{
+      hotbarblocks['update'+i]=()=>{
+        blockelem.style.backgroundColor=getBlockProperty(hotbarblocks[i],'colour')||'transparent';
+        blockelem.style.transform=`rotate(${getBlockProperty(hotbarblocks[i],'rotate')*90||0}deg)`;
+        blockelem.dataset.blockname=getBlockProperty(hotbarblocks[i],'name')||'Mr. Nameless';
+      };
+      hotbarblocks['update'+i]();
+    })(i,blockelem);
+    wrapper.appendChild(blockelem);
+    t.appendChild(wrapper);
+  }
+  hotbar.insertBefore(t,hotbar.firstChild);
+  t=document.createDocumentFragment();
+  for (var block in blockData) {
+    if (!blockData[block].ignore) {
+      var wrapper=document.createElement("li"),
+      blockelem=document.createElement("sheep-block");
+      (block=>{
+        wrapper.onmouseenter=e=>{
+          currenthoveredblock=block;
+        };
+        wrapper.onmouseleave=e=>{
+          if (currenthoveredblock===block) currenthoveredblock=undefined;
+        };
+      })(block);
+      blockelem.style.backgroundColor=getBlockProperty(block,'colour')||'transparent';
+      blockelem.style.transform=`rotate(${getBlockProperty(block,'rotate')*90||0}deg)`;
+      blockelem.dataset.blockname=getBlockProperty(block,'name')||'Mr. Nameless';
+      wrapper.appendChild(blockelem);
+      t.appendChild(wrapper);
+    }
+  }
+  blocklist.appendChild(t);
+}());
 var map={},blocks=['solid:gen','air:gen','air:gen','air:gen','air:gen','solid:gen'];
 function generate(w,h) {
   var _h=h;
@@ -102,12 +483,12 @@ function generate(w,h) {
   }
 }
 generate(10,6);
-var BLOCKSIZE=40,scroll={x:0,y:0},
+var BLOCKSIZE=40,scroll={x:0,y:0,xv:0,yv:0},
 WIDTH=0.75,
 HEIGHT=0.75,
 player=new Collidable(WIDTH,HEIGHT,(x,y)=>getBlockProperty(map[`${x},${y}`],'solid')),
 CAMERA_GLIDE_SPEED=5,
-CURRENT_BLOCK='air';
+CURRENT_BLOCK=hotbarblocks[0];
 player.x=player.y=1;
 function blocksHave(blockArray,prop,value=false) {
   for (var i=0;i<blockArray.length;i++) if (value?getBlockProperty(blockArray[i],prop)===value:getBlockProperty(blockArray[i],prop)) return true;
@@ -128,15 +509,20 @@ function getBlockState(name) {
   return ~t?name.slice(t):'';
 }
 function getBlockProperty(block,prop) {
-  var state=getBlockState(block);
+  var state=getBlockState(block); // block and state names shouldn't contain colons, commas, or whitespace.
   block=blockData[ridBlockState(block)];
   if (block) {
     if (!block[prop]&&block.states) {
       if (block.states[state]) return block.states[state][prop];
-      else if (block.states.DEFAULT) return block.states.DEFAULT[prop];
+      else if (block.states[':DEFAULT:']) return block.states[':DEFAULT:'][prop]; // :DEFAULT: properties will be used by default
       else return;
-    } else return block[prop];
-  } else return;
+    } else return block[prop]; // main definition's property > states' properties
+  } else return; // returns undefined if block doesn't exist
+}
+function getChildIndex(child) {
+  var i=child.parentNode.children.length;
+  while (i--) if (child.parentNode.children[i]===child) return i;
+  return -1;
 }
 function renderLevel() {
   var t,tx,xblocks=Math.ceil(window.innerWidth/BLOCKSIZE)+1,
@@ -149,12 +535,12 @@ function renderLevel() {
   while (xblocks--) {
     while (yblocks--) if (t=map[`${tx=xoffset+xblocks},${ty=yoffset+yblocks}`]) {
       c.fillStyle=getBlockProperty(t,'colour');
-      if (hoveredx===tx&&hoveredy===ty) {
+      if (editing&&hoveredx===tx&&hoveredy===ty) {
         c.fillRect((tx+0.1)*BLOCKSIZE+scroll.x,(ty+0.1)*BLOCKSIZE+scroll.y,BLOCKSIZE*0.8,BLOCKSIZE*0.8);
         if (mouse.down) map[`${tx},${ty}`]=CURRENT_BLOCK;
       }
       else c.fillRect(tx*BLOCKSIZE+scroll.x,ty*BLOCKSIZE+scroll.y,BLOCKSIZE,BLOCKSIZE);
-    } else if (hoveredx===tx&&hoveredy===ty) {
+    } else if (editing&&hoveredx===tx&&hoveredy===ty) {
       c.fillStyle='rgba(0,0,0,0.1)';
       c.fillRect((tx+0.1)*BLOCKSIZE+scroll.x,(ty+0.1)*BLOCKSIZE+scroll.y,BLOCKSIZE*0.8,BLOCKSIZE*0.8);
       if (mouse.down) map[`${tx},${ty}`]=CURRENT_BLOCK;
@@ -166,128 +552,146 @@ var frames=0,startTime=new Date(),fps=60;
 function render() {
   c.clearRect(-window.innerWidth/2,-window.innerHeight/2,window.innerWidth,window.innerHeight);
   frames++;
-  renderLevel();
-  var touchings={
-    all:[],
-    inside:[],
-    sides:[],
-    top:[],
-    left:[],
-    bottom:[],
-    right:[]
-  },properties={
-    xGravity:0,
-    yGravity:0,
-    xDefaultVelocity:0,
-    yDefaultVelocity:0,
-    xMoveSpeed:0,
-    yMoveSpeed:0,
-    xAirResist:1,
-    yAirResist:1,
-    lateralAcceleration:0,
-    jumpVelocity:0,
-    friction:0
-  };
-  var t;
-  for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++)
-    for (var j=Math.floor(player.y),len2=Math.ceil(player.y+HEIGHT);j<len2;j++) {
-      t=ridBlockState(map[`${i},${j}`]);
+  if (editing) {
+    scroll.xv*=0.9;
+    scroll.yv*=0.9;
+    if (keys.left) scroll.xv+=1;
+    if (keys.right) scroll.xv-=1;
+    if (keys.up) scroll.yv+=1;
+    if (keys.down) scroll.yv-=1;
+    scroll.x+=scroll.xv;
+    scroll.y+=scroll.yv;
+  } else {
+    var touchings={
+      all:[],
+      inside:[],
+      sides:[],
+      top:[],
+      left:[],
+      bottom:[],
+      right:[]
+    },properties={
+      xGravity:0,
+      yGravity:0,
+      xDefaultVelocity:0,
+      yDefaultVelocity:0,
+      xMoveSpeed:0,
+      yMoveSpeed:0,
+      xAirResist:1,
+      yAirResist:1,
+      lateralAcceleration:0,
+      jumpVelocity:0,
+      friction:0,
+      wallBounciness:0,
+      wallJumpVelocity:0
+    };
+    var t;
+    for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++)
+      for (var j=Math.floor(player.y),len2=Math.ceil(player.y+HEIGHT);j<len2;j++) {
+        t=ridBlockState(map[`${i},${j}`]);
+        if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+        if (!~touchings.inside.indexOf(t)) touchings.inside.push(t);
+      }
+    if (player.x%1===0) for (var i=Math.floor(player.y),len=Math.ceil(player.y+HEIGHT);i<len;i++) {
+      t=ridBlockState(map[`${player.x-1},${i}`]);
       if (!~touchings.all.indexOf(t)) touchings.all.push(t);
-      if (!~touchings.inside.indexOf(t)) touchings.inside.push(t);
+      if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+      if (!~touchings.left.indexOf(t)) touchings.left.push(t);
     }
-  if (player.x%1===0) for (var i=Math.floor(player.y),len=Math.ceil(player.y+HEIGHT);i<len;i++) {
-    t=ridBlockState(map[`${player.x-1},${i}`]);
-    if (!~touchings.all.indexOf(t)) touchings.all.push(t);
-    if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
-    if (!~touchings.left.indexOf(t)) touchings.left.push(t);
-  }
-  if ((player.x+WIDTH)%1===0) for (var i=Math.floor(player.y),len=Math.ceil(player.y+HEIGHT);i<len;i++) {
-    t=ridBlockState(map[`${player.x+WIDTH},${i}`]);
-    if (!~touchings.all.indexOf(t)) touchings.all.push(t);
-    if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
-    if (!~touchings.right.indexOf(t)) touchings.right.push(t);
-  }
-  if (player.y%1===0) for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++) {
-    t=ridBlockState(map[`${i},${player.y-1}`]);
-    if (!~touchings.all.indexOf(t)) touchings.all.push(t);
-    if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
-    if (!~touchings.top.indexOf(t)) touchings.top.push(t);
-  }
-  if ((player.y+HEIGHT)%1===0) for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++) {
-    t=ridBlockState(map[`${i},${player.y+HEIGHT}`]);
-    if (!~touchings.all.indexOf(t)) touchings.all.push(t);
-    if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
-    if (!~touchings.bottom.indexOf(t)) touchings.bottom.push(t);
-  }
-  for (var array in touchings) {
-    touchings[array].sort((a,b)=>(a=blockData[a]?blockData[a].priority:0,b=blockData[b]?blockData[b].priority:0,b-a));
-    touchings[array]=touchings[array].filter(a=>!!blockData[a]);
-  }
-  for (var prop in properties) {
-    properties[prop+'amp']=1;
-    properties[prop+'Is prop still unfound?']=true;
-    for (var i=0,t;i<touchings.all.length;i++) {
-      if ((t=blockData[touchings.all[i]][prop+"Amplifier"])!==undefined) properties[prop+'amp']*=t;
-      if (properties[prop+'Is prop still unfound?']&&(t=blockData[touchings.all[i]][prop])!==undefined)
-        properties[prop]=t,properties[prop+'Is prop still unfound?']=false;
+    if ((player.x+WIDTH)%1===0) for (var i=Math.floor(player.y),len=Math.ceil(player.y+HEIGHT);i<len;i++) {
+      t=ridBlockState(map[`${player.x+WIDTH},${i}`]);
+      if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+      if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+      if (!~touchings.right.indexOf(t)) touchings.right.push(t);
     }
-    properties[prop]*=properties[prop+'amp'];
-    delete properties[prop+'amp'];
-    delete properties[prop+'Is prop still unfound?'];
-  }
-  player.xv+=properties.xGravity;
-  player.yv+=properties.yGravity;
-  if (keys.left&&!keys.right) player.xv-=properties.xMoveSpeed;
-  else if (!keys.left&&keys.right) player.xv+=properties.xMoveSpeed;
-  if (keys.up&&!keys.down) player.yv-=properties.yMoveSpeed;
-  else if (!keys.up&&keys.down) player.yv+=properties.yMoveSpeed;
-  if (keys.shift) console.log(touchings);
-  if (blocksHave(touchings.top,'solid')) {
-    if (properties.yGravity<0) {
-      player.xv=(player.xv-properties.xDefaultVelocity)*properties.friction+properties.xDefaultVelocity;
-      if (keys.left&&!keys.right) player.xv-=properties.lateralAcceleration;
-      else if (!keys.left&&keys.right) player.xv+=properties.lateralAcceleration;
+    if (player.y%1===0) for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++) {
+      t=ridBlockState(map[`${i},${player.y-1}`]);
+      if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+      if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+      if (!~touchings.top.indexOf(t)) touchings.top.push(t);
     }
-    if (keys.down) player.yv+=properties.jumpVelocity;
-  }
-  if (blocksHave(touchings.bottom,'solid')) {
-    if (properties.yGravity>0) {
-      player.xv=(player.xv-properties.xDefaultVelocity)*properties.friction+properties.xDefaultVelocity;
-      if (keys.left&&!keys.right) player.xv-=properties.lateralAcceleration;
-      else if (!keys.left&&keys.right) player.xv+=properties.lateralAcceleration;
+    if ((player.y+HEIGHT)%1===0) for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++) {
+      t=ridBlockState(map[`${i},${player.y+HEIGHT}`]);
+      if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+      if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+      if (!~touchings.bottom.indexOf(t)) touchings.bottom.push(t);
     }
-    if (keys.up) player.yv-=properties.jumpVelocity;
-  }
-  if (blocksHave(touchings.left,'solid')) {
-    if (properties.xGravity<0) {
-      player.yv=(player.yv-properties.yDefaultVelocity)*properties.friction+properties.yDefaultVelocity;
-      if (keys.up&&!keys.down) player.yv-=properties.lateralAcceleration;
-      else if (!keys.up&&keys.down) player.yv+=properties.lateralAcceleration;
+    for (var array in touchings) {
+      touchings[array].sort((a,b)=>(a=blockData[a]?blockData[a].priority:0,b=blockData[b]?blockData[b].priority:0,b-a));
+      touchings[array]=touchings[array].filter(a=>!!blockData[a]);
     }
-    if (keys.down) player.yv+=properties.jumpVelocity;
-  }
-  if (blocksHave(touchings.right,'solid')) {
-    if (properties.xGravity>0) {
-      player.yv=(player.yv-properties.yDefaultVelocity)*properties.friction+properties.yDefaultVelocity;
-      if (keys.up&&!keys.down) player.yv-=properties.lateralAcceleration;
-      else if (!keys.up&&keys.down) player.yv+=properties.lateralAcceleration;
+    for (var prop in properties) {
+      properties[prop+'amp']=1;
+      properties[prop+'Is prop still unfound?']=true;
+      for (var i=0,t;i<touchings.all.length;i++) {
+        if ((t=blockData[touchings.all[i]][prop+"Amplifier"])!==undefined) properties[prop+'amp']*=t;
+        if (properties[prop+'Is prop still unfound?']&&(t=blockData[touchings.all[i]][prop])!==undefined)
+          properties[prop]=t,properties[prop+'Is prop still unfound?']=false;
+      }
+      properties[prop]*=properties[prop+'amp'];
+      delete properties[prop+'amp'];
+      delete properties[prop+'Is prop still unfound?'];
     }
-    if (keys.up) player.yv-=properties.jumpVelocity;
+    player.xv+=properties.xGravity;
+    player.yv+=properties.yGravity;
+    if (keys.left&&!keys.right) player.xv-=properties.xMoveSpeed;
+    else if (!keys.left&&keys.right) player.xv+=properties.xMoveSpeed;
+    if (keys.up&&!keys.down) player.yv-=properties.yMoveSpeed;
+    else if (!keys.up&&keys.down) player.yv+=properties.yMoveSpeed;
+    if (blocksHave(touchings.top,'solid')) {
+      if (properties.yGravity<0) {
+        player.xv=(player.xv-properties.xDefaultVelocity)*properties.friction+properties.xDefaultVelocity;
+        if (keys.left&&!keys.right) player.xv-=properties.lateralAcceleration;
+        else if (!keys.left&&keys.right) player.xv+=properties.lateralAcceleration;
+      }
+      if (keys.down) player.yv+=properties.jumpVelocity;
+    }
+    if (blocksHave(touchings.bottom,'solid')) {
+      if (properties.yGravity>0) {
+        player.xv=(player.xv-properties.xDefaultVelocity)*properties.friction+properties.xDefaultVelocity;
+        if (keys.left&&!keys.right) player.xv-=properties.lateralAcceleration;
+        else if (!keys.left&&keys.right) player.xv+=properties.lateralAcceleration;
+      }
+      if (keys.up) player.yv-=properties.jumpVelocity;
+    }
+    if (blocksHave(touchings.left,'solid')) {
+      if (properties.xGravity<0) {
+        player.yv=(player.yv-properties.yDefaultVelocity)*properties.friction+properties.yDefaultVelocity;
+        if (keys.up&&!keys.down) player.yv-=properties.lateralAcceleration;
+        else if (!keys.up&&keys.down) player.yv+=properties.lateralAcceleration;
+      }
+      if (keys.right) player.xv+=properties.jumpVelocity;
+    }
+    if (blocksHave(touchings.right,'solid')) {
+      if (properties.xGravity>0) {
+        player.yv=(player.yv-properties.yDefaultVelocity)*properties.friction+properties.yDefaultVelocity;
+        if (keys.up&&!keys.down) player.yv-=properties.lateralAcceleration;
+        else if (!keys.up&&keys.down) player.yv+=properties.lateralAcceleration;
+      }
+      if (keys.left) player.xv-=properties.jumpVelocity;
+    }
+    player.xv=(player.xv-properties.xDefaultVelocity)*properties.xAirResist+properties.xDefaultVelocity;
+    player.yv=(player.yv-properties.yDefaultVelocity)*properties.yAirResist+properties.yDefaultVelocity;
+    if (blocksHave(touchings.left,'solid')&&player.xv<properties.xGravity||blocksHave(touchings.right,'solid')&&player.xv>properties.xGravity)
+      if (keys.left||keys.right) {
+        player.xv*=-properties.wallBounciness;
+        if (keys.up&&!blocksHave(touchings.bottom,'solid')) player.yv-=properties.wallJumpVelocity;
+        if (keys.down&&!blocksHave(touchings.top,'solid')) player.yv+=properties.wallJumpVelocity;
+      }
+    if (blocksHave(touchings.top,'solid')&&player.yv<properties.yGravity||blocksHave(touchings.bottom,'solid')&&player.yv>properties.yGravity)
+      if (keys.up||keys.down) {
+        player.yv*=-properties.wallBounciness;
+        if (keys.right&&!blocksHave(touchings.right,'solid')) player.xv-=properties.wallJumpVelocity;
+        if (keys.left&&!blocksHave(touchings.left,'solid')) player.xv+=properties.wallJumpVelocity;
+      }
+    player.updateVelocities();
+    player.updatePositions();
+    scroll.x+=((-player.x-WIDTH/2)*BLOCKSIZE-scroll.x)/CAMERA_GLIDE_SPEED;
+    scroll.y+=((-player.y-HEIGHT/2)*BLOCKSIZE-scroll.y)/CAMERA_GLIDE_SPEED;
   }
-  player.xv=(player.xv-properties.xDefaultVelocity)*properties.xAirResist+properties.xDefaultVelocity;
-  player.yv=(player.yv-properties.yDefaultVelocity)*properties.yAirResist+properties.yDefaultVelocity;
-  if (blocksHave(touchings.left,'solid')&&player.xv<0||blocksHave(touchings.right,'solid')&&player.xv>0)
-    if (keys.left||keys.right) player.xv*=-0.5,
-      player.yv+=keys.up&&!blocksHave(touchings.bottom,'solid')?-0.1:keys.down&&!blocksHave(touchings.top,'solid')?0.1:0;
-  if (blocksHave(touchings.top,'solid')&&player.yv<0||blocksHave(touchings.bottom,'solid')&&player.yv>0)
-    if (keys.up||keys.bottom) player.yv*=-0.5,
-      player.xv+=keys.right&&!blocksHave(touchings.right,'solid')?-0.1:keys.left&&!blocksHave(touchings.left,'solid')?0.1:0;
-  player.updateVelocities();
-  player.updatePositions();
+  renderLevel();
   c.fillStyle='#E91E63';
   c.fillRect(player.x*BLOCKSIZE+scroll.x,player.y*BLOCKSIZE+scroll.y,WIDTH*BLOCKSIZE,HEIGHT*BLOCKSIZE);
-  scroll.x+=((-player.x-WIDTH/2)*BLOCKSIZE-scroll.x)/CAMERA_GLIDE_SPEED;
-  scroll.y+=((-player.y-HEIGHT/2)*BLOCKSIZE-scroll.y)/CAMERA_GLIDE_SPEED;
   c.fillStyle='rgba(255,0,0,0.8)';
   c.font="15px monospace";
   c.textAlign='center';
@@ -298,6 +702,7 @@ function render() {
   else window.requestAnimationFrame(render);
 }
 window.requestAnimationFrame(render);
+};
     </script>
   </body>
   <!-- MADE BY SEAN -->
