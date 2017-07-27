@@ -36,21 +36,21 @@
       }
       #modetoggle {
         position: fixed;
-        bottom: 0;
-        left: 0;
+        bottom: 70px;
+        right: 5px;
         background-color: rgba(0,0,0,0.5);
         box-shadow: 0 0 3px rgba(0,0,0,0.3);
         padding: 5px;
         margin: 10px;
         border-radius: 25px;
-        height: 30px;
+        width: 30px;
         cursor: pointer;
       }
       #modetoggle img {
-        height: 100%;
+        width: 100%;
       }
       #modetoggle img:first-child {
-        margin-right: 10px;
+        margin-bottom: 10px;
       }
       #modetoggle::after {
         content: '';
@@ -61,15 +61,15 @@
         width: 50px;
         border-radius: 50%;
         display: block;
-        top: -5px;
-        transition: left .2s;
+        left: -5px;
+        transition: top .2s;
         z-index: -1;
       }
       body.play #modetoggle::after {
-        left: -5px;
+        top: 35px;
       }
       body.edit #modetoggle::after {
-        left: 35px;
+        top: -5px;
       }
       #ui .modeuis {
         opacity: 0;
@@ -93,6 +93,7 @@
         padding: 0;
         height: 521px;
         counter-reset: hotbarnumber;
+        z-index: 1;
       }
       #hotbar li {
         display: block;
@@ -144,6 +145,10 @@
       #hotbar #hotbardivider::before {
         display: none;
       }
+      #hotbar li sheep-block::before {
+        font-size: 12px;
+        height: 12px;
+      }
       #inv {
         position: fixed;
         top: 0;
@@ -159,11 +164,37 @@
         opacity: 0;
         transform: translateX(-10px);
         transition: all .2s;
+        z-index: 0;
       }
       .openinv #inv {
         pointer-events: all;
         opacity: 1;
         transform: translateX(0);
+      }
+      @media (max-height:521px) {
+        #hotbar {
+          margin: 0;
+          height: 100vh;
+        }
+        #hotbar li {
+          height: calc(40vh / 5.21);
+          width: calc(40vh / 5.21);
+          margin: calc(10vh / 5.21);
+          font-size: calc(20vh / 5.21);
+        }
+        #hotbar li::before {
+          font-size: calc(20vh / 5.21);
+          line-height: calc(40vh / 5.21);
+          width: calc(40vh / 5.21);
+        }
+        #hotbar li sheep-block {
+          height: calc(40vh / 5.21);
+          width: calc(40vh / 5.21);
+        }
+        #inv {
+          height: 100vh;
+          left: calc(70vh / 5.21);
+        }
       }
       #blocklist {
         margin: 0;
@@ -216,11 +247,11 @@
         opacity: 0;
         transition: all .2s;
       }
-      :hover > sheep-block {
+      :hover > sheep-block, sheep-block.hover {
         z-index: 1;
         transition: none;
       }
-      :hover > sheep-block::before {
+      :hover > sheep-block::before, sheep-block.hover::before {
         opacity: 1;
         left: 100%;
       }
@@ -262,14 +293,52 @@
         from {opacity: 1;}
         to {opacity: 0;}
       }
+      #joystick {
+        display: none;
+        position: fixed;
+        box-sizing: border-box;
+        top: 100px;
+        left: 100px;
+        margin-top: -40px;
+        margin-left: -40px;
+        height: 80px;
+        width: 80px;
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+      }
+      #joystick div {
+        position: absolute;
+        margin: auto;
+        left: 0;
+        right: 0;
+        bottom: 50%;
+        width: 0;
+        transform-origin: bottom center;
+        height: 0%;
+        transform: rotate(0deg);
+      }
+      #joystick div::before {
+        content: '';
+        display: block;
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        margin-top: -20px;
+        margin-left: -20px;
+        background-color: rgba(255,255,255,0.5);
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+      }
     </style>
   </head>
   <body class='play'>
     <canvas id="stage"></canvas>
     <!-- Sorry! I know canvases are boring to inspect element :/ -->
     <div id="ui">
-      <span id='modetoggle'><img src="../icons/materialicon_play_arrow.svg"><img src="../icons/materialicon_edit.svg"></span>
-      <div class="modeuis" id="playui"></div>
+      <span id='modetoggle'><img src="../icons/materialicon_edit.svg"><img src="../icons/materialicon_play_arrow.svg"></span>
+      <div class="modeuis" id="playui">
+        <div id="joystick"><div></div></div>
+      </div>
       <div class="modeuis" id="editui">
         <ul id='hotbar'><li id='hotbardivider'></li><li id='openinv'></li></ul>
         <div id="inv">
@@ -304,8 +373,9 @@ openinv=document.querySelector('#openinv'),
 inv=document.querySelector('#inv'),
 blocklist=document.querySelector('#blocklist'),
 action=document.querySelector('sheep-action'),
+joystick=document.querySelector('#joystick'),
 timeouts=[],
-mouse={down:false,x:0,y:0},
+mouse={down:false,x:0,y:0,scrolling:false},
 keys={},
 hotbarblocks='air solid water gravity win lava jumpboost mud ice'.split(' '),
 currenthoveredblock;
@@ -323,21 +393,49 @@ document.onmousedown=e=>{
 }
 document.onmousemove=e=>[mouse.x,mouse.y]=[e.clientX-window.innerWidth/2,e.clientY-window.innerHeight/2];
 document.onmouseup=e=>mouse.down=false;
-document.ontouchstart=e=>document.ontouchmove(e,ui.contains(e.changedTouches[0].target)?0:mouse.down=true);
-document.ontouchmove=e=>[mouse.x,mouse.y]=[e.changedTouches[0].clientX-window.innerWidth/2,e.changedTouches[0].clientY-window.innerHeight/2];
-document.ontouchend=e=>mouse.down=false;
+document.ontouchstart=e=>{
+  document.ontouchmove(e,ui.contains(e.changedTouches[0].target)?0:mouse.down=true);
+  if (ui.contains(e.changedTouches[0].target)) e.target.click();
+  if (!editing&&!ui.contains(e.changedTouches[0].target)) {
+    joystick.style.display='block';
+    joystick.style.left=e.changedTouches[0].clientX+'px';
+    joystick.style.top=e.changedTouches[0].clientY+'px';
+  }
+};
+document.ontouchmove=e=>{
+  [mouse.x,mouse.y]=[e.changedTouches[0].clientX-window.innerWidth/2,e.changedTouches[0].clientY-window.innerHeight/2];
+  if (!editing&&!ui.contains(e.changedTouches[0].target)) {
+    if (!mouse.init) mouse.init=[mouse.x,mouse.y];
+    var degrees=Math.atan((mouse.x-mouse.init[0])/(mouse.init[1]-mouse.y))/Math.PI*180+180*(mouse.init[1]-mouse.y<0),
+    dist=Math.min(Math.hypot(mouse.x-mouse.init[0],mouse.y-mouse.init[1]),40);
+    joystick.children[0].style.height=dist+'px';
+    joystick.children[0].style.transform=`rotate(${degrees}deg)`;
+    keys.up=dist>20&&degrees>-67.5&&degrees<67.5;
+    keys.right=dist>20&&degrees>22.5&&degrees<157.5;
+    keys.down=dist>20&&degrees>112.5&&degrees<247.5;
+    keys.left=dist>20&&degrees>202.5||degrees<-22.5;
+  }
+};
+document.ontouchend=e=>{
+  mouse.down=false;
+  if (!editing&&!ui.contains(e.changedTouches[0].target)) {
+    mouse.init=null;
+    joystick.style.display='none';
+    keys.up=keys.right=keys.down=keys.left=false;
+  }
+  return false;
+};
 document.onkeydown=e=>{
   if (e.keyCode>48&&e.keyCode<58&&editing) {
     hotbar.children[e.keyCode-49].click();
     if (currenthoveredblock) {
       var t=hotbarblocks.indexOf(currenthoveredblock);
       if (~t) {
-        hotbarblocks[t]=hotbarblocks[hotbarblocks.equipped];
-        hotbarblocks['update'+t]();
+        hotbarblocks[t]=hotbarblocks['update'+t].block=hotbarblocks[hotbarblocks.equipped];
       }
-      hotbarblocks[hotbarblocks.equipped]=currenthoveredblock;
-      hotbarblocks['update'+hotbarblocks.equipped]();
+      hotbarblocks[hotbarblocks.equipped]=hotbarblocks['update'+hotbarblocks.equipped].block=currenthoveredblock;
       CURRENT_BLOCK=currenthoveredblock;
+      hotbar.children[hotbarblocks.equipped].click();
     }
   }
   switch (e.keyCode) {
@@ -363,6 +461,9 @@ document.onkeydown=e=>{
     case 16:keys.shift=1;break;
     case 69:
       openinv.click();
+      break;
+    case 77:
+      modetoggle.click();
       break;
   }
 };
@@ -413,6 +514,9 @@ hotbar.onclick=e=>{
       e.target.classList.add('equipped');
       hotbarblocks.equipped=getChildIndex(e.target);
       CURRENT_BLOCK=hotbarblocks[hotbarblocks.equipped];
+      clearTimeout(timeouts['hov'+hotbarblocks.equipped]);
+      e.target.children[0].classList.add('hover');
+      timeouts['hov'+hotbarblocks.equipped]=setTimeout(()=>e.target.children[0].classList.remove('hover'),750);
     }
   }
 };
@@ -421,30 +525,37 @@ blocklist.onclick=e=>{
     if (currenthoveredblock) {
       var t=hotbarblocks.indexOf(currenthoveredblock);
       if (~t) {
-        hotbarblocks[t]=hotbarblocks[hotbarblocks.equipped];
-        hotbarblocks['update'+t]();
+        hotbarblocks[t]=hotbarblocks['update'+t].block=hotbarblocks[hotbarblocks.equipped];
       }
-      hotbarblocks[hotbarblocks.equipped]=currenthoveredblock;
-      hotbarblocks['update'+hotbarblocks.equipped]();
+      hotbarblocks[hotbarblocks.equipped]=hotbarblocks['update'+hotbarblocks.equipped].block=currenthoveredblock;
       CURRENT_BLOCK=currenthoveredblock;
+      hotbar.children[hotbarblocks.equipped].click();
     }
   }
 };
+class BlockElement {
+  constructor(block) {
+    this.elem=document.createElement("sheep-block");
+    this.block=block;
+  }
+  get block() {
+    return this._block;
+  }
+  set block(block) {
+    this._block=block;
+    this.elem.style.backgroundColor=getBlockProperty(block,'colour')||'transparent';
+    this.elem.style.transform=`rotate(${getBlockProperty(block,'rotate')*90||0}deg)`;
+    this.elem.dataset.blockname=getBlockProperty(block,'name')||'';
+  }
+}
 (function() {
   var t=document.createDocumentFragment();
   for (var i=0;i<9;i++) {
     var wrapper=document.createElement("li"),
-    blockelem=document.createElement("sheep-block");
+    blockelem=new BlockElement(hotbarblocks[i]);
     if (i===0) wrapper.classList.add('equipped');
-    ((i,blockelem)=>{
-      hotbarblocks['update'+i]=()=>{
-        blockelem.style.backgroundColor=getBlockProperty(hotbarblocks[i],'colour')||'transparent';
-        blockelem.style.transform=`rotate(${getBlockProperty(hotbarblocks[i],'rotate')*90||0}deg)`;
-        blockelem.dataset.blockname=getBlockProperty(hotbarblocks[i],'name')||'Mr. Nameless';
-      };
-      hotbarblocks['update'+i]();
-    })(i,blockelem);
-    wrapper.appendChild(blockelem);
+    hotbarblocks['update'+i]=blockelem;
+    wrapper.appendChild(blockelem.elem);
     t.appendChild(wrapper);
   }
   hotbar.insertBefore(t,hotbar.firstChild);
@@ -452,19 +563,16 @@ blocklist.onclick=e=>{
   for (var block in blockData) {
     if (!blockData[block].ignore) {
       var wrapper=document.createElement("li"),
-      blockelem=document.createElement("sheep-block");
+      blockelem=new BlockElement(block);
       (block=>{
-        wrapper.onmouseenter=e=>{
+        wrapper.onmouseenter=wrapper.ontouchstart=e=>{
           currenthoveredblock=block;
         };
-        wrapper.onmouseleave=e=>{
+        wrapper.onmouseleave=wrapper.ontouchend=e=>{
           if (currenthoveredblock===block) currenthoveredblock=undefined;
         };
       })(block);
-      blockelem.style.backgroundColor=getBlockProperty(block,'colour')||'transparent';
-      blockelem.style.transform=`rotate(${getBlockProperty(block,'rotate')*90||0}deg)`;
-      blockelem.dataset.blockname=getBlockProperty(block,'name')||'Mr. Nameless';
-      wrapper.appendChild(blockelem);
+      wrapper.appendChild(blockelem.elem);
       t.appendChild(wrapper);
     }
   }
