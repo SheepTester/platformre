@@ -131,6 +131,15 @@ var blockData={
     "name":"Right accelerator",
     "colour":"#004D40",
     "xDefaultVelocity":0.075
+  },
+  "text":{
+    "priority":1,
+    "extends":"solid",
+    "name":"Label block",
+    "colour":"#eee",
+    "ontouch":function(data){
+      return "say:"+atob(data.block.state);
+    }
   }
 };
 function ridExtends(block) { // also color -> colour for Trump-like people
@@ -147,3 +156,25 @@ function ridExtends(block) { // also color -> colour for Trump-like people
   }
 }
 for (var block in blockData) ridExtends(block);
+/*{
+  keys:KEYS,
+  xpos:XPOS,
+  ypos:YPOS,
+  xvel:XVEL,
+  yvel:YVEL,
+  block:{
+    name:BLOCK,
+    state:BLOCKSTATE,
+    rotation:ROTATION,
+    x:BLOCKX,
+    y:BLOCKY
+  },
+  powerup:{
+    name:POWERUP,
+    time:POWERUPTIME,
+    range:POWERUPRANGE
+  },
+  triggerSource:TRIGGERSOURCE,
+  contactSide:CONTACTSIDE,
+  blockAt:GETBLOCKATXYFUNCTION
+}*/

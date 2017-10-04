@@ -9,20 +9,19 @@
       body {
         margin: 0;
         font-size: 0;
-        background-color: #E9EEF2;
         font-family: sans-serif;
         line-height: 1;
       }
       body.darken {
-        background-color: #888;
+        /*background-color: #888;*/
+        filter: grayscale() brightness(50%);
+        pointer-events: none;
       }
       canvas {
         width: 100%;
         height: 100%;
         cursor: default;
-      }
-      body.darken canvas {
-        filter: grayscale();
+        background-color: #E9EEF2;
       }
       body.edit canvas {
         cursor: cell;
@@ -34,7 +33,7 @@
         -ms-user-select: none;
         user-select: none;
       }
-      #modetoggle {
+      #modetoggle, #faroj {
         position: fixed;
         bottom: 70px;
         right: 5px;
@@ -46,7 +45,7 @@
         width: 30px;
         cursor: pointer;
       }
-      #modetoggle img {
+      #modetoggle img, #faroj img {
         width: 100%;
       }
       #modetoggle img:first-child {
@@ -91,7 +90,7 @@
         bottom: 0;
         box-sizing: border-box;
         padding: 0;
-        height: 521px;
+        height: 571px;
         counter-reset: hotbarnumber;
         z-index: 1;
       }
@@ -131,6 +130,9 @@
         color: white;
         text-shadow: 0 0 3px rgba(0,0,0,0.4);
       }
+      #hotbar #pan::before {
+        content: '0';
+      }
       #hotbar #openinv::before {
         content: '•••';
       }
@@ -156,8 +158,8 @@
         bottom: 0;
         right: 10px;
         margin: auto 0;
-        height: 521px;
-        max-width: 521px;
+        height: 571px;
+        max-width: 571px;
         background-color: rgba(0,0,0,0.5);
         box-shadow: 0 0 3px rgba(0,0,0,0.3);
         pointer-events: none;
@@ -171,29 +173,29 @@
         opacity: 1;
         transform: translateX(0);
       }
-      @media (max-height:521px) {
+      @media (max-height:571px) {
         #hotbar {
           margin: 0;
           height: 100vh;
         }
         #hotbar li {
-          height: calc(40vh / 5.21);
-          width: calc(40vh / 5.21);
-          margin: calc(10vh / 5.21);
-          font-size: calc(20vh / 5.21);
+          height: calc(40vh / 5.71);
+          width: calc(40vh / 5.71);
+          margin: calc(10vh / 5.71);
+          font-size: calc(20vh / 5.71);
         }
         #hotbar li::before {
-          font-size: calc(20vh / 5.21);
-          line-height: calc(40vh / 5.21);
-          width: calc(40vh / 5.21);
+          font-size: calc(20vh / 5.71);
+          line-height: calc(40vh / 5.71);
+          width: calc(40vh / 5.71);
         }
         #hotbar li sheep-block {
-          height: calc(40vh / 5.21);
-          width: calc(40vh / 5.21);
+          height: calc(40vh / 5.71);
+          width: calc(40vh / 5.71);
         }
         #inv {
           height: 100vh;
-          left: calc(70vh / 5.21);
+          left: calc(70vh / 5.71);
         }
       }
       #blocklist {
@@ -226,7 +228,7 @@
       }
       sheep-block::before {
         content: attr(data-blockname);
-        display: table-cell;
+        display: inline-block;
         position: absolute;
         left: 90%;
         font-size: 8px;
@@ -329,21 +331,162 @@
         background-color: rgba(255,255,255,0.5);
         box-shadow: 0 0 3px rgba(0,0,0,0.3);
       }
+      #faroj {
+        bottom: 170px;
+        cursor: default;
+      }
+      #faroj img {
+        cursor: pointer;
+        border-radius: 50%;
+        opacity: 0.8;
+        transition: all .2s;
+      }
+      #faroj img:hover {
+        opacity: 1;
+        /*filter: drop-shadow(0 0 3px white);*/
+      }
+      #faroj img:first-child {
+        margin-bottom: -5px;
+      }
+      #faroj img.none {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+      #menutoggle {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 40px;
+        width: 40px;
+        background-color: rgba(0,0,0,0.5);
+        border-radius: 50%;
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+        margin: 10px;
+        cursor: pointer;
+        transition: all .2s;
+        background-image: url('../icons/materialicon_expand_more.svg'),url('../icons/materialicon_expand_less.svg');
+        background-repeat: no-repeat;
+        background-size: 40px;
+        background-position-y: 0,-40px;
+      }
+      #menu {
+        display: flex;
+        position: fixed;
+        margin: 0;
+        padding: 0;
+        padding-right: 60px;
+        list-style: none;
+        height: 60px;
+        width: 100%;
+        top: -60px;
+        left: 0;
+        box-sizing: border-box;
+        opacity: 0;
+        pointer-events: none;
+        transition: all .2s;
+      }
+      #menu li {
+        flex: 1 0 0;
+        text-align: center;
+        box-sizing: border-box;
+        padding: 10px;
+        cursor: pointer;
+        color: rgba(255,255,255,0.8);
+        transition: all .2s;
+        position: relative;
+      }
+      /*#menu li::after, #menu li::before {
+        content: '';
+        display: block;
+        width: 0;
+        height: 0;
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin: 0 auto;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+        opacity: 0;
+        transition: all .2s;
+      }*/
+      #menu li::before {
+        top: 0;
+        border-top: 5px solid rgba(255,255,255,0.7);
+      }
+      #menu li::after {
+        bottom: 0;
+        border-bottom: 5px solid rgba(255,255,255,0.7);
+      }
+      #menu li:hover, #menu li.active {
+        background-color: rgba(255,255,255,0.2);
+      }
+      /*#menu li:hover::after, #menu li:hover::before {
+        opacity: 1;
+      }*/
+      #menu li span {
+        font-size: 40px;
+      }
+      #menu li ul {
+        display: flex;
+        position: fixed;
+        margin: 0;
+        padding: 0;
+        margin-top: 10px;
+        opacity: 0;
+        pointer-events: none;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background-color: rgba(255,255,255,0.7);
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+        cursor: default;
+        transition: all .2s;
+      }
+      #menu li:hover > ul, #menu li.active > ul {
+        opacity: 1;
+        pointer-events: all;
+      }
+      #menu li ul li {
+        color: rgba(0,0,0,0.8);
+      }
+      #menu li ul li:hover, #menu li ul li.active {
+        background-color: rgba(0,0,0,0.1);
+      }
+      .openmenu #menutoggle {
+        background-color: rgba(255,255,255,0.5);
+        background-position-y: 40px,0;
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+      }
+      .openmenu #menu {
+        top: 0;
+        opacity: 1;
+        pointer-events: all;
+        background-color: rgba(0,0,0,0.5);
+        box-shadow: 0 0 3px rgba(0,0,0,0.3);
+      }
     </style>
   </head>
   <body class='play'>
     <canvas id="stage"></canvas>
     <!-- Sorry! I know canvases are boring to inspect element :/ -->
     <div id="ui">
-      <span id='modetoggle'><img src="../icons/materialicon_edit.svg"><img src="../icons/materialicon_play_arrow.svg"></span>
-      <div class="modeuis" id="playui">
-        <div id="joystick"><div></div></div>
-      </div>
+      <span id='modetoggle'><img src="../icons/materialicon_edit.svg" draggable="false"><img src="../icons/materialicon_play_arrow.svg" draggable="false"></span>
+      <div id="joystick"><div></div></div>
+      <ul id="menu">
+        <li><span>H</span><ul><li><span>I</span></li><li><span>A</span><ul><li><span>I</span></li></ul></li></ul></li>
+        <li><span>E</span></li>
+        <li><span>L</span></li>
+        <li><span>L</span></li>
+        <li><span>O</span></li>
+      </ul>
+      <div id="menutoggle"></div>
+      <div class="modeuis" id="playui"></div>
       <div class="modeuis" id="editui">
-        <ul id='hotbar'><li id='hotbardivider'></li><li id='openinv'></li></ul>
+        <ul id='hotbar'><li id='pan'></li><li id='hotbardivider'></li><li id='openinv'></li></ul>
         <div id="inv">
           <ul id='blocklist'></ul>
         </div>
+        <div id="faroj"><img src="../icons/materialicon_undo.svg" draggable="false" id='malfari' class="none"><img src="../icons/materialicon_redo.svg" draggable="false" id='refari' class="none"></div>
       </div>
       <sheep-action>DEKSTRA MUSKLAKO</sheep-action>
       <!-- Here's some stuff that you can actually play with :) -->
@@ -374,11 +517,16 @@ inv=document.querySelector('#inv'),
 blocklist=document.querySelector('#blocklist'),
 action=document.querySelector('sheep-action'),
 joystick=document.querySelector('#joystick'),
+faroj=document.querySelector('#faroj'),
+menutoggle=document.querySelector('#menutoggle'),
+menu=document.querySelector('#menu'),
 timeouts=[],
 mouse={down:false,x:0,y:0,scrolling:false},
 keys={},
 hotbarblocks='air solid water gravity win lava jumpboost mud ice'.split(' '),
-currenthoveredblock;
+currenthoveredblock,
+undohistory=[],
+redohistory=[];
 hotbarblocks.equipped=0;
 document.oncontextmenu=e=>{
   if (e.target===canvas) e.preventDefault();
@@ -391,38 +539,73 @@ document.onmousedown=e=>{
     timeouts.rightclick=setTimeout(()=>(action.classList.remove('animate'),timeouts.rightclick=0),1500);
   }
 }
-document.onmousemove=e=>[mouse.x,mouse.y]=[e.clientX-window.innerWidth/2,e.clientY-window.innerHeight/2];
-document.onmouseup=e=>mouse.down=false;
+document.onmousemove=e=>[mouse.x,mouse.y,mouse.lastactionwastouch]=[e.clientX-window.innerWidth/2,e.clientY-window.innerHeight/2,false];
+document.onmouseup=e=>mouse.down=mouse.lastactionwastouch=false;
 document.ontouchstart=e=>{
-  document.ontouchmove(e,ui.contains(e.changedTouches[0].target)?0:mouse.down=true);
-  if (ui.contains(e.changedTouches[0].target)) e.target.click();
-  if (!editing&&!ui.contains(e.changedTouches[0].target)) {
-    joystick.style.display='block';
-    joystick.style.left=e.changedTouches[0].clientX+'px';
-    joystick.style.top=e.changedTouches[0].clientY+'px';
+  if (!ui.contains(e.changedTouches[0].target)) mouse.down=true;
+  [mouse.x,mouse.y]=[e.changedTouches[0].clientX-window.innerWidth/2,e.changedTouches[0].clientY-window.innerHeight/2];
+  if (!mouse.down) e.target.click();
+  if (mouse.down) {
+    if (editing) {
+      var tempredohist=redohistory.slice(0);
+      mouse.joystickstart=[mouse.x,mouse.y];
+      timeouts.scroll=setTimeout(()=>{
+        mouse.down=false;
+        mouse.joystick=[mouse.x,mouse.y];
+        joystick.style.display='block';
+        joystick.style.left=e.changedTouches[0].clientX+'px';
+        joystick.style.top=e.changedTouches[0].clientY+'px';
+        faroj.children[0].click();
+        redohistory=tempredohist;
+        redohistory.length?faroj.children[1].classList.remove('none'):faroj.children[1].classList.add('none');
+      },700);
+    } else {
+      mouse.joystick=[mouse.x,mouse.y];
+      joystick.style.display='block';
+      joystick.style.left=e.changedTouches[0].clientX+'px';
+      joystick.style.top=e.changedTouches[0].clientY+'px';
+    }
   }
+  mouse.lastactionwastouch=true;
 };
 document.ontouchmove=e=>{
   [mouse.x,mouse.y]=[e.changedTouches[0].clientX-window.innerWidth/2,e.changedTouches[0].clientY-window.innerHeight/2];
-  if (!editing&&!ui.contains(e.changedTouches[0].target)) {
-    if (!mouse.init) mouse.init=[mouse.x,mouse.y];
-    var degrees=Math.atan((mouse.x-mouse.init[0])/(mouse.init[1]-mouse.y))/Math.PI*180+180*(mouse.init[1]-mouse.y<0),
-    dist=Math.min(Math.hypot(mouse.x-mouse.init[0],mouse.y-mouse.init[1]),40);
+  if (mouse.joystick) {
+    var degrees=Math.atan((mouse.x-mouse.joystick[0])/(mouse.joystick[1]-mouse.y))/Math.PI*180+180*(mouse.joystick[1]-mouse.y<0),
+    dist=Math.min(Math.hypot(mouse.x-mouse.joystick[0],mouse.y-mouse.joystick[1]),40);
     joystick.children[0].style.height=dist+'px';
     joystick.children[0].style.transform=`rotate(${degrees}deg)`;
-    keys.up=dist>20&&degrees>-67.5&&degrees<67.5;
-    keys.right=dist>20&&degrees>22.5&&degrees<157.5;
-    keys.down=dist>20&&degrees>112.5&&degrees<247.5;
-    keys.left=dist>20&&degrees>202.5||degrees<-22.5;
-  }
+    if (editing) {
+      scroll.xv=Math.sin(degrees/180*Math.PI)*dist/-2;
+      scroll.yv=Math.cos(degrees/180*Math.PI)*dist/2;
+    } else {
+      keys.up=dist>20&&degrees>-67.5&&degrees<67.5;
+      keys.right=dist>20&&degrees>22.5&&degrees<157.5;
+      keys.down=dist>20&&degrees>112.5&&degrees<247.5;
+      keys.left=dist>20&&degrees>202.5||degrees<-22.5;
+    }
+  } else if (editing&&(mouse.x-mouse.joystickstart[0])**2+(mouse.y-mouse.joystickstart[1])**2>100) clearTimeout(timeouts.scroll);
+  mouse.lastactionwastouch=true;
 };
 document.ontouchend=e=>{
   mouse.down=false;
-  if (!editing&&!ui.contains(e.changedTouches[0].target)) {
-    mouse.init=null;
+  clearTimeout(timeouts.scroll);
+  if (mouse.joystick) {
+    mouse.joystick=null;
     joystick.style.display='none';
     keys.up=keys.right=keys.down=keys.left=false;
+    if (editing) scroll.xv=scroll.yv=0;
   }
+  var s=document.querySelectorAll('#menu li.active');
+  for (var i=0;i<s.length;i++) s[i].classList.remove('active');
+  if (menu.contains(e.target)) {
+    s=e.target.tagName==='LI'?e.target:e.target.tagName==='SPAN'?e.target.parentNode:0;
+    while (s.tagName==='LI') {
+      s.classList.add('active');
+      s=s.parentNode.parentNode;
+    }
+  }
+  mouse.lastactionwastouch=true;
   return false;
 };
 document.onkeydown=e=>{
@@ -437,7 +620,7 @@ document.onkeydown=e=>{
       CURRENT_BLOCK=currenthoveredblock;
       hotbar.children[hotbarblocks.equipped].click();
     }
-  }
+  } else if (e.keyCode===48&&editing) hotbar.children[9].click();
   switch (e.keyCode) {
     case 80:
       if (paused) {
@@ -464,6 +647,12 @@ document.onkeydown=e=>{
       break;
     case 77:
       modetoggle.click();
+      break;
+    case 89:
+      if ((e.ctrlKey||e.metaKey)&&!e.shiftKey) faroj.children[1].click();
+      break;
+    case 90:
+      if (e.ctrlKey||e.metaKey) faroj.children[+e.shiftKey].click();
       break;
   }
 };
@@ -513,10 +702,13 @@ hotbar.onclick=e=>{
       hotbar.getElementsByClassName('equipped')[0].classList.remove('equipped');
       e.target.classList.add('equipped');
       hotbarblocks.equipped=getChildIndex(e.target);
-      CURRENT_BLOCK=hotbarblocks[hotbarblocks.equipped];
+      if (e.target.id==='pan') CURRENT_BLOCK=null;
+      else CURRENT_BLOCK=hotbarblocks[hotbarblocks.equipped];
       clearTimeout(timeouts['hov'+hotbarblocks.equipped]);
-      e.target.children[0].classList.add('hover');
-      timeouts['hov'+hotbarblocks.equipped]=setTimeout(()=>e.target.children[0].classList.remove('hover'),750);
+      if (e.target.id!=='pan') {
+        e.target.children[0].classList.add('hover');
+        timeouts['hov'+hotbarblocks.equipped]=setTimeout(()=>e.target.children[0].classList.remove('hover'),750);
+      }
     }
   }
 };
@@ -532,6 +724,32 @@ blocklist.onclick=e=>{
       hotbar.children[hotbarblocks.equipped].click();
     }
   }
+};
+faroj.onclick=e=>{
+  if (e.target.id==='malfari'&&undohistory.length) {
+    redohistory.splice(0,0,{});
+    for (var pos in undohistory[0]) {
+      redohistory[0][pos]=map[pos];
+      if (undohistory[0][pos]!==undefined) map[pos]=undohistory[0][pos];
+      else delete map[pos];
+    }
+    undohistory.splice(0,1);
+    undohistory.length?e.target.classList.remove('none'):e.target.classList.add('none');
+    faroj.children[1].classList.remove('none');
+  } else if (e.target.id==='refari'&&redohistory.length) {
+    undohistory.splice(0,0,{});
+    for (var pos in redohistory[0]) {
+      undohistory[0][pos]=map[pos];
+      if (redohistory[0][pos]!==undefined) map[pos]=redohistory[0][pos];
+      else delete map[pos];
+    }
+    redohistory.splice(0,1);
+    redohistory.length?e.target.classList.remove('none'):e.target.classList.add('none');
+    faroj.children[0].classList.remove('none');
+  }
+};
+menutoggle.onclick=e=>{
+  document.body.classList.contains('openmenu')?document.body.classList.remove('openmenu'):document.body.classList.add('openmenu');
 };
 class BlockElement {
   constructor(block) {
@@ -633,6 +851,18 @@ function getChildIndex(child) {
   return -1;
 }
 function renderLevel() {
+  if (mouse.placeblock) mouse.down=true;
+  if (editing) {
+    if (mouse.down&&!undohistory.recording) {
+      undohistory.splice(0,0,{});
+      redohistory=[];
+      faroj.children[0].classList.remove('none');
+      faroj.children[1].classList.add('none');
+      undohistory.recording=true;
+    } else if (!mouse.down&&undohistory.recording) {
+      undohistory.recording=false;
+    }
+  }
   var t,tx,xblocks=Math.ceil(window.innerWidth/BLOCKSIZE)+1,
   xoffset=Math.floor((-window.innerWidth/2-scroll.x)/BLOCKSIZE),
   hoveredx=Math.floor((mouse.x-scroll.x)/BLOCKSIZE),
@@ -644,25 +874,39 @@ function renderLevel() {
     while (yblocks--) if (t=map[`${tx=xoffset+xblocks},${ty=yoffset+yblocks}`]) {
       c.fillStyle=getBlockProperty(t,'colour');
       if (editing&&hoveredx===tx&&hoveredy===ty) {
-        c.fillRect((tx+0.1)*BLOCKSIZE+scroll.x,(ty+0.1)*BLOCKSIZE+scroll.y,BLOCKSIZE*0.8,BLOCKSIZE*0.8);
-        if (mouse.down) map[`${tx},${ty}`]=CURRENT_BLOCK;
+        if (mouse.lastactionwastouch) c.fillRect(tx*BLOCKSIZE+scroll.x,ty*BLOCKSIZE+scroll.y,BLOCKSIZE,BLOCKSIZE);
+        else c.fillRect((tx+0.1)*BLOCKSIZE+scroll.x,(ty+0.1)*BLOCKSIZE+scroll.y,BLOCKSIZE*0.8,BLOCKSIZE*0.8);
+        if (mouse.down) {
+          if (CURRENT_BLOCK) {
+            if (undohistory.recording&&map[`${tx},${ty}`]!==CURRENT_BLOCK) undohistory[0][`${tx},${ty}`]=map[`${tx},${ty}`];
+            map[`${tx},${ty}`]=CURRENT_BLOCK;
+          }
+        }
       }
       else c.fillRect(tx*BLOCKSIZE+scroll.x,ty*BLOCKSIZE+scroll.y,BLOCKSIZE,BLOCKSIZE);
     } else if (editing&&hoveredx===tx&&hoveredy===ty) {
       c.fillStyle='rgba(0,0,0,0.1)';
-      c.fillRect((tx+0.1)*BLOCKSIZE+scroll.x,(ty+0.1)*BLOCKSIZE+scroll.y,BLOCKSIZE*0.8,BLOCKSIZE*0.8);
-      if (mouse.down) map[`${tx},${ty}`]=CURRENT_BLOCK;
+      if (!mouse.lastactionwastouch) c.fillRect((tx+0.1)*BLOCKSIZE+scroll.x,(ty+0.1)*BLOCKSIZE+scroll.y,BLOCKSIZE*0.8,BLOCKSIZE*0.8);
+      if (mouse.down) {
+        if (CURRENT_BLOCK) {
+          if (undohistory.recording&&map[`${tx},${ty}`]!==CURRENT_BLOCK) undohistory[0][`${tx},${ty}`]=map[`${tx},${ty}`];
+          map[`${tx},${ty}`]=CURRENT_BLOCK;
+        }
+      }
     }
     yblocks=_yblocks;
   }
+  if (mouse.placeblock) mouse.placeblock=mouse.down=false;
 }
 var frames=0,startTime=new Date(),fps=60;
 function render() {
   c.clearRect(-window.innerWidth/2,-window.innerHeight/2,window.innerWidth,window.innerHeight);
   frames++;
   if (editing) {
-    scroll.xv*=0.9;
-    scroll.yv*=0.9;
+    if (!mouse.lastactionwastouch) {
+      scroll.xv*=0.9;
+      scroll.yv*=0.9;
+    }
     if (keys.left) scroll.xv+=1;
     if (keys.right) scroll.xv-=1;
     if (keys.up) scroll.yv+=1;
