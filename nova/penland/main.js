@@ -15,8 +15,10 @@ var config={
   CHUNK_SIZE:16,
   TEXTURE_SIZE:1,
   HEIGHT_MAP_SIZE:4,
-  SEA_LEVEL:10
-},random=new Random(45345);
+  SEA_LEVEL:10,
+  SEED:45345,
+  CURSOR_TEXTURE_POS:[0,0]
+};
 var chunks={},
 heights={},
 blocksize=16,
@@ -57,7 +59,8 @@ var blockData={
   autumnleaves3:{colour:"#D84830"},
   gravel:{colour:"#B8BCBD"}
 },
-scrollvel={x:0,y:0};
+scrollvel={x:0,y:0,zoom:blocksize},
+generatingChunks=[];
 function resize() {
   var pxr=SHEEP.pixelratio();
   canvas.width=innerWidth*pxr;
@@ -86,9 +89,14 @@ window.addEventListener("mousemove",e=>{
 window.addEventListener("mouseup",e=>{
   mouse.down=false;
 },false);
+window.addEventListener("wheel",e=>{
+  if (e.deltaY<0) scrollvel.zoom*=-e.deltaY/250+1;
+  else scrollvel.zoom/=e.deltaY/250+1;
+},false);
 function generateHeight(chunkx) {
   var heightchunkx=Math.floor(chunkx/config.HEIGHT_MAP_SIZE)*config.HEIGHT_MAP_SIZE,
   randomness=20,
+  random=new Random(config.SEED*heightchunkx),
   height=[],
   doneheights=[];
   height[0]=height[config.CHUNK_SIZE*config.HEIGHT_MAP_SIZE-1]=0;
@@ -114,7 +122,8 @@ function generateHeight(chunkx) {
 function generateChunk(chx,chy) {
   // TEMP - actual generation one day but not now
   var blocks=[],
-  height=heights[chx]||generateHeight(chx);
+  height=heights[chx]||generateHeight(chx),
+  random=new Random(chx*chy*config.SEED);
   for (var y=0;y<config.CHUNK_SIZE;y++) {
     for (var x=0;x<config.CHUNK_SIZE;x++) {
       var h=y+chy*config.CHUNK_SIZE;
@@ -185,28 +194,72 @@ function render() {
   renderoriginy=mod((innerHeight/2-scroll.y),blocksize)-blocksize,
   idoriginy=Math.floor((scroll.y-innerHeight/2)/blocksize),
   stopy=Math.ceil(innerHeight/blocksize)+1,
-  selectedy=Math.floor((mouse.y-renderoriginy)/blocksize);
-  for (var x=0;x<stopx;x++) {
-    for (var y=0;y<stopy;y++) {
-      var bl=block(idoriginx+x,idoriginy+y),args;
+  selectedy=Math.floor((mouse.y-renderoriginy)/blocksize),
+  lastblock;
+  for (var y=0;y<stopy;y++) {
+    lastblock={};
+    for (var x=0;x<stopx;x++) {
+      var bl=block(idoriginx+x,idoriginy+y);
+      if (bl!==lastblock.block) {
+        if (lastblock.block) {
+          if (blockData[lastblock.block].colour) {
+            c.fillStyle=blockData[lastblock.block].colour;
+            c.fillRect(lastblock.startx,renderoriginy+y*blocksize,blocksize*lastblock.count,blocksize);
+          }
+          if (blockData[lastblock.block].image) for (var i=0;i<lastblock.count;i++) {
+            c.drawImage(
+              textures,
+              blockData[lastblock.block].image[0]*config.TEXTURE_SIZE,
+              blockData[lastblock.block].image[1]*config.TEXTURE_SIZE,
+              config.TEXTURE_SIZE,
+              config.TEXTURE_SIZE,
+              lastblock.startx+i*blocksize,
+              renderoriginy+y*blocksize,
+              blocksize,
+              blocksize
+            );
+          }
+        }
+        lastblock={
+          block:bl,
+          count:1,
+          startx:renderoriginx+x*blocksize
+        };
+      } else lastblock.count++;
       if (bl) {
         if (x===selectedx&&y===selectedy) {
-          var args=[renderoriginx+(x+0.1)*blocksize,renderoriginy+(y+0.1)*blocksize,blocksize*0.8,blocksize*0.8];
           if (mouse.down) block(idoriginx+x,idoriginy+y,'stone');
-        } else {
-          args=[renderoriginx+x*blocksize,renderoriginy+y*blocksize,blocksize,blocksize];
         }
-        if (blockData[bl].colour) {
-          c.fillStyle=blockData[bl].colour;
-          c.fillRect(...args);
-        }
-        if (blockData[bl].image)
-          c.drawImage(textures,blockData[bl].image[0]*config.TEXTURE_SIZE,blockData[bl].image[1]*config.TEXTURE_SIZE,config.TEXTURE_SIZE,config.TEXTURE_SIZE,...args);
       } else {
-        generateChunk(Math.floor((idoriginx+x)/config.CHUNK_SIZE),Math.floor((idoriginy+y)/config.CHUNK_SIZE));
+        ((tx,ty)=>{
+          if (!~generatingChunks.indexOf(`${tx},${ty}`)) {
+            generatingChunks.push(`${tx},${ty}`);
+            setTimeout(()=>generateChunk(tx,ty),0);
+          }
+        })(Math.floor((idoriginx+x)/config.CHUNK_SIZE),Math.floor((idoriginy+y)/config.CHUNK_SIZE));
+      }
+    }
+    if (lastblock.block) {
+      if (blockData[lastblock.block].colour) {
+        c.fillStyle=blockData[lastblock.block].colour;
+        c.fillRect(lastblock.startx,renderoriginy+y*blocksize,blocksize*lastblock.count,blocksize);
+      }
+      if (blockData[lastblock.block].image) for (var i=0;i<lastblock.count;i++) {
+        c.drawImage(
+          textures,
+          blockData[lastblock.block].image[0]*config.TEXTURE_SIZE,
+          blockData[lastblock.block].image[1]*config.TEXTURE_SIZE,
+          config.TEXTURE_SIZE,
+          config.TEXTURE_SIZE,
+          lastblock.startx+i*blocksize,
+          renderoriginy+y*blocksize,
+          blocksize,
+          blocksize
+        );
       }
     }
   }
+  c.drawImage(textures,config.CURSOR_TEXTURE_POS[0]*config.TEXTURE_SIZE,config.CURSOR_TEXTURE_POS[1]*config.TEXTURE_SIZE,config.TEXTURE_SIZE,config.TEXTURE_SIZE,renderoriginx+selectedx*blocksize,renderoriginy+selectedy*blocksize,blocksize,blocksize);
 }
 function loop() {
   if (keys[37]) scrollvel.x-=1;
@@ -217,6 +270,7 @@ function loop() {
   scrollvel.y*=0.9;
   scroll.x+=scrollvel.x;
   scroll.y+=scrollvel.y;
+  blocksize+=(scrollvel.zoom-blocksize)/5;
   render();
   window.requestAnimationFrame(loop);
 }
