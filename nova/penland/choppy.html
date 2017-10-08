@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Will it be choppy? - UGWA</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+      body{max-width:1000px;margin:20px auto;padding:0 20px;font-family:sans-serif;}input,button,select,textarea{font:inherit;}a {text-decoration:none;}a:hover{text-decoration:underline;}
+    </style>
+  </head>
+  <body>
+    <h1>Will it be choppy?</h1>
+    <p>No rounding:</p>
+    <canvas id="c1" width="340" height="40"></canvas>
+    <p>Rounding to nearest int:</p>
+    <canvas id="c2" width="340" height="40"></canvas>
+    <p>no.</p>
+    <script type="text/javascript">
+      var c1=document.querySelector('#c1').getContext('2d'),
+      c2=document.querySelector('#c2').getContext('2d');
+      function render() {
+        var x=Math.sin(new Date().getTime()/500)*150+150;
+        c1.clearRect(0,0,340,40);
+        c1.fillRect(x,0,40,40);
+        c2.clearRect(0,0,340,40);
+        c2.fillRect(Math.round(x),0,40,40);
+        window.requestAnimationFrame(render);
+      }
+      window.requestAnimationFrame(render);
+    </script>
+  </body>
+</html>

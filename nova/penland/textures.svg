@@ -1,0 +1,25 @@
+<svg viewBox="0 0 10 1" width="10" height="1" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(1,0) scale(0.0625)">
+    <!-- grass -->
+    <path fill="#1F9D06" d="M0 0 v2 l1 -1 l1 3 l1-1 l1 1 l1 -4 l1 2 l1 -1 l1 4 l1 -3 l1 2 l1 -3 l1 4 l1 -2 l1 1 l1 -4 L16 2 V0 z"/>
+  </g>
+  <g transform="translate(2,0) scale(0.0625)">
+    <!-- rose -->
+    <path d="M7 16V8h2V16z" fill="#92B344"/>
+    <path d="M4 6a4 6 0 0 0 8 0z" fill="#D03434"/>
+  </g>
+  <g transform="translate(3,0) scale(0.0625)">
+    <!-- goldenrod -->
+    <path d="M7 16V8h2V16z" fill="#92B344"/>
+    <path d="M6 12L8 2L10 12z" fill="#D0AE34"/>
+  </g>
+  <g transform="translate(4,0) scale(0.0625)">
+    <!-- myosotis -->
+    <path d="M7 16V8h2V16z" fill="#92B344"/>
+    <path d="M5 12L11 12L13 7L8 3L3 7z" fill="#0077FF"/>
+  </g>
+  <g transform="translate(5,0) scale(0.0625)">
+    <!-- tall grass -->
+    <path fill="#1F9D06" d="M4 16l2 -7l2 7zM7 16l2 -15l2 15zM10 16l2 -10l2 10zM0 16l2 -8l2 8zM12 16l2 -14l2 14zM2 16l2 -11l2 11z"/>
+  </g>
+</svg>
