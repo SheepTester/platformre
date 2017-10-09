@@ -17,7 +17,12 @@ var config={
   HEIGHT_MAP_SIZE:4,
   SEA_LEVEL:10,
   SEED:45345,
-  CURSOR_TEXTURE_POS:[0,0]
+  CURSOR_TEXTURE_POS:[0,0],
+  PLAYER:{
+    HEIGHT:1.75,
+    WIDTH:0.75
+  },
+  CAMERA_GLIDE_SPEED:3
 };
 var chunks={},
 heights={},
@@ -27,37 +32,52 @@ canvas=document.querySelector('#canvas'),
 c=canvas.getContext('2d'),
 textures=document.querySelector('#textures'),
 keys={},
-mouse={down:false,x:0,y:0};
+mouse={down:false,x:0,y:0},
+player=new Collidable(config.PLAYER.WIDTH*2,config.PLAYER.HEIGHT*2,(x,y)=>{
+  // the collision detector will see the world twice as big, so we can add stairs/slabs
+  // hopefully in the future I can implement slope detection so the player automatically goes up half-blocks
+  var bl=block(Math.floor(x/2),Math.floor(y/2));
+  if (bl) {
+    bl=blockData[bl];
+    if (bl.collision) {
+      /* 0 1
+         2 3 */
+      return bl.collision[(y%2)*2+x%2];
+    }
+    else return bl.solid;
+  }
+  else return false;
+});
 var blockData={
-  air:{colour:"#CEECFF"},
-  dirt:{colour:"#866247"},
-  grass:{colour:"#866247",image:[1,0]},
-  stone:{colour:"#919596"},
-  oaktrunk:{colour:"#74674F"},
-  oaktreaves:{colour:"#719C34"},
-  oakleaves:{colour:"#82B53C"},
-  rose:{colour:"#CEECFF",image:[2,0]},
-  goldenrod:{colour:"#CEECFF",image:[3,0]},
-  myosotis:{colour:"#CEECFF",image:[4,0]},
-  sand:{colour:"#EED38B"},
-  palmtrunk:{colour:"#D1BE94"},
-  palmtreaves:{colour:"#87BB25"},
-  palmleaves:{colour:"#99D42A"},
-  tallgrass:{colour:"#CEECFF",image:[5,0]},
-  vapour:{colour:"#FFFFFF"},
-  seawater:{colour:"#69D2E7"},
-  water:{colour:"#A7DBD8"},
-  pinetrunk:{colour:"#4E342E"},
-  pinetreaves:{colour:"#304D07"},
-  pineleaves:{colour:"#406609"},
-  autumntrunk:{colour:"#9E715C"},
-  autumntreaves1:{colour:"#D7AC56"},
-  autumnleaves1:{colour:"#F0C060"},
-  autumntreaves2:{colour:"#D78241"},
-  autumnleaves2:{colour:"#F09048"},
-  autumntreaves3:{colour:"#C0412A"},
-  autumnleaves3:{colour:"#D84830"},
-  gravel:{colour:"#B8BCBD"}
+  air:{colour:"#CEECFF",solid:0},
+  dirt:{colour:"#866247",solid:1},
+  grass:{colour:"#866247",image:[1,0],solid:1},
+  stone:{colour:"#919596",solid:1},
+  oaktrunk:{colour:"#74674F",solid:0},
+  oaktreaves:{colour:"#719C34",solid:0},
+  oakleaves:{colour:"#82B53C",solid:0},
+  rose:{colour:"#CEECFF",image:[2,0],solid:0},
+  goldenrod:{colour:"#CEECFF",image:[3,0],solid:0},
+  myosotis:{colour:"#CEECFF",image:[4,0],solid:0},
+  sand:{colour:"#EED38B",solid:1},
+  palmtrunk:{colour:"#D1BE94",solid:0},
+  palmtreaves:{colour:"#87BB25",solid:0},
+  palmleaves:{colour:"#99D42A",solid:0},
+  tallgrass:{colour:"#CEECFF",image:[5,0],solid:0},
+  vapour:{colour:"#FFFFFF",solid:0},
+  seawater:{colour:"#69D2E7",solid:0},
+  water:{colour:"#A7DBD8",solid:0},
+  pinetrunk:{colour:"#4E342E",solid:0},
+  pinetreaves:{colour:"#304D07",solid:0},
+  pineleaves:{colour:"#406609",solid:0},
+  autumntrunk:{colour:"#9E715C",solid:0},
+  autumntreaves1:{colour:"#D7AC56",solid:0},
+  autumnleaves1:{colour:"#F0C060",solid:0},
+  autumntreaves2:{colour:"#D78241",solid:0},
+  autumnleaves2:{colour:"#F09048",solid:0},
+  autumntreaves3:{colour:"#C0412A",solid:0},
+  autumnleaves3:{colour:"#D84830",solid:0},
+  gravel:{colour:"#B8BCBD",solid:1}
 },
 scrollvel={x:0,y:0,zoom:blocksize},
 generatingChunks=[];
@@ -228,7 +248,7 @@ function render() {
       } else lastblock.count++;
       if (bl) {
         if (x===selectedx&&y===selectedy) {
-          if (mouse.down) block(idoriginx+x,idoriginy+y,'stone');
+          if (mouse.down) block(idoriginx+x,idoriginy+y,'water');
         }
       } else {
         ((tx,ty)=>{
@@ -259,17 +279,26 @@ function render() {
       }
     }
   }
+  c.fillStyle='#673AB7';
+  c.fillRect(
+    renderoriginx+(player.x/2-idoriginx)*blocksize,
+    renderoriginy+(player.y/2-idoriginy)*blocksize,
+    config.PLAYER.WIDTH*blocksize,
+    config.PLAYER.HEIGHT*blocksize
+  );
   c.drawImage(textures,config.CURSOR_TEXTURE_POS[0]*config.TEXTURE_SIZE,config.CURSOR_TEXTURE_POS[1]*config.TEXTURE_SIZE,config.TEXTURE_SIZE,config.TEXTURE_SIZE,renderoriginx+selectedx*blocksize,renderoriginy+selectedy*blocksize,blocksize,blocksize);
 }
 function loop() {
-  if (keys[37]) scrollvel.x-=1;
-  if (keys[38]) scrollvel.y-=1;
-  if (keys[39]) scrollvel.x+=1;
-  if (keys[40]) scrollvel.y+=1;
-  scrollvel.x*=0.9;
-  scrollvel.y*=0.9;
-  scroll.x+=scrollvel.x;
-  scroll.y+=scrollvel.y;
+  if (keys[37]) player.xv-=0.1;
+  if (keys[38]) player.yv-=0.1;
+  if (keys[39]) player.xv+=0.1;
+  if (keys[40]) player.yv+=0.1;
+  player.xv*=0.9;
+  player.yv*=0.9;
+  player.updateVelocities();
+  player.updatePositions();
+  scroll.x+=((player.x/2+config.PLAYER.WIDTH/2)*blocksize-scroll.x)/config.CAMERA_GLIDE_SPEED;
+  scroll.y+=((player.y/2+config.PLAYER.HEIGHT/2)*blocksize-scroll.y)/config.CAMERA_GLIDE_SPEED;
   blocksize+=(scrollvel.zoom-blocksize)/5;
   render();
   window.requestAnimationFrame(loop);
