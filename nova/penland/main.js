@@ -289,10 +289,10 @@ function render() {
   c.drawImage(textures,config.CURSOR_TEXTURE_POS[0]*config.TEXTURE_SIZE,config.CURSOR_TEXTURE_POS[1]*config.TEXTURE_SIZE,config.TEXTURE_SIZE,config.TEXTURE_SIZE,renderoriginx+selectedx*blocksize,renderoriginy+selectedy*blocksize,blocksize,blocksize);
 }
 function loop() {
-  if (keys[65]) player.xv-=0.1;
-  if (keys[87]) player.yv-=0.1;
-  if (keys[68]) player.xv+=0.1;
-  if (keys[83]) player.yv+=0.1;
+  if (keys[65]) player.xv-=keys[16]?0.2:0.1;
+  if (keys[87]) player.yv-=keys[16]?0.2:0.1;
+  if (keys[68]) player.xv+=keys[16]?0.2:0.1;
+  if (keys[83]) player.yv+=keys[16]?0.2:0.1;
   player.xv*=0.9;
   player.yv*=0.9;
   player.updateVelocities();
