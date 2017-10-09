@@ -42,7 +42,7 @@ player=new Collidable(config.PLAYER.WIDTH*2,config.PLAYER.HEIGHT*2,(x,y)=>{
     if (bl.collision) {
       /* 0 1
          2 3 */
-      return bl.collision[(y%2)*2+x%2];
+      return bl.collision[mod(y,2)*2+mod(x,2)];
     }
     else return bl.solid;
   }
@@ -77,7 +77,8 @@ var blockData={
   autumnleaves2:{colour:"#F09048",solid:0},
   autumntreaves3:{colour:"#C0412A",solid:0},
   autumnleaves3:{colour:"#D84830",solid:0},
-  gravel:{colour:"#B8BCBD",solid:1}
+  gravel:{colour:"#B8BCBD",solid:1},
+  dirtslab:{colour:"#CEECFF",image:[6,0],collision:[0,0,1,1]}
 },
 scrollvel={x:0,y:0,zoom:blocksize},
 generatingChunks=[];
@@ -248,7 +249,7 @@ function render() {
       } else lastblock.count++;
       if (bl) {
         if (x===selectedx&&y===selectedy) {
-          if (mouse.down) block(idoriginx+x,idoriginy+y,'water');
+          if (mouse.down) block(idoriginx+x,idoriginy+y,Object.keys(blockData)[Math.floor(Math.random()*Object.keys(blockData).length)]);
         }
       } else {
         ((tx,ty)=>{

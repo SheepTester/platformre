@@ -27,4 +27,8 @@
     <!-- tall grass -->
     <path fill="#1F9D06" d="M4 16l2 -7l2 7zM7 16l2 -15l2 15zM10 16l2 -10l2 10zM0 16l2 -8l2 8zM12 16l2 -14l2 14zM2 16l2 -11l2 11z"/>
   </g>
+  <g transform="translate(6,0) scale(0.5)">
+    <!-- dirt slab -->
+    <path fill="#866247" d="M0 1H2v1H0z"/>
+  </g>
 </svg>
