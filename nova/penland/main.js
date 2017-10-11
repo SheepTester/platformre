@@ -57,36 +57,39 @@ var blockData={
   grass:{colour:"#866247",image:[1,0],solid:1,grainy:1},
   stone:{colour:"#919596",solid:1},
   darkerstone:{colour:"#636667",solid:1},
-  oaktrunk:{colour:"#74674F",solid:1},
-  oaktreaves:{colour:"#719C34",solid:1},
-  oakleaves:{colour:"#82B53C",solid:1},
-  oaksapling:{image:[7,0],solid:0,groundCover:1,destroyableByLiquid:1},
-  rose:{image:[2,0],solid:0,groundCover:1,destroyableByLiquid:1},
-  goldenrod:{image:[3,0],solid:0,groundCover:1,destroyableByLiquid:1},
-  myosotis:{image:[4,0],solid:0,groundCover:1,destroyableByLiquid:1},
+  oaktrunk:{colour:"#74674F",solid:1,flamable:1},
+  oaktreaves:{colour:"#719C34",solid:1,flamable:1},
+  oakleaves:{colour:"#82B53C",solid:1,flamable:1},
+  oaksapling:{image:[7,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
+  rose:{image:[2,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
+  goldenrod:{image:[3,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
+  myosotis:{image:[4,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
   sand:{colour:"#EED38B",solid:1,grainy:1},
-  palmtrunk:{colour:"#D1BE94",solid:1},
-  palmtreaves:{colour:"#87BB25",solid:1},
-  palmleaves:{colour:"#99D42A",solid:1},
-  palmsapling:{image:[9,0],solid:0,groundCover:1,destroyableByLiquid:1},
-  tallgrass:{image:[5,0],solid:0,groundCover:1,destroyableByLiquid:1},
-  vapour:{colour:"#FFFFFF",solid:0},
-  seawater:{colour:"#69D2E7",solid:0,liquid:1},
-  water:{colour:"#A7DBD8",solid:0,liquid:1},
-  pinetrunk:{colour:"#4E342E",solid:1},
-  pinetreaves:{colour:"#304D07",solid:1},
-  pineleaves:{colour:"#406609",solid:1},
-  pinesapling:{image:[8,0],solid:0,groundCover:1,destroyableByLiquid:1},
-  autumntrunk:{colour:"#9E715C",solid:1},
-  autumntreaves1:{colour:"#D7AC56",solid:1},
-  autumnleaves1:{colour:"#F0C060",solid:1},
-  autumntreaves2:{colour:"#D78241",solid:1},
-  autumnleaves2:{colour:"#F09048",solid:1},
-  autumntreaves3:{colour:"#C0412A",solid:1},
-  autumnleaves3:{colour:"#D84830",solid:1},
-  autumnsapling:{image:[0,1],solid:0,groundCover:1,destroyableByLiquid:1},
+  palmtrunk:{colour:"#D1BE94",solid:1,flamable:1},
+  palmtreaves:{colour:"#87BB25",solid:1,flamable:1},
+  palmleaves:{colour:"#99D42A",solid:1,flamable:1},
+  palmsapling:{image:[9,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
+  tallgrass:{image:[5,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
+  vapour:{colour:"#FFFFFF",solid:0,gas:1,condensesTo:"water"},
+  seawater:{colour:"#69D2E7",solid:0,liquid:1,evaporatesTo:"vapour"},
+  water:{colour:"#A7DBD8",solid:0,liquid:1,evaporatesTo:"vapour"},
+  pinetrunk:{colour:"#4E342E",solid:1,flamable:1},
+  pinetreaves:{colour:"#304D07",solid:1,flamable:1},
+  pineleaves:{colour:"#406609",solid:1,flamable:1},
+  pinesapling:{image:[8,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
+  autumntrunk:{colour:"#9E715C",solid:1,flamable:1},
+  autumntreaves1:{colour:"#D7AC56",solid:1,flamable:1},
+  autumnleaves1:{colour:"#F0C060",solid:1,flamable:1},
+  autumntreaves2:{colour:"#D78241",solid:1,flamable:1},
+  autumnleaves2:{colour:"#F09048",solid:1,flamable:1},
+  autumntreaves3:{colour:"#C0412A",solid:1,flamable:1},
+  autumnleaves3:{colour:"#D84830",solid:1,flamable:1},
+  autumnsapling:{image:[0,1],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
   gravel:{colour:"#B8BCBD",solid:1,grainy:1},
-  dirtslab:{image:[6,0],solid:1,collision:[0,0,1,1],grainy:1}
+  basalt:{colour:"#8A796C",solid:1},
+  basaltgravel:{colour:"#A48F80",solid:1,grainy:1},
+  dirtslab:{image:[6,0],solid:1,collision:[0,0,1,1],grainy:1},
+  lava:{colour:"#FF6015",solid:0,liquid:1}
 },
 scrollvel={x:0,y:0,zoom:blocksize},
 generatingChunks=[],
@@ -259,14 +262,38 @@ function updateBlock(setblock,x,y,front) {
         setblock(x,y,'void'),setblock(x,y+1,bl);
       }
       else if ((t=block(x+xmove,y,front))&&blockData[t].destroyableByLiquid) setblock(x,y,'void'),setblock(x+xmove,y,bl);
-      // else {
-      //   for (var k=1;k<9;k+=2) {
-      //     if (data.evaporatesto&&(t=block(x,y,front))&&blockData[t].destroyableByLiquid&&!Math.floor(Math.random()*200)) {
-      //       level[i][j]=getBlock(j,i).evaporatesto;
-      //       break;
-      //     }
-      //   }
-      // }
+      else {
+        for (var i=1;i<9;i+=2) {
+          if (data.evaporatesTo&&(t=block(x+Math.floor(i/3)-1,y+i%3-1,front))&&blockData[t].destroyableByLiquid&&!Math.floor(Math.random()*200)) {
+            setblock(x,y,data.evaporatesTo);
+            break;
+          } else {
+            var change=false;
+            switch (bl) {
+              case 'water':
+                if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='seawater'&&!Math.floor(Math.random()*20)) setblock(x,y,'seawater');
+                break;
+              case "lava":
+                if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='water')
+                  setblock(x+Math.floor(i/3)-1,y+i%3-1,'vapour'),setblock(x,y,'basalt');
+                else if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='seawater')
+                  setblock(x+Math.floor(i/3)-1,y+i%3-1,'vapour'),setblock(x,y,'basalt');
+                break;
+            }
+            if (change) break;
+          }
+        }
+      }
+    }
+    if (data.gas) {
+      if (data.condensesTo&&!Math.floor(Math.random()*(y>0?400:y<-380?20:400-y))) setblock(x,y,data.condensesTo);
+      else {
+        var xmove=Math.floor(Math.random()*2)?-1:1;
+        if ((t=block(x,y-1,front))&&blockData[t].destroyableByLiquid) setblock(x,y,'void'),setblock(x,y-1,bl);
+        // allows vapour to seep through corner caps:
+        else if ((t=block(x+xmove,y-1,front))&&blockData[t].destroyableByLiquid&&!Math.floor(Math.random()*10)) setblock(x,y,'void'),setblock(x+xmove,y-1,bl);
+        else if ((t=block(x+xmove,y,front))&&blockData[t].destroyableByLiquid) setblock(x,y,'void'),setblock(x+xmove,y,bl);
+      }
     }
   }
 }
@@ -275,9 +302,9 @@ function update(front) {
   playerchy=Math.floor(player.y/2/config.CHUNK_SIZE)*config.CHUNK_SIZE,
   updateradius=config.UPDATE_RADIUS*config.CHUNK_SIZE,
   temp=[],
-  setblock=(blx,bly,block)=>{
-    if (blx<=x&&bly<y) block(blx,bly,front,block);
-    else temp[`${blx},${bly}`]=block;
+  setblock=(blx,bly,bl)=>{
+    if (blx<=x&&bly<y) block(blx,bly,front,bl);
+    else temp[`${blx},${bly}`]=bl;
   };
   for (var x=playerchx-updateradius,i=0;x<=playerchx+updateradius;x++) {
     for (var y=playerchy-updateradius;y<=playerchy+updateradius;y++,i++) {
