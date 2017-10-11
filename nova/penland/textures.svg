@@ -1,4 +1,4 @@
-<svg viewBox="0 0 10 1" width="10" height="1" xmlns="http://www.w3.org/2000/svg">
+<svg width="10" height="2" xmlns="http://www.w3.org/2000/svg">
   <g transform="translate(0,0) scale(0.1)" fill="none" stroke-linecap="square">
     <!-- cursor -->
     <path stroke="#000000" stroke-width="2" d="M1 3V1H3M9 7V9H7M1 7V9H3M9 3V1H7"/>
@@ -30,5 +30,25 @@
   <g transform="translate(6,0) scale(0.5)">
     <!-- dirt slab -->
     <path fill="#866247" d="M0 1H2v1H0z"/>
+  </g>
+  <g transform="translate(7,0) scale(0.0625)">
+    <!-- oak sapling -->
+    <path d="M7 16H9L8 2z" fill="#74674F"/>
+    <circle cx="8" cy="6" r="4" fill="#82B53C"/>
+  </g>
+  <g transform="translate(8,0) scale(0.0625)">
+    <!-- pine sapling -->
+    <path d="M7 16H9L8 2z" fill="#4E342E"/>
+    <path d="M6 10H10L8 2z" fill="#406609"/>
+  </g>
+  <g transform="translate(9,0) scale(0.0625)">
+    <!-- palm sapling -->
+    <path d="M7.5 16H8.5V4H7.5z" fill="#D1BE94"/>
+    <path d="M4 6H12L8 2z" fill="#99D42A"/>
+  </g>
+  <g transform="translate(0,1) scale(0.0625)">
+    <!-- autumn sapling -->
+    <path d="M7 16H9L8 2z" fill="#9E715C"/>
+    <circle cx="8" cy="6" r="4" fill="#D84830"/>
   </g>
 </svg>
