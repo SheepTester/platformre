@@ -51,4 +51,16 @@
     <path d="M7 16H9L8 2z" fill="#9E715C"/>
     <circle cx="8" cy="6" r="4" fill="#D84830"/>
   </g>
+  <g transform="translate(1,1) scale(0.0625)">
+    <!-- fly -->
+    <circle cx="8" cy="8" r="4" fill="#C2185B"/>
+  </g>
+  <g transform="translate(2,1) scale(0.0625)">
+    <!-- block eater -->
+    <circle cx="8" cy="8" r="4" fill="#880E4F"/>
+  </g>
+  <g transform="translate(3,1) scale(0.0625)">
+    <!-- virus -->
+    <circle cx="8" cy="8" r="4" fill="#7B1FA2"/>
+  </g>
 </svg>

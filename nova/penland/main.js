@@ -51,45 +51,61 @@ player=new Collidable(config.PLAYER.WIDTH*2,config.PLAYER.HEIGHT*2,(x,y)=>{
   else return false;
 });
 var blockData={
-  void:{solid:0,destroyableByLiquid:1},
-  air:{colour:"#CEECFF",solid:0},
+  void:{solid:0,destroyable:1},
+  air:{colour:"#CEECFF",solid:0,destroyable:1},
   dirt:{colour:"#866247",solid:1,grainy:1},
   grass:{colour:"#866247",image:[1,0],solid:1,grainy:1},
-  stone:{colour:"#919596",solid:1},
+  stone:{colour:"#919596",solid:1,convertToAcidStone:1},
   darkerstone:{colour:"#636667",solid:1},
-  oaktrunk:{colour:"#74674F",solid:1,flamable:1},
-  oaktreaves:{colour:"#719C34",solid:1,flamable:1},
-  oakleaves:{colour:"#82B53C",solid:1,flamable:1},
-  oaksapling:{image:[7,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
-  rose:{image:[2,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
-  goldenrod:{image:[3,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
-  myosotis:{image:[4,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
+  oaktrunk:{colour:"#74674F",solid:1,flammable:1},
+  oaktreaves:{colour:"#719C34",solid:1,flammable:1},
+  oakleaves:{colour:"#82B53C",solid:1,flammable:1},
+  oaksapling:{image:[7,0],solid:0,groundCover:1,destroyable:1,flammable:1},
+  rose:{image:[2,0],solid:0,groundCover:1,destroyable:1,flammable:1},
+  goldenrod:{image:[3,0],solid:0,groundCover:1,destroyable:1,flammable:1},
+  myosotis:{image:[4,0],solid:0,groundCover:1,destroyable:1,flammable:1},
   sand:{colour:"#EED38B",solid:1,grainy:1},
-  palmtrunk:{colour:"#D1BE94",solid:1,flamable:1},
-  palmtreaves:{colour:"#87BB25",solid:1,flamable:1},
-  palmleaves:{colour:"#99D42A",solid:1,flamable:1},
-  palmsapling:{image:[9,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
-  tallgrass:{image:[5,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
+  palmtrunk:{colour:"#D1BE94",solid:1,flammable:1},
+  palmtreaves:{colour:"#87BB25",solid:1,flammable:1},
+  palmleaves:{colour:"#99D42A",solid:1,flammable:1},
+  palmsapling:{image:[9,0],solid:0,groundCover:1,destroyable:1,flammable:1},
+  tallgrass:{image:[5,0],solid:0,groundCover:1,destroyable:1,flammable:1},
   vapour:{colour:"#FFFFFF",solid:0,gas:1,condensesTo:"water"},
   seawater:{colour:"#69D2E7",solid:0,liquid:1,evaporatesTo:"vapour"},
   water:{colour:"#A7DBD8",solid:0,liquid:1,evaporatesTo:"vapour"},
-  pinetrunk:{colour:"#4E342E",solid:1,flamable:1},
-  pinetreaves:{colour:"#304D07",solid:1,flamable:1},
-  pineleaves:{colour:"#406609",solid:1,flamable:1},
-  pinesapling:{image:[8,0],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
-  autumntrunk:{colour:"#9E715C",solid:1,flamable:1},
-  autumntreaves1:{colour:"#D7AC56",solid:1,flamable:1},
-  autumnleaves1:{colour:"#F0C060",solid:1,flamable:1},
-  autumntreaves2:{colour:"#D78241",solid:1,flamable:1},
-  autumnleaves2:{colour:"#F09048",solid:1,flamable:1},
-  autumntreaves3:{colour:"#C0412A",solid:1,flamable:1},
-  autumnleaves3:{colour:"#D84830",solid:1,flamable:1},
-  autumnsapling:{image:[0,1],solid:0,groundCover:1,destroyableByLiquid:1,flamable:1},
+  pinetrunk:{colour:"#4E342E",solid:1,flammable:1},
+  pinetreaves:{colour:"#304D07",solid:1,flammable:1},
+  pineleaves:{colour:"#406609",solid:1,flammable:1},
+  pinesapling:{image:[8,0],solid:0,groundCover:1,destroyable:1,flammable:1},
+  autumntrunk:{colour:"#9E715C",solid:1,flammable:1},
+  autumntreaves0:{colour:"#D7AC56",solid:1,flammable:1},
+  autumnleaves0:{colour:"#F0C060",solid:1,flammable:1},
+  autumntreaves1:{colour:"#D78241",solid:1,flammable:1},
+  autumnleaves1:{colour:"#F09048",solid:1,flammable:1},
+  autumntreaves2:{colour:"#C0412A",solid:1,flammable:1},
+  autumnleaves2:{colour:"#D84830",solid:1,flammable:1},
+  autumnsapling:{image:[0,1],solid:0,groundCover:1,destroyable:1,flammable:1},
   gravel:{colour:"#B8BCBD",solid:1,grainy:1},
-  basalt:{colour:"#8A796C",solid:1},
+  basalt:{colour:"#8A796C",solid:1,convertToAcidStone:1},
   basaltgravel:{colour:"#A48F80",solid:1,grainy:1},
   dirtslab:{image:[6,0],solid:1,collision:[0,0,1,1],grainy:1},
-  lava:{colour:"#FF6015",solid:0,liquid:1}
+  lava:{colour:"#FF6015",solid:0,liquid:1},
+  fire:{colour:"#FF6540",solid:0,grainy:1},
+  charcoal:{colour:"#444444",solid:1,grainy:1},
+  explosive:{colour:"#92002C",solid:1},
+  explosion:{colour:"#FF0451",solid:0},
+  flare:{colour:"#FFF700",solid:0},
+  smoke:{colour:"#D7DACF",solid:0,gas:1,explosionProof:1},
+  acidvapour:{colour:"#CDFFCD",solid:0,gas:1,condensesTo:"contaminatedwater"},
+  acid:{colour:"#00FF00",solid:0,liquid:1,acidProof:1},
+  acidstone:{colour:"#799779",solid:1,acidProof:1},
+  acidgravel:{colour:"#95ba95",solid:1,grainy:1,acidProof:1},
+  healingliquid:{colour:"#F06292",solid:0,liquid:1},
+  contaminatedwater:{colour:"#5FBFF3",solid:0,liquid:1,acidProof:1,evaporatesTo:"acidvapour"},
+  fly:{colour:"#E91E63",solid:0,image:[1,1],healable:1},
+  blockeater:{colour:"#C2185B",solid:0,image:[2,1],healable:1},
+  livevirus:{colour:"#9C27B0",solid:1,image:[3,1],healable:1},
+  deadvirus:{colour:"#7B1FA2",solid:1,healable:1}
 },
 scrollvel={x:0,y:0,zoom:blocksize},
 generatingChunks=[],
@@ -161,11 +177,11 @@ function generateChunk(chx,chy) {
   for (var y=0;y<config.CHUNK_SIZE;y++) {
     for (var x=0;x<config.CHUNK_SIZE;x++) {
       var h=y+chy*config.CHUNK_SIZE;
-      if (height[x]<config.SEA_LEVEL) {
+      if (height[x]<config.SEA_LEVEL-3) {
         if (h<height[x]-1) backblocks.push('air'),blocks.push('void');
         else if (h===height[x]-1) {
           backblocks.push('air');
-          switch (Math.floor(random.nextFloat()*12)) {
+          switch (Math.floor(random.nextFloat()*11)) {
             case 0:
             case 1:
             case 2:
@@ -181,10 +197,7 @@ function generateChunk(chx,chy) {
               blocks.push('myosotis');
               break;
             case 6:
-              blocks.push('oaksapling');
-              break;
-            case 7:
-              blocks.push('autumnsapling');
+              blocks.push(Math.floor(random.nextFloat()*2)?'oaksapling':'autumnsapling');
               break;
             default:
               blocks.push('void');
@@ -197,7 +210,8 @@ function generateChunk(chx,chy) {
           backblocks.push('darkerstone');
         }
       } else {
-        if (h<config.SEA_LEVEL) backblocks.push('air'),blocks.push('void');
+        if (h<config.SEA_LEVEL&&h<height[x]-1) backblocks.push('air'),blocks.push('void');
+        else if (h<config.SEA_LEVEL&&h<height[x]) backblocks.push('air'),blocks.push(Math.floor(random.nextFloat()*5)?'void':'palmsapling');
         else if (h<height[x]) backblocks.push('air'),blocks.push('seawater');
         else if (h<height[x]+Math.floor(random.nextFloat()*5+3)) {
           backblocks.push('air');
@@ -243,9 +257,10 @@ function updateBlock(setblock,x,y,front) {
   if (bl) {
     if (data.grainy) {
       t=block(x,y+1,front);
-      if (t&&!blockData[t].solid) {
+      if (t&&(blockData[t].destroyable||blockData[t].groundCover||blockData[t].liquid||blockData[t].gas)) {
         setblock(x,y+1,bl);
         setblock(x,y,blockData[t].groundCover?'void':t);
+        return;
       }
     }
     if (data.groundCover) {
@@ -256,15 +271,15 @@ function updateBlock(setblock,x,y,front) {
     }
     if (data.liquid) {
       var xmove=Math.floor(Math.random()*2)?-1:1;
-      if ((t=block(x,y+1,front))&&blockData[t].destroyableByLiquid) {
-        // if ((t=block(x+xmove,y+1,front))&&blockData[t].destroyableByLiquid) setblock(x,y,'void'),setblock(x+xmove,y+1,bl);
+      if ((t=block(x,y+1,front))&&blockData[t].destroyable) {
+        // if ((t=block(x+xmove,y+1,front))&&blockData[t].destroyable) setblock(x,y,'void'),setblock(x+xmove,y+1,bl);
         // else
         setblock(x,y,'void'),setblock(x,y+1,bl);
       }
-      else if ((t=block(x+xmove,y,front))&&blockData[t].destroyableByLiquid) setblock(x,y,'void'),setblock(x+xmove,y,bl);
+      else if ((t=block(x+xmove,y,front))&&blockData[t].destroyable) setblock(x,y,'void'),setblock(x+xmove,y,bl);
       else {
         for (var i=1;i<9;i+=2) {
-          if (data.evaporatesTo&&(t=block(x+Math.floor(i/3)-1,y+i%3-1,front))&&blockData[t].destroyableByLiquid&&!Math.floor(Math.random()*200)) {
+          if (data.evaporatesTo&&(t=block(x+Math.floor(i/3)-1,y+i%3-1,front))&&blockData[t].destroyable&&!Math.floor(Math.random()*400)) {
             setblock(x,y,data.evaporatesTo);
             break;
           } else {
@@ -272,12 +287,22 @@ function updateBlock(setblock,x,y,front) {
             switch (bl) {
               case 'water':
                 if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='seawater'&&!Math.floor(Math.random()*20)) setblock(x,y,'seawater');
+                else if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='contaminatedwater'&&!Math.floor(Math.random()*20)) setblock(x,y,'contaminatedwater');
+                break;
+              case 'seawater':
+                if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='contaminatedwater'&&!Math.floor(Math.random()*20)) setblock(x,y,'contaminatedwater');
+                break;
+              case 'contaminatedwater':
+                if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='acid'&&!Math.floor(Math.random()*20)) setblock(x,y,'acid');
                 break;
               case "lava":
-                if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='water')
+                if ((t=block(x+Math.floor(i/3)-1,y+i%3-1,front))==='water'||t==='seawater')
                   setblock(x+Math.floor(i/3)-1,y+i%3-1,'vapour'),setblock(x,y,'basalt');
-                else if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='seawater')
-                  setblock(x+Math.floor(i/3)-1,y+i%3-1,'vapour'),setblock(x,y,'basalt');
+                else if (t==='contaminatedwater')
+                  setblock(x+Math.floor(i/3)-1,y+i%3-1,'vapour'),setblock(x,y,'explosion');
+                break;
+              case "healingliquid":
+                if ((t=block(x+Math.floor(i/3)-1,y+i%3-1,front))&&blockData[t].healable&&!Math.floor(Math.random()*20)) setblock(x+Math.floor(i/3)-1,y+i%3-1,'void');
                 break;
             }
             if (change) break;
@@ -289,11 +314,122 @@ function updateBlock(setblock,x,y,front) {
       if (data.condensesTo&&!Math.floor(Math.random()*(y>0?400:y<-380?20:400-y))) setblock(x,y,data.condensesTo);
       else {
         var xmove=Math.floor(Math.random()*2)?-1:1;
-        if ((t=block(x,y-1,front))&&blockData[t].destroyableByLiquid) setblock(x,y,'void'),setblock(x,y-1,bl);
+        if ((t=block(x,y-1,front))&&(blockData[t].destroyable||blockData[t].liquid||blockData[t].grainy)) setblock(x,y,t),setblock(x,y-1,bl);
         // allows vapour to seep through corner caps:
-        else if ((t=block(x+xmove,y-1,front))&&blockData[t].destroyableByLiquid&&!Math.floor(Math.random()*10)) setblock(x,y,'void'),setblock(x+xmove,y-1,bl);
-        else if ((t=block(x+xmove,y,front))&&blockData[t].destroyableByLiquid) setblock(x,y,'void'),setblock(x+xmove,y,bl);
+        else if ((t=block(x+xmove,y-1,front))&&blockData[t].destroyable&&!Math.floor(Math.random()*10)) setblock(x,y,'void'),setblock(x+xmove,y-1,bl);
+        else if ((t=block(x+xmove,y,front))&&blockData[t].destroyable) setblock(x,y,'void'),setblock(x+xmove,y,bl);
       }
+    }
+    switch (bl) {
+      case "oaksapling":
+        var random=new Random(x*y*x+y),
+        height=Math.floor(random.nextFloat()*5)+5;
+        for (var i=0;i<height;i++) {
+          if (i<height/3) setblock(x,y-i,'oaktrunk');
+          else {
+            setblock(x,y-i,'oaktreaves');
+            for (var j=1;j<Math.floor(random.nextFloat()*2)+(height/2-Math.abs(i-(height/2+1)));j++) setblock(x-j,y-i,'oakleaves');
+            for (var j=1;j<Math.floor(random.nextFloat()*2)+(height/2-Math.abs(i-(height/2+1)));j++) setblock(x+j,y-i,'oakleaves');
+          }
+        }
+        setblock(x,y-height,'oakleaves');
+        break;
+      case "pinesapling":
+        var random=new Random(x*y*y+x),
+        height=Math.floor(random.nextFloat()*5)+7;
+        for (var i=0;i<height;i++) {
+          if (i<height/3) setblock(x,y-i,'pinetrunk');
+          else {
+            setblock(x,y-i,'pinetreaves');
+            for (var j=1;j<(height-i)/(random.nextFloat()*2+1.5);j++) setblock(x-j,y-i,'pineleaves');
+            for (var j=1;j<(height-i)/(random.nextFloat()*2+1.5);j++) setblock(x+j,y-i,'pineleaves');
+          }
+        }
+        setblock(x,y-height,'pineleaves');
+        break;
+      case "autumnsapling":
+        var random=new Random(x*y*y+y),
+        height=Math.floor(random.nextFloat()*5)+5;
+        for (var i=0;i<height;i++) {
+          if (i<height/3) setblock(x,y-i,`autumntrunk`);
+          else {
+            setblock(x,y-i,`autumntreaves${Math.floor(random.nextFloat()*3)}`);
+            for (var j=1;j<Math.floor(random.nextFloat()*2)+(height/2-Math.abs(i-(height/2+1)));j++) setblock(x-j,y-i,`autumnleaves${Math.floor(random.nextFloat()*3)}`);
+            for (var j=1;j<Math.floor(random.nextFloat()*2)+(height/2-Math.abs(i-(height/2+1)));j++) setblock(x+j,y-i,`autumnleaves${Math.floor(random.nextFloat()*3)}`);
+          }
+        }
+        setblock(x,y-height,`autumnleaves${Math.floor(random.nextFloat()*3)}`);
+        break;
+      case "palmsapling":
+        var random=new Random(x*y*x+x),
+        height=Math.floor(random.nextFloat()*5)+7;
+        for (var i=0;i<height;i++) {
+          if (i<height-3) setblock(x,y-i,'palmtrunk');
+          else {
+            setblock(x,y-i,'palmtreaves');
+            for (var j=1;j<3/(height-i)+1;j++) setblock(x-j,y-i,'palmleaves'),setblock(x+j,y-i,'palmleaves');
+          }
+        }
+        break;
+      case "fire":
+        for (var i=1;i<9;i+=2) {
+          t=block(x+Math.floor(i/3)-1,y+i%3-1,front);
+          if ((t==='water'||t==='seawater')&&!Math.floor(Math.random()*20)) {
+            setblock(x+Math.floor(i/3)-1,y+i%3-1,'vapour');
+            if (!Math.floor(Math.random()*2)) setblock(x,y,'charcoal');
+          } else if (t==='explosive'||t==='contaminatedwater'&&!Math.floor(Math.random()*20)) setblock(x+Math.floor(i/3)-1,y+i%3-1,'explosion');
+          else if (t&&blockData[t].flammable&&!Math.floor(Math.random()*20)) setblock(x+Math.floor(i/3)-1,y+i%3-1,'fire');
+        }
+        if (!Math.floor(Math.random()*200)) setblock(x,y,'charcoal');
+        else if (block(x,y-1,front)==='air') setblock(x,y-1,'smoke');
+        break;
+      case "explosion":
+        var size=Math.floor(Math.random()*2)+3;
+        for (var i=-size;i<=size;i++) {
+          for (var j=-size;j<=size;j++) {
+            if ((t=block(x+i,y+j,front))&&!blockData[t].explosionProof&&i*i+j*j<=size*size) {
+              if (blockData[t].groundCover) setblock(x+i,y+j,'flare');
+              else if (t==='explosive') setblock(x+i,y+j,'explosion');
+              else setblock(x+i,y+j,Math.floor(Math.random()*3)?'flare':'fire');
+            }
+          }
+        }
+        setblock(x,y,'void');
+        break;
+      case "flare":
+        if (Math.floor(Math.random()*2)) setblock(x,y,Math.floor(Math.random()*20)?"smoke":"acidvapour");
+        break;
+      case "acid":
+        function acidOn(tx,ty,chance) {
+          t=block(tx,ty,front);
+          if (!t) return;
+          else if (blockData[t].convertToAcidStone&&!Math.floor(Math.random()*10)) setblock(tx,ty,'acidstone');
+          else if (t==="water"||t==='seawater') setblock(tx,ty,'contaminatedwater');
+          else if (!blockData[t].acidProof&&!Math.floor(Math.random()*chance)) setblock(tx,ty,'acidvapour');
+        }
+        if ((t=block(x,y-1,front))&&blockData[t].convertToAcidStone&&!Math.floor(Math.random()*10)) setblock(x,y-1,'acidstone');
+        else if (t==="water"||t==='seawater') setblock(x,y-1,'contaminatedwater');
+        acidOn(x,y+1,10);
+        acidOn(x-1,y,3);
+        acidOn(x+1,y,3);
+        break;
+      case "fly":
+      case "blockeater":
+        var sides=[];
+        for (var i=1;i<9;i+=2) {
+          t=block(x+Math.floor(i/3)-1,y+i%3-1,front);
+          if (t==='healingliquid') {
+            sides=[];
+            setblock(x,y,'void');
+            break;
+          } else if (t&&(bl==='fly'?blockData[t].destroyable:1)) sides.push([x+Math.floor(i/3)-1,y+i%3-1]);
+        }
+        if (sides.length) {
+          t=sides[Math.floor(Math.random()*sides.length)];
+          setblock(x,y,'void');
+          setblock(t[0],t[1],bl);
+        }
+        break;
     }
   }
 }
