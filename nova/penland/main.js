@@ -109,7 +109,8 @@ var blockData={
 },
 scrollvel={x:0,y:0,zoom:blocksize},
 generatingChunks=[],
-currentblock="_random_";
+currentblock="_random_",
+flying=true;
 function resize() {
   var pxr=SHEEP.pixelratio();
   canvas.width=innerWidth*pxr;
@@ -275,9 +276,12 @@ function updateBlock(setblock,x,y,front) {
         // if ((t=block(x+xmove,y+1,front))&&blockData[t].destroyable) setblock(x,y,'void'),setblock(x+xmove,y+1,bl);
         // else
         setblock(x,y,'void'),setblock(x,y+1,bl);
-      }
-      else if ((t=block(x+xmove,y,front))&&blockData[t].destroyable) setblock(x,y,'void'),setblock(x+xmove,y,bl);
-      else {
+        return;
+      } else if ((t=block(x+xmove,y,front))&&blockData[t].destroyable) {
+        setblock(x,y,'void');
+        setblock(x+xmove,y,bl);
+        return;
+      } else {
         for (var i=1;i<9;i+=2) {
           if (data.evaporatesTo&&(t=block(x+Math.floor(i/3)-1,y+i%3-1,front))&&blockData[t].destroyable&&!Math.floor(Math.random()*400)) {
             setblock(x,y,data.evaporatesTo);
@@ -286,20 +290,20 @@ function updateBlock(setblock,x,y,front) {
             var change=false;
             switch (bl) {
               case 'water':
-                if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='seawater'&&!Math.floor(Math.random()*20)) setblock(x,y,'seawater');
-                else if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='contaminatedwater'&&!Math.floor(Math.random()*20)) setblock(x,y,'contaminatedwater');
+                if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='seawater'&&!Math.floor(Math.random()*20)) setblock(x,y,'seawater'),change=true;
+                else if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='contaminatedwater'&&!Math.floor(Math.random()*20)) setblock(x,y,'contaminatedwater'),change=true;
                 break;
               case 'seawater':
-                if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='contaminatedwater'&&!Math.floor(Math.random()*20)) setblock(x,y,'contaminatedwater');
+                if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='contaminatedwater'&&!Math.floor(Math.random()*20)) setblock(x,y,'contaminatedwater'),change=true;
                 break;
               case 'contaminatedwater':
-                if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='acid'&&!Math.floor(Math.random()*20)) setblock(x,y,'acid');
+                if (block(x+Math.floor(i/3)-1,y+i%3-1,front)==='acid'&&!Math.floor(Math.random()*20)) setblock(x,y,'acid'),change=true;
                 break;
               case "lava":
                 if ((t=block(x+Math.floor(i/3)-1,y+i%3-1,front))==='water'||t==='seawater')
-                  setblock(x+Math.floor(i/3)-1,y+i%3-1,'vapour'),setblock(x,y,'basalt');
+                  setblock(x+Math.floor(i/3)-1,y+i%3-1,'vapour'),setblock(x,y,'basalt'),change=true;
                 else if (t==='contaminatedwater')
-                  setblock(x+Math.floor(i/3)-1,y+i%3-1,'vapour'),setblock(x,y,'explosion');
+                  setblock(x+Math.floor(i/3)-1,y+i%3-1,'vapour'),setblock(x,y,'explosion'),change=true;
                 break;
               case "healingliquid":
                 if ((t=block(x+Math.floor(i/3)-1,y+i%3-1,front))&&blockData[t].healable&&!Math.floor(Math.random()*20)) setblock(x+Math.floor(i/3)-1,y+i%3-1,'void');
@@ -314,10 +318,20 @@ function updateBlock(setblock,x,y,front) {
       if (data.condensesTo&&!Math.floor(Math.random()*(y>0?400:y<-380?20:400-y))) setblock(x,y,data.condensesTo);
       else {
         var xmove=Math.floor(Math.random()*2)?-1:1;
-        if ((t=block(x,y-1,front))&&(blockData[t].destroyable||blockData[t].liquid||blockData[t].grainy)) setblock(x,y,t),setblock(x,y-1,bl);
-        // allows vapour to seep through corner caps:
-        else if ((t=block(x+xmove,y-1,front))&&blockData[t].destroyable&&!Math.floor(Math.random()*10)) setblock(x,y,'void'),setblock(x+xmove,y-1,bl);
-        else if ((t=block(x+xmove,y,front))&&blockData[t].destroyable) setblock(x,y,'void'),setblock(x+xmove,y,bl);
+        if ((t=block(x,y-1,front))&&(blockData[t].destroyable||blockData[t].liquid||blockData[t].grainy)) {
+          setblock(x,y-1,bl);
+          setblock(x,y,t);
+          return;
+        } else if ((t=block(x+xmove,y-1,front))&&(blockData[t].destroyable||blockData[t].liquid)&&!Math.floor(Math.random()*10)) {
+          // allows vapour to seep through corner caps
+          setblock(x+xmove,y-1,bl);
+          setblock(x,y,t);
+          return;
+        } else if ((t=block(x+xmove,y,front))&&(blockData[t].destroyable||blockData[t].liquid)) {
+          setblock(x+xmove,y,bl);
+          setblock(x,y,t);
+          return;
+        }
       }
     }
     switch (bl) {
@@ -381,7 +395,7 @@ function updateBlock(setblock,x,y,front) {
           else if (t&&blockData[t].flammable&&!Math.floor(Math.random()*20)) setblock(x+Math.floor(i/3)-1,y+i%3-1,'fire');
         }
         if (!Math.floor(Math.random()*200)) setblock(x,y,'charcoal');
-        else if (block(x,y-1,front)==='air') setblock(x,y-1,'smoke');
+        else if ((t=block(x,y-1,front))&&blockData[t].destroyable) setblock(x,y-1,'smoke');
         break;
       case "explosion":
         var size=Math.floor(Math.random()*2)+3;
@@ -403,7 +417,7 @@ function updateBlock(setblock,x,y,front) {
         function acidOn(tx,ty,chance) {
           t=block(tx,ty,front);
           if (!t) return;
-          else if (blockData[t].convertToAcidStone&&!Math.floor(Math.random()*10)) setblock(tx,ty,'acidstone');
+          else if (blockData[t].convertToAcidStone&&!Math.floor(Math.random()*30)) setblock(tx,ty,'acidstone');
           else if (t==="water"||t==='seawater') setblock(tx,ty,'contaminatedwater');
           else if (!blockData[t].acidProof&&!Math.floor(Math.random()*chance)) setblock(tx,ty,'acidvapour');
         }
@@ -415,6 +429,7 @@ function updateBlock(setblock,x,y,front) {
         break;
       case "fly":
       case "blockeater":
+      case "livevirus":
         var sides=[];
         for (var i=1;i<9;i+=2) {
           t=block(x+Math.floor(i/3)-1,y+i%3-1,front);
@@ -422,12 +437,12 @@ function updateBlock(setblock,x,y,front) {
             sides=[];
             setblock(x,y,'void');
             break;
-          } else if (t&&(bl==='fly'?blockData[t].destroyable:1)) sides.push([x+Math.floor(i/3)-1,y+i%3-1]);
+          } else if (t&&(bl==='blockeater'?1:bl==='fly'?blockData[t].destroyable||blockData[t].liquid||blockData[t].gas:blockData[t].destroyable)) sides.push([x+Math.floor(i/3)-1,y+i%3-1]);
         }
         if (sides.length) {
-          t=sides[Math.floor(Math.random()*sides.length)];
-          setblock(x,y,'void');
-          setblock(t[0],t[1],bl);
+          var s=sides[Math.floor(Math.random()*sides.length)];
+          if (Math.floor(Math.random()*400)) setblock(x,y,bl==='livevirus'?'deadvirus':bl==='blockeater'?'void':(t=block(s[0],s[1],front))&&!blockData[t].groundCover?t:'void');
+          setblock(s[0],s[1],bl);
         }
         break;
     }
@@ -536,12 +551,32 @@ function render(front=true,drawui=false) {
   }
 }
 function loop() {
-  if (keys[65]) player.xv-=keys[16]?0.2:0.1;
-  if (keys[87]) player.yv-=keys[16]?0.2:0.1;
-  if (keys[68]) player.xv+=keys[16]?0.2:0.1;
-  if (keys[83]) player.yv+=keys[16]?0.2:0.1;
-  player.xv*=0.9;
-  player.yv*=0.9;
+  if (keys[32]) {
+    if (!keys.spacedown) {
+      flying=!flying;
+      keys.spacedown=true;
+    }
+  } else {
+    if (keys.spacedown) keys.spacedown=false;
+  }
+  if (flying) {
+    if (keys[65]) player.xv-=keys[16]?0.2:0.1;
+    if (keys[87]) player.yv-=keys[16]?0.2:0.1;
+    if (keys[68]) player.xv+=keys[16]?0.2:0.1;
+    if (keys[83]) player.yv+=keys[16]?0.2:0.1;
+    player.xv*=0.9;
+    player.yv*=0.9;
+  } else {
+    var t;
+    if ((t=block(Math.floor(player.x/2),Math.floor(player.y/2+config.PLAYER.HEIGHT/2)+1))&&blockData[t].solid) {
+      if (keys[65]) player.xv-=keys[16]?0.4:0.2;
+      if (keys[68]) player.xv+=keys[16]?0.4:0.2;
+      if (keys[87]) player.yv-=0.8;
+      player.xv*=0.8;
+    } else {
+      player.yv+=0.1;
+    }
+  }
   player.updateVelocities();
   player.updatePositions();
   scroll.x+=((player.x/2+config.PLAYER.WIDTH/2)*blocksize-scroll.x)/config.CAMERA_GLIDE_SPEED;
