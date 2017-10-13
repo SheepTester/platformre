@@ -51,11 +51,12 @@ player=new Collidable(config.PLAYER.WIDTH*2,config.PLAYER.HEIGHT*2,(x,y)=>{
   else return false;
 });
 var blockData={
-  void:{solid:0,destroyable:1},
-  air:{colour:"#CEECFF",solid:0,destroyable:1},
+  void:{solid:0,destroyable:1,unduplicatable:1},
+  air:{colour:"#CEECFF",solid:0,destroyable:1,unduplicatable:1},
   dirt:{colour:"#866247",solid:1,grainy:1},
   grass:{colour:"#866247",image:[1,0],solid:1,grainy:1},
   stone:{colour:"#919596",solid:1,convertToAcidStone:1},
+  reinforceddiamond:{colour:"#212121",solid:1,acidProof:1,explosionProof:1,unduplicatable:1},
   darkerstone:{colour:"#636667",solid:1},
   oaktrunk:{colour:"#74674F",solid:1,flammable:1},
   oaktreaves:{colour:"#719C34",solid:1,flammable:1},
@@ -94,6 +95,7 @@ var blockData={
   charcoal:{colour:"#444444",solid:1,grainy:1},
   explosive:{colour:"#92002C",solid:1},
   explosion:{colour:"#FF0451",solid:0},
+  bigexplosion:{colour:"#FF0451",solid:0},
   flare:{colour:"#FFF700",solid:0},
   smoke:{colour:"#D7DACF",solid:0,gas:1,explosionProof:1},
   acidvapour:{colour:"#CDFFCD",solid:0,gas:1,condensesTo:"contaminatedwater"},
@@ -105,7 +107,8 @@ var blockData={
   fly:{colour:"#E91E63",solid:0,image:[1,1],healable:1},
   blockeater:{colour:"#C2185B",solid:0,image:[2,1],healable:1},
   livevirus:{colour:"#9C27B0",solid:1,image:[3,1],healable:1},
-  deadvirus:{colour:"#7B1FA2",solid:1,healable:1}
+  deadvirus:{colour:"#7B1FA2",solid:1,healable:1},
+  duplicator:{colour:"#ff087d",solid:1,unduplicatable:1,explosionProof:1}
 },
 scrollvel={x:0,y:0,zoom:blocksize},
 generatingChunks=[],
@@ -258,7 +261,7 @@ function updateBlock(setblock,x,y,front) {
   if (bl) {
     if (data.grainy) {
       t=block(x,y+1,front);
-      if (t&&(blockData[t].destroyable||blockData[t].groundCover||blockData[t].liquid||blockData[t].gas)) {
+      if (t&&(blockData[t].destroyable||blockData[t].groundCover||blockData[t].liquid)) {
         setblock(x,y+1,bl);
         setblock(x,y,blockData[t].groundCover?'void':t);
         return;
@@ -268,6 +271,7 @@ function updateBlock(setblock,x,y,front) {
       t=block(x,y+1,front);
       if (!t||!blockData[t].solid) {
         setblock(x,y,'void');
+        return;
       }
     }
     if (data.liquid) {
@@ -285,7 +289,7 @@ function updateBlock(setblock,x,y,front) {
         for (var i=1;i<9;i+=2) {
           if (data.evaporatesTo&&(t=block(x+Math.floor(i/3)-1,y+i%3-1,front))&&blockData[t].destroyable&&!Math.floor(Math.random()*400)) {
             setblock(x,y,data.evaporatesTo);
-            break;
+            return;
           } else {
             var change=false;
             switch (bl) {
@@ -308,28 +312,43 @@ function updateBlock(setblock,x,y,front) {
               case "healingliquid":
                 if ((t=block(x+Math.floor(i/3)-1,y+i%3-1,front))&&blockData[t].healable&&!Math.floor(Math.random()*20)) setblock(x+Math.floor(i/3)-1,y+i%3-1,'void');
                 break;
+              case "acid":
+                if (!Math.floor(Math.random()*10000)) {
+                  var size=Math.floor(Math.random()*3)+3;
+                  for (var i=-size;i<=size;i++) {
+                    for (var j=-size;j<=size;j++) {
+                      if ((t=block(x+i,y+j,front))&&!blockData[t].acidProof&&i*i+j*j<=size*size) {
+                        setblock(x+i,y+j,'void');
+                      }
+                    }
+                  }
+                  return;
+                }
+                break;
             }
-            if (change) break;
+            if (change) return;
           }
         }
       }
     }
     if (data.gas) {
-      if (data.condensesTo&&!Math.floor(Math.random()*(y>0?400:y<-380?20:400-y))) setblock(x,y,data.condensesTo);
-      else {
+      if (data.condensesTo&&!Math.floor(Math.random()*(y>0?400:y<-380?20:400-y))) {
+        setblock(x,y,data.condensesTo);
+        return;
+      } else {
         var xmove=Math.floor(Math.random()*2)?-1:1;
         if ((t=block(x,y-1,front))&&(blockData[t].destroyable||blockData[t].liquid||blockData[t].grainy)) {
           setblock(x,y-1,bl);
-          setblock(x,y,t);
+          setblock(x,y,blockData[t].groundCover?'void':t);
           return;
-        } else if ((t=block(x+xmove,y-1,front))&&(blockData[t].destroyable||blockData[t].liquid)&&!Math.floor(Math.random()*10)) {
+        } else if ((t=block(x+xmove,y-1,front))&&blockData[t].destroyable) {
           // allows vapour to seep through corner caps
           setblock(x+xmove,y-1,bl);
-          setblock(x,y,t);
+          setblock(x,y,blockData[t].groundCover?'void':t);
           return;
-        } else if ((t=block(x+xmove,y,front))&&(blockData[t].destroyable||blockData[t].liquid)) {
+        } else if ((t=block(x+xmove,y,front))&&(blockData[t].destroyable)) {
           setblock(x+xmove,y,bl);
-          setblock(x,y,t);
+          setblock(x,y,blockData[t].groundCover?'void':t);
           return;
         }
       }
@@ -391,7 +410,7 @@ function updateBlock(setblock,x,y,front) {
           if ((t==='water'||t==='seawater')&&!Math.floor(Math.random()*20)) {
             setblock(x+Math.floor(i/3)-1,y+i%3-1,'vapour');
             if (!Math.floor(Math.random()*2)) setblock(x,y,'charcoal');
-          } else if (t==='explosive'||t==='contaminatedwater'&&!Math.floor(Math.random()*20)) setblock(x+Math.floor(i/3)-1,y+i%3-1,'explosion');
+          } else if (t==='explosive'||t==='contaminatedwater'&&!Math.floor(Math.random()*20)) setblock(x+Math.floor(i/3)-1,y+i%3-1,'bigexplosion');
           else if (t&&blockData[t].flammable&&!Math.floor(Math.random()*20)) setblock(x+Math.floor(i/3)-1,y+i%3-1,'fire');
         }
         if (!Math.floor(Math.random()*200)) setblock(x,y,'charcoal');
@@ -404,6 +423,19 @@ function updateBlock(setblock,x,y,front) {
             if ((t=block(x+i,y+j,front))&&!blockData[t].explosionProof&&i*i+j*j<=size*size) {
               if (blockData[t].groundCover) setblock(x+i,y+j,'flare');
               else if (t==='explosive') setblock(x+i,y+j,'explosion');
+              else setblock(x+i,y+j,Math.floor(Math.random()*3)?'flare':'fire');
+            }
+          }
+        }
+        setblock(x,y,'void');
+        break;
+      case "bigexplosion":
+        var size=Math.floor(Math.random()*10)+3;
+        for (var i=-size;i<=size;i++) {
+          for (var j=-size;j<=size;j++) {
+            if ((t=block(x+i,y+j,front))&&!blockData[t].explosionProof&&i*i+j*j<=size*size) {
+              if (blockData[t].groundCover) setblock(x+i,y+j,'flare');
+              else if (t==='explosive') setblock(x+i,y+j,'bigexplosion');
               else setblock(x+i,y+j,Math.floor(Math.random()*3)?'flare':'fire');
             }
           }
@@ -443,6 +475,17 @@ function updateBlock(setblock,x,y,front) {
           var s=sides[Math.floor(Math.random()*sides.length)];
           if (Math.floor(Math.random()*400)) setblock(x,y,bl==='livevirus'?'deadvirus':bl==='blockeater'?'void':(t=block(s[0],s[1],front))&&!blockData[t].groundCover?t:'void');
           setblock(s[0],s[1],bl);
+        }
+        break;
+      case "duplicator":
+        var sides=[];
+        for (var i=1;i<9;i+=2) if ((t=block(x+Math.floor(i/3)-1,y+i%3-1,front))&&!blockData[t].unduplicatable) sides.push(t);
+        if (sides.length) {
+          t=sides[Math.floor(Math.random()*sides.length)];
+          setblock(x+1,y,t);
+          setblock(x,y+1,t);
+          setblock(x-1,y,t);
+          setblock(x,y-1,t);
         }
         break;
     }
