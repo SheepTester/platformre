@@ -58,33 +58,33 @@ var blockData={
   stone:{colour:"#919596",solid:1,convertToAcidStone:1},
   reinforceddiamond:{colour:"#212121",solid:1,acidProof:1,explosionProof:1,unduplicatable:1},
   darkerstone:{colour:"#636667",solid:1},
-  oaktrunk:{colour:"#74674F",solid:1,flammable:1},
-  oaktreaves:{colour:"#719C34",solid:1,flammable:1},
-  oakleaves:{colour:"#82B53C",solid:1,flammable:1},
+  oaktrunk:{colour:"#74674F",solid:1,flammable:1,grainy:1},
+  oaktreaves:{colour:"#719C34",solid:1,flammable:1,grainy:1,treaves:1},
+  oakleaves:{colour:"#82B53C",solid:1,flammable:1,leaves:1},
   oaksapling:{image:[7,0],solid:0,groundCover:1,destroyable:1,flammable:1},
   rose:{image:[2,0],solid:0,groundCover:1,destroyable:1,flammable:1},
   goldenrod:{image:[3,0],solid:0,groundCover:1,destroyable:1,flammable:1},
   myosotis:{image:[4,0],solid:0,groundCover:1,destroyable:1,flammable:1},
   sand:{colour:"#EED38B",solid:1,grainy:1},
-  palmtrunk:{colour:"#D1BE94",solid:1,flammable:1},
-  palmtreaves:{colour:"#87BB25",solid:1,flammable:1},
-  palmleaves:{colour:"#99D42A",solid:1,flammable:1},
+  palmtrunk:{colour:"#D1BE94",solid:1,flammable:1,grainy:1},
+  palmtreaves:{colour:"#87BB25",solid:1,flammable:1,grainy:1,treaves:1},
+  palmleaves:{colour:"#99D42A",solid:1,flammable:1,leaves:1},
   palmsapling:{image:[9,0],solid:0,groundCover:1,destroyable:1,flammable:1},
   tallgrass:{image:[5,0],solid:0,groundCover:1,destroyable:1,flammable:1},
   vapour:{colour:"#FFFFFF",solid:0,gas:1,condensesTo:"water"},
   seawater:{colour:"#69D2E7",solid:0,liquid:1,evaporatesTo:"vapour"},
   water:{colour:"#A7DBD8",solid:0,liquid:1,evaporatesTo:"vapour"},
-  pinetrunk:{colour:"#4E342E",solid:1,flammable:1},
-  pinetreaves:{colour:"#304D07",solid:1,flammable:1},
-  pineleaves:{colour:"#406609",solid:1,flammable:1},
+  pinetrunk:{colour:"#4E342E",solid:1,flammable:1,grainy:1},
+  pinetreaves:{colour:"#304D07",solid:1,flammable:1,grainy:1,treaves:1},
+  pineleaves:{colour:"#406609",solid:1,flammable:1,leaves:1},
   pinesapling:{image:[8,0],solid:0,groundCover:1,destroyable:1,flammable:1},
-  autumntrunk:{colour:"#9E715C",solid:1,flammable:1},
-  autumntreaves0:{colour:"#D7AC56",solid:1,flammable:1},
-  autumnleaves0:{colour:"#F0C060",solid:1,flammable:1},
-  autumntreaves1:{colour:"#D78241",solid:1,flammable:1},
-  autumnleaves1:{colour:"#F09048",solid:1,flammable:1},
-  autumntreaves2:{colour:"#C0412A",solid:1,flammable:1},
-  autumnleaves2:{colour:"#D84830",solid:1,flammable:1},
+  autumntrunk:{colour:"#9E715C",solid:1,flammable:1,grainy:1},
+  autumntreaves0:{colour:"#D7AC56",solid:1,flammable:1,grainy:1,treaves:1},
+  autumnleaves0:{colour:"#F0C060",solid:1,flammable:1,leaves:1},
+  autumntreaves1:{colour:"#D78241",solid:1,flammable:1,grainy:1,treaves:1},
+  autumnleaves1:{colour:"#F09048",solid:1,flammable:1,leaves:1},
+  autumntreaves2:{colour:"#C0412A",solid:1,flammable:1,grainy:1,treaves:1},
+  autumnleaves2:{colour:"#D84830",solid:1,flammable:1,leaves:1},
   autumnsapling:{image:[0,1],solid:0,groundCover:1,destroyable:1,flammable:1},
   gravel:{colour:"#B8BCBD",solid:1,grainy:1},
   basalt:{colour:"#8A796C",solid:1,convertToAcidStone:1},
@@ -265,6 +265,22 @@ function updateBlock(setblock,x,y,front) {
         setblock(x,y+1,bl);
         setblock(x,y,blockData[t].groundCover?'void':t);
         return;
+      }
+    }
+    if (data.leaves) {
+      var treafFound=false;
+      for (var i=-5;i<=5;i++) {
+        if ((t=block(x+i,y,front))&&blockData[t].treaves) {
+          treafFound=true;
+          break;
+        }
+      }
+      if (!treafFound) {
+        if ((t=block(x,y+1,front))&&(blockData[t].destroyable||blockData[t].groundCover||blockData[t].liquid)) {
+          setblock(x,y+1,bl);
+          setblock(x,y,blockData[t].groundCover?'void':t);
+          return;
+        }
       }
     }
     if (data.groundCover) {
