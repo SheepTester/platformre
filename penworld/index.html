@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Penworld</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="Penworld: Penland to a new dimension"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <style>
+      html, body, canvas {
+        height: 100%;
+        width: 100%;
+      }
+      body {
+        margin: 0;
+        background-color: black;
+        font-size: 0;
+      }
+      #textures {
+        display: none;
+      }
+      #crosshair {
+        /*border: 2px solid rgba(0,0,0,0.5);*/
+        background-color: rgba(255,255,255,0.5);
+        border-radius: 50%;
+        height: 5px;
+        width: 5px;
+        margin: auto;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <div id="crosshair"></div>
+    <script src="../../sheep.js" charset="utf-8"></script>
+    <script src="main.js" charset="utf-8"></script>
+  </body>
+  <!-- MADE BY SEAN -->
+</html>
