@@ -53,6 +53,25 @@ canvas.addEventListener("mousemove",e=>{
     camera.roty.measure+=e.movementY/500;
   }
 },false);
+canvas.addEventListener("mousedown",e=>{
+  switch (e.which) {
+    case 1:keys.left=true;break;
+    case 2:keys.middle=true;break;
+    case 3:keys.right=true;break;
+    default: console.log(e.which);
+  }
+  e.preventDefault();
+  return false;
+},false);
+canvas.addEventListener("mouseup",e=>{
+  switch (e.which) {
+    case 1:keys.left=false;break;
+    case 2:keys.middle=false;break;
+    case 3:keys.right=false;break;
+  }
+  e.preventDefault();
+  return false;
+},false);
 window.addEventListener("resize",resize,false);
 resize();
 
@@ -159,7 +178,7 @@ blockData={ // -X +X -Y +Y -Z +Z (left right top bottom front back)
   "undefined":{opaque:0,selectable:0},
   "null":{opaque:0,selectable:0},
   "air":{opaque:0,selectable:0},
-  "grass":{colours:['#866247','#866247','#1F9D06','#866247','#866247','#866247'],opaque:1,selectable:1},
+  "grass":{colours:['#7f5d43','#7a5a41','#1b8805','#6e503a','#866247','#75563e'],opaque:1,selectable:1},
   "dirt":{colours:'#866247',opaque:1,selectable:1},
   "stone":{colours:'#919596',opaque:1,selectable:1},
   "sand":{colours:'#EED38B',opaque:1,selectable:1},
@@ -351,6 +370,18 @@ function draw() {
   var selected=rayCollides(startpt,raypt,(x,y,z)=>{
     return blockData[block(x,y,z).type].selectable;
   },7);
+  if (selected) {
+    if (keys.left||keys[81]) {
+      block(selected.x,selected.y,selected.z,'air');
+      updateBlockFaces(selected.x,selected.y,selected.z);
+      updateBlockFaces(selected.x-1,selected.y,selected.z);
+      updateBlockFaces(selected.x+1,selected.y,selected.z);
+      updateBlockFaces(selected.x,selected.y-1,selected.z);
+      updateBlockFaces(selected.x,selected.y+1,selected.z);
+      updateBlockFaces(selected.x,selected.y,selected.z-1);
+      updateBlockFaces(selected.x,selected.y,selected.z+1);
+    }
+  }
   /*c.fillStyle='#866247';
   polygon([pt(-50,-50,50),pt(50,-50,50),pt(50,50,50),pt(-50,50,50)],'ccw');
   polygon([pt(-50,-50,-50),pt(50,-50,-50),pt(50,50,-50),pt(-50,50,-50)],'cw');
