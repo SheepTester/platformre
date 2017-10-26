@@ -8,7 +8,8 @@ var config={
   MAX_Z:1000,
   MOVE_SPEED:0.5,
   CHUNK_SIZE:16,
-  BLOCK_SIZE:16
+  BLOCK_SIZE:16,
+  CURRENT_BLOCK:'stone'
 };
 
 /* DOM (canvas, user input) */
@@ -38,6 +39,7 @@ document.addEventListener("keydown",e=>{
     keys.usingmouse=false;
     document.exitPointerLock();
   }
+  if (e.keyCode>=49&&e.keyCode<=57) SHEEP.notify(`Selected: ${config.CURRENT_BLOCK=Object.keys(blockData)[e.keyCode-46]}`,'#');
 },false);
 document.addEventListener("keyup",e=>{
   keys[e.keyCode]=false;
@@ -52,6 +54,8 @@ canvas.addEventListener("mousemove",e=>{
     camera.rotx.measure+=e.movementX/500;
     camera.roty.measure+=e.movementY/500;
   }
+  e.preventDefault();
+  return false;
 },false);
 canvas.addEventListener("mousedown",e=>{
   switch (e.which) {
@@ -180,12 +184,13 @@ blockData={ // -X +X -Y +Y -Z +Z (left right top bottom front back)
   "air":{opaque:0,selectable:0},
   "grass":{colours:['#7f5d43','#7a5a41','#1b8805','#6e503a','#866247','#75563e'],opaque:1,selectable:1},
   "dirt":{colours:'#866247',opaque:1,selectable:1},
-  "stone":{colours:'#919596',opaque:1,selectable:1},
+  "stone":{colours:['#86898a','#818485','#919596','#777a7a','#8b8e8f','#7c7f7f'],opaque:1,selectable:1},
   "sand":{colours:'#EED38B',opaque:1,selectable:1},
   "gravel":{colours:'#B8BCBD',opaque:1,selectable:1},
   "seawater":{colours:'rgba(105,210,231,0.8)',opaque:0,selectable:2},
   "water":{colours:'rgba(167,219,216,0.8)',opaque:0,selectable:2},
-  "vapour":{colours:'rgba(255,255,255,0.5)',opaque:0,selectable:2}
+  "vapour":{colours:'rgba(255,255,255,0.5)',opaque:0,selectable:2},
+  "smoke":{colours:'rgba(215,218,207,0.5)',opaque:0,selectable:2}
 },
 listOfBlocksWithShowingFacesThatYouShouldCheckOut=[];
 listOfBlocksWithShowingFacesThatYouShouldCheckOut.faces={};
@@ -194,7 +199,12 @@ function mod(a,b) {
 }
 function generateChunk(chx,chy,chz) {
   var blocks=[];
-  for (var i=0;i<config.CHUNK_SIZE*config.CHUNK_SIZE*config.CHUNK_SIZE;i++) blocks.push({type:"grass"});
+  for (var y=0;y<config.CHUNK_SIZE;y++) {
+    if (y>11) for (var x=0;x<config.CHUNK_SIZE;x++) for (var z=0;z<config.CHUNK_SIZE;z++) blocks[(z*config.CHUNK_SIZE+y)*config.CHUNK_SIZE+x]={type:"stone"};
+    else if (y>8) for (var x=0;x<config.CHUNK_SIZE;x++) for (var z=0;z<config.CHUNK_SIZE;z++) blocks[(z*config.CHUNK_SIZE+y)*config.CHUNK_SIZE+x]={type:"dirt"};
+    else if (y===8) for (var x=0;x<config.CHUNK_SIZE;x++) for (var z=0;z<config.CHUNK_SIZE;z++) blocks[(z*config.CHUNK_SIZE+y)*config.CHUNK_SIZE+x]={type:"grass"};
+    else for (var x=0;x<config.CHUNK_SIZE;x++) for (var z=0;z<config.CHUNK_SIZE;z++) blocks[(z*config.CHUNK_SIZE+y)*config.CHUNK_SIZE+x]={type:"air"};
+  }
   chunks[`${chx},${chy},${chz}`]=blocks;
   for (var y=0;y<config.CHUNK_SIZE;y++) {
     if (generateChunk.opaqueLayer(chx,chy,chz,y)
@@ -312,25 +322,25 @@ function rayCollides(origin,towards,isSolid,limit=7) {
   lasty=1,
   lastz=1,
   coords=[Math.floor(origin.x),Math.floor(origin.y),Math.floor(origin.z)];
-  if (isSolid(...coords)) return pt(...coords);
+  if (isSolid(...coords)) return [pt(...coords),null];
   for (var i=0;i<limit;i++) {
     while (i*xdist+offsetx>lastx) {
       coords=[Math.floor(lastx*signx+origin.x),Math.floor((lastx-offsetx)/xdist*ydist*signy+origin.y),Math.floor((lastx-offsetx)/xdist*zdist*signz+origin.z)];
-      if (isSolid(...coords)) return pt(...coords);
+      if (isSolid(...coords)) return [pt(...coords),signx===1?0:signx===-1?1:null];
       lastx++;
     }
     while (i*ydist+offsety>lasty) {
       coords=[Math.floor((lasty-offsety)/ydist*xdist*signx+origin.x),Math.floor(lasty*signy+origin.y),Math.floor((lasty-offsety)/ydist*zdist*signz+origin.z)];
-      if (isSolid(...coords)) return pt(...coords);
+      if (isSolid(...coords)) return [pt(...coords),signy===1?2:signy===-1?3:null];
       lasty++;
     }
     while (i*zdist+offsetz>lastz) {
       coords=[Math.floor((lastz-offsetz)/zdist*ydist*signx+origin.x),Math.floor((lastz-offsetz)/zdist*ydist*signy+origin.y),Math.floor(lastz*signz+origin.z)];
-      if (isSolid(...coords)) return pt(...coords);
+      if (isSolid(...coords)) return [pt(...coords),signz===1?4:signz===-1?5:null];
       lastz++;
     }
   }
-  return null;
+  return [null,null];
 }
 generateChunk(0,0,0);
 for (var i=2,blocks=Object.keys(blockData);i<blocks.length;i++) {
@@ -369,7 +379,8 @@ function draw() {
   var raypt=pt((x+camera.x)/config.BLOCK_SIZE,(y+camera.y)/config.BLOCK_SIZE,(z+camera.z)/config.BLOCK_SIZE);
   var selected=rayCollides(startpt,raypt,(x,y,z)=>{
     return blockData[block(x,y,z).type].selectable;
-  },7);
+  },7),face;
+  [selected,face]=selected;
   if (selected) {
     if (keys.left||keys[81]) {
       block(selected.x,selected.y,selected.z,'air');
@@ -380,6 +391,22 @@ function draw() {
       updateBlockFaces(selected.x,selected.y+1,selected.z);
       updateBlockFaces(selected.x,selected.y,selected.z-1);
       updateBlockFaces(selected.x,selected.y,selected.z+1);
+    }
+    if (face!==null&&(keys.right||keys[69])) {
+      var offset={
+        x:face===0?-1:face===1?1:0,
+        y:face===2?-1:face===3?1:0,
+        z:face===4?-1:face===5?1:0
+      };
+      // Object.keys(blockData)[Math.floor(Math.random()*(Object.keys(blockData)-3)+3)]
+      block(selected.x+offset.x,selected.y+offset.y,selected.z+offset.z,config.CURRENT_BLOCK);
+      updateBlockFaces(selected.x+offset.x,selected.y+offset.y,selected.z+offset.z);
+      updateBlockFaces(selected.x+offset.x-1,selected.y+offset.y,selected.z+offset.z);
+      updateBlockFaces(selected.x+offset.x+1,selected.y+offset.y,selected.z+offset.z);
+      updateBlockFaces(selected.x+offset.x,selected.y+offset.y-1,selected.z+offset.z);
+      updateBlockFaces(selected.x+offset.x,selected.y+offset.y+1,selected.z+offset.z);
+      updateBlockFaces(selected.x+offset.x,selected.y+offset.y,selected.z+offset.z-1);
+      updateBlockFaces(selected.x+offset.x,selected.y+offset.y,selected.z+offset.z+1);
     }
   }
   /*c.fillStyle='#866247';
