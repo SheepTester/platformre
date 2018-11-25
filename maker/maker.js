@@ -413,7 +413,7 @@ function httpGetAsync(theUrl,callback) {
 }
 if (window.location.search) {
   if (window.location.search.slice(1,6)=='level') {
-    httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getlevel.php?id='+window.location.search.slice(7),function(e){
+    httpGetAsync('http://thingkingland-com.stackstaging.com/sheeptester/getlevel.php?id='+window.location.search.slice(7),function(e){
       level=JSON.parse(e)[2];
       fillInNBT(level[0][0]);
       for (var i=1;i<11;i++) {

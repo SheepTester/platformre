@@ -156,7 +156,7 @@ function httpGetAsync(theUrl,callback) {
   xmlHttp.open("GET",theUrl,true); // true for asynchronous
   xmlHttp.send(null);
 }
-httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getlevel.php'+($_GET['maker']?'?maker='+$_GET['maker']:''),function(e){
+httpGetAsync('http://thingkingland-com.stackstaging.com/sheeptester/getlevel.php'+($_GET['maker']?'?maker='+$_GET['maker']:''),function(e){
   document.querySelector("#list").innerHTML=e;
   var deadchildren=document.querySelector("#list ul").children;
   for (var i=0;i<deadchildren.length;i++) {
@@ -213,7 +213,7 @@ document.querySelector("#list").onclick=function(e){
       likes=likes.join('-');
       var id=e.target.parentNode.dataset.levelid;
       e.target.parentNode.dataset.likes=likes;
-      httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getlevel.php?id='+id+'&like='+likes,function(){});
+      httpGetAsync('http://thingkingland-com.stackstaging.com/sheeptester/getlevel.php?id='+id+'&like='+likes,function(){});
     } else target=e.target.parentNode;
   }
   if (target) {
@@ -224,7 +224,7 @@ document.querySelector("#list").onclick=function(e){
 }
 var user;
 if (window.localStorage.getItem('userid')) {
-  httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getstuff.php?userid='+window.localStorage.getItem('userid'),function(e){
+  httpGetAsync('http://thingkingland-com.stackstaging.com/sheeptester/getstuff.php?userid='+window.localStorage.getItem('userid'),function(e){
     var data=JSON.parse(e);
     user=data.username;
     document.querySelector("#user").textContent=user;

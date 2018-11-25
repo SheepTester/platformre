@@ -81,7 +81,7 @@ input:disabled, textarea:disabled {
     <h1>Publish a level</h1>
     <p>Click on the rectangles below and type in stuff. Relocate your cursor over the rectangles and most of the times a little tip thing will appear explaining in more detail what you are supposed to put in the rectangle.</p>
     <p>Please make sure everything is school-appropiate and stuff please. I'd rather not get this in the blacklist thank you very much.</p>
-    <form action="http://web300.secure-secure.co.uk/thingkingland.com/sheeptester/submitlevel.php" method="POST">
+    <form action="http://thingkingland-com.stackstaging.com/sheeptester/submitlevel.php" method="POST">
       <input type="text" name="name" placeholder="Level name" title="The name of your level." />
       <textarea title="Describe your level." name="desc" placeholder="Description"></textarea>
       <input type="text" id="maker" title="This is your insecure SheepTester account." disabled value="loading" />
@@ -108,7 +108,7 @@ function httpGetAsync(theUrl,callback) {
   xmlHttp.send(null);
 }
 if (window.localStorage.getItem('userid')) {
-  httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getstuff.php?userid='+window.localStorage.getItem('userid'),function(e){
+  httpGetAsync('http://thingkingland-com.stackstaging.com/sheeptester/getstuff.php?userid='+window.localStorage.getItem('userid'),function(e){
     var data=JSON.parse(e);
     document.querySelector("#maker").value=data.username;
     document.querySelector("#userid").value=data.username;

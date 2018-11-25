@@ -210,6 +210,10 @@ span:active {
 #tools i:hover:after {
   height: 40px;
 }
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
 #tools .dropdown ul li i {
   color: #333;
   font-size: 20px;

@@ -290,6 +290,10 @@ input[type=number] {
 #tools i:hover:after {
   height: 40px;
 }
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
 #tools .dropdown ul li i:after {
   content: normal;
 }

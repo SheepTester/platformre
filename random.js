@@ -651,7 +651,7 @@ function httpGetAsync(theUrl,callback) {
 var leveldat=[];
 if (window.location.search) {
   if (window.location.search.slice(1,6)=='level') {
-    httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getlevel.php?id='+window.location.search.slice(7),function(e){
+    httpGetAsync('http://thingkingland-com.stackstaging.com/sheeptester/getlevel.php?id='+window.location.search.slice(7),function(e){
       var s=document.querySelectorAll(".notpublic");
       for (var i=0;i<s.length;i++) {
         s[i].className='';
@@ -797,7 +797,7 @@ document.querySelector("#save").onclick=function(){
 };
 var user;
 if (window.localStorage.getItem('userid')) {
-  httpGetAsync('https://web300.secure-secure.co.uk/thingkingland.com/sheeptester/getstuff.php?userid='+window.localStorage.getItem('userid'),function(e){
+  httpGetAsync('http://thingkingland-com.stackstaging.com/sheeptester/getstuff.php?userid='+window.localStorage.getItem('userid'),function(e){
     var data=JSON.parse(e);
     user=data.username;
     document.querySelector("#user").textContent=user;
