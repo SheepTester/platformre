@@ -646,6 +646,62 @@ function loop() {
   update(true);
   render(false); // background
   render(true,true); // foreground
+  if (blockSelector.opacity > 0) {
+    c.globalAlpha = Math.min(blockSelector.opacity, 1);
+    c.textAlign = 'center';
+    c.textBaseline = 'top';
+    if (currentblock === '_random_') {
+      c.font = blockSelector.BLOCK_SIZE + 'px monospace';
+      c.fillStyle = 'white';
+      c.fillText('?', innerWidth / 2, blockSelector.FROM_TOP);
+    } else {
+      if (blockData[currentblock].colour) {
+        c.fillStyle=blockData[currentblock].colour;
+        c.fillRect((innerWidth - blockSelector.BLOCK_SIZE) / 2,blockSelector.FROM_TOP,blockSelector.BLOCK_SIZE,blockSelector.BLOCK_SIZE);
+      }
+      if (blockData[currentblock].image) {
+        c.drawImage(
+          textures,
+          blockData[currentblock].image[0]*config.TEXTURE_SIZE,
+          blockData[currentblock].image[1]*config.TEXTURE_SIZE,
+          config.TEXTURE_SIZE,
+          config.TEXTURE_SIZE,
+          (innerWidth - blockSelector.BLOCK_SIZE) / 2,
+          blockSelector.FROM_TOP,
+          blockSelector.BLOCK_SIZE,
+          blockSelector.BLOCK_SIZE
+        );
+      }
+    }
+    c.font = blockSelector.SELECTED_TEXT_SIZE + 'px monospace';
+    c.fillStyle = 'white';
+    c.fillText('selected: ' + currentblock, innerWidth / 2, blockSelector.FROM_TOP * 2 + blockSelector.BLOCK_SIZE);
+    blockSelector.opacity -= 0.02;
+    if (blockSelector.opacity < 0) blockSelector.opacity = 0;
+    c.globalAlpha = 1;
+  }
   window.requestAnimationFrame(loop);
 }
 window.requestAnimationFrame(loop);
+
+const blockSelector = {
+  BLOCK_SIZE: 40,
+  FROM_TOP: 10,
+  SELECTED_TEXT_SIZE: 16,
+  opacity: 0,
+  blocks: Object.keys(blockData)
+};
+blockSelector.index = blockSelector.blocks.length;
+blockSelector.blocks.push('_random_');
+document.addEventListener('keydown', e => {
+  if (e.keyCode === 37) {
+    blockSelector.index = (blockSelector.index + blockSelector.blocks.length - 1) % blockSelector.blocks.length;
+    currentblock = blockSelector.blocks[blockSelector.index];
+    blockSelector.opacity = 1.5;
+  } else if (e.keyCode === 39) {
+    blockSelector.index = (blockSelector.index + 1) % blockSelector.blocks.length;
+    currentblock = blockSelector.blocks[blockSelector.index];
+    blockSelector.opacity = 1.5;
+  }
+});
+SHEEP.notify('WASD to move<br>space to toggle flight<br>q to break<br>e/click to place<br>left/right arrows to switch blocks<br>scroll to zoom')
