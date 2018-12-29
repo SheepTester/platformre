@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Agordeblaj Kaheloj</title>
+    <meta charset="UTF-8">
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="../../sheep2.css">
+    <script src="../../sheep2.js" charset="utf-8"></script>
+    <style>
+      body {
+        margin: 0;
+        font-size: 0;
+        font-family: sans-serif;
+        line-height: 1;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+        cursor: default;
+        background-color: #E9EEF2;
+      }
+      .darken {
+        pointer-events: none;
+      }
+      .darken canvas {
+        opacity: 0.5;
+      }
+      #message {
+        color: rgba(0, 0, 0, 0.5);
+        position: fixed;
+        font-size: 12px;
+        top: 10px;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        display: block;
+      }
+    </style>
+  </head>
+  <body class='play'>
+    <canvas id="stage"></canvas>
+    <span id="message">red: WASD / blue: arrow keys</span>
+
+    <script src="collide.js"></script>
+    <script>
+var blockData = {
+  "TEMPLATE_GAS":{
+    "priority":0,
+    "solid":false,
+    "name":"BILLY LA BUFANDAAAA",
+    "colour":"yellow",
+    "rotate":0,
+    "ignore":true,
+    "xGravity":0,
+    "yGravity":0,
+    "xDefaultVelocity":0,
+    "yDefaultVelocity":0,
+    "xMoveSpeed":0,
+    "yMoveSpeed":0,
+    "jumpVelocity":0,
+    "xAirResist":1,
+    "yAirResist":1
+  },
+  "":{
+    "priority":0,
+    "extends":"TEMPLATE_GAS",
+    "name":"Air",
+    "colour":"white",
+    "yGravity":0.0109,
+  },
+  "solid":{
+    "priority":1,
+    "solid":true,
+    "name":"Generic solid",
+    "colour":"#212121",
+    "rotate":0,
+    "lateralAcceleration":0.0375,
+    "jumpVelocity":0.25,
+    "friction":0.7,
+    "wallBounciness":0.5,
+    "wallJumpVelocity":0.1
+  },
+  'red': {
+    'extends': 'solid',
+    'colour': '#f44336'
+  },
+  'blue': {
+    'extends': 'solid',
+    'colour': '#2196F3'
+  }
+};
+function ridExtends(block) { // also color -> colour for Trump-like people
+  if (blockData[block].extends) {
+    ridExtends(blockData[block].extends);
+    for (var prop in blockData[blockData[block].extends])
+      if (prop!=='ignore'&&blockData[block][prop]===undefined&&blockData[blockData[block].extends][prop]!==undefined)
+        blockData[block][prop]=blockData[blockData[block].extends][prop];
+    delete blockData[block].extends;
+  }
+  if (blockData[block].color) {
+    blockData[block].colour=blockData[block].color;
+    delete blockData[block].color;
+  }
+}
+for (var block in blockData) ridExtends(block);
+window.onload=e=>{
+var canvas=document.querySelector('#stage'),
+c=canvas.getContext('2d'),
+pxratio=(window.devicePixelRatio||1)/(c.webkitBackingStorePixelRatio||c.mozBackingStorePixelRatio||c.msBackingStorePixelRatio||c.oBackingStorePixelRatio||c.backingStorePixelRatio||1);
+(window.onresize=e=>{
+  canvas.height=window.innerHeight*pxratio;
+  canvas.width=window.innerWidth*pxratio;
+  c.scale(pxratio,pxratio);
+  c.translate(window.innerWidth/2,window.innerHeight/2);
+})();
+var redKeys={},blueKeys={};
+document.onkeydown=e=>{
+  switch (e.keyCode) {
+    case 37:blueKeys.left=1;break;
+    case 38:blueKeys.up=1;break;
+    case 39:blueKeys.right=1;break;
+    case 40:blueKeys.down=1;break;
+    case 65:redKeys.left=1;break;
+    case 87:redKeys.up=1;break;
+    case 68:redKeys.right=1;break;
+    case 83:redKeys.down=1;break;
+  }
+};
+document.onkeyup=e=>{
+  switch (e.keyCode) {
+    case 37:blueKeys.left=0;break;
+    case 38:blueKeys.up=0;break;
+    case 39:blueKeys.right=0;break;
+    case 40:blueKeys.down=0;break;
+    case 65:redKeys.left=0;break;
+    case 87:redKeys.up=0;break;
+    case 68:redKeys.right=0;break;
+    case 83:redKeys.down=0;break;
+  }
+};
+var map={};
+var BLOCKSIZE=40,scroll={x:0,y:0},
+WIDTH=0.75,
+HEIGHT=0.75,
+playerRed=new Collidable(WIDTH,HEIGHT,(x,y)=>getBlockProperty(map[`${x},${y}`],'solid')),
+playerBlue=new Collidable(WIDTH,HEIGHT,(x,y)=>getBlockProperty(map[`${x},${y}`],'solid'));
+playerRed.x=playerRed.y=1;
+playerBlue.x = 2 - WIDTH;
+playerBlue.y = 2 - HEIGHT;
+const scores = {red: 0, blue: 0};
+let solids = 0;
+function generate(arr) {
+  scroll.y = -BLOCKSIZE * arr.length / 2;
+  arr.forEach((blocks, y) => {
+    if (y === 0)
+      scroll.x = -BLOCKSIZE * blocks.length / 2;
+    blocks.forEach((block, x) => {
+      if (block) {
+        map[`${x},${y}`] = 'solid';
+        solids++;
+      }
+    });
+  });
+}
+generate(window.location.search
+  ? window.location.search.slice(1).split('&').map(row => row.split('').map(b => b === '1'))
+  : [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,0,0,0,0,0,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,1,1,1,0,0,0,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,0,0,0,0,0,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,1],
+    [1,0,0,0,0,0,1,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ]
+);
+function blocksHave(blockArray,prop,value=false) {
+  for (var i=0;i<blockArray.length;i++) if (value?getBlockProperty(blockArray[i],prop)===value:getBlockProperty(blockArray[i],prop)) return true;
+  return false;
+}
+function blocksAllHave(blockArray,prop,value=false) {
+  for (var i=0;i<blockArray.length;i++) if (value?getBlockProperty(blockArray[i],prop)!==value:!getBlockProperty(blockArray[i],prop)) return false;
+  return true;
+}
+function ridBlockState(name) {
+  if (!name) return '';
+  var t=name.indexOf(':');
+  return ~t?name.slice(0,t):name;
+}
+function getBlockState(name) {
+  if (!name) return '';
+  var t=name.indexOf(':');
+  return ~t?name.slice(t):'';
+}
+function getBlockProperty(block,prop) {
+  var state=getBlockState(block); // block and state names shouldn't contain colons, commas, or whitespace.
+  block=blockData[ridBlockState(block)];
+  if (block) {
+    if (!block[prop]&&block.states) {
+      if (block.states[state]) return block.states[state][prop];
+      else if (block.states[':DEFAULT:']) return block.states[':DEFAULT:'][prop]; // :DEFAULT: properties will be used by default
+      else return;
+    } else return block[prop]; // main definition's property > states' properties
+  } else return; // returns undefined if block doesn't exist
+}
+function getChildIndex(child) {
+  var i=child.parentNode.children.length;
+  while (i--) if (child.parentNode.children[i]===child) return i;
+  return -1;
+}
+function renderLevel() {
+  var t,tx,xblocks=Math.ceil(window.innerWidth/BLOCKSIZE)+1,
+  xoffset=Math.floor((-window.innerWidth/2-scroll.x)/BLOCKSIZE),
+  _yblocks=Math.ceil(window.innerHeight/BLOCKSIZE)+1,
+  ty,yblocks=_yblocks,
+  yoffset=Math.floor((-window.innerHeight/2-scroll.y)/BLOCKSIZE);
+  while (xblocks--) {
+    while (yblocks--) if (t=map[`${tx=xoffset+xblocks},${ty=yoffset+yblocks}`]) {
+      c.fillStyle=getBlockProperty(t,'colour');
+      c.fillRect(tx*BLOCKSIZE+scroll.x,ty*BLOCKSIZE+scroll.y,BLOCKSIZE,BLOCKSIZE);
+    }
+    yblocks=_yblocks;
+  }
+}
+function render() {
+  c.clearRect(-window.innerWidth/2,-window.innerHeight/2,window.innerWidth,window.innerHeight);
+  let cont = true;
+  renderLevel();
+  [
+    [playerRed, '#d32f2f', redKeys, 'red'],
+    [playerBlue, '#1976D2', blueKeys, 'blue']
+  ].forEach(([player, playerColour, keys, playerColourName]) => {
+    var touchings={
+      all:[],
+      inside:[],
+      sides:[],
+      top:[],
+      left:[],
+      bottom:[],
+      right:[]
+    },properties={
+      xGravity:0,
+      yGravity:0,
+      xDefaultVelocity:0,
+      yDefaultVelocity:0,
+      xMoveSpeed:0,
+      yMoveSpeed:0,
+      xAirResist:1,
+      yAirResist:1,
+      lateralAcceleration:0,
+      jumpVelocity:0,
+      friction:0,
+      wallBounciness:0,
+      wallJumpVelocity:0
+    };
+    var t;
+    for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++)
+      for (var j=Math.floor(player.y),len2=Math.ceil(player.y+HEIGHT);j<len2;j++) {
+        t=ridBlockState(map[`${i},${j}`]);
+        if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+        if (!~touchings.inside.indexOf(t)) touchings.inside.push(t);
+      }
+    if (player.x%1===0) for (var i=Math.floor(player.y),len=Math.ceil(player.y+HEIGHT);i<len;i++) {
+      t=ridBlockState(map[`${player.x-1},${i}`]);
+      if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+      if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+      if (!~touchings.left.indexOf(t)) touchings.left.push(t);
+    }
+    if ((player.x+WIDTH)%1===0) for (var i=Math.floor(player.y),len=Math.ceil(player.y+HEIGHT);i<len;i++) {
+      t=ridBlockState(map[`${player.x+WIDTH},${i}`]);
+      if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+      if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+      if (!~touchings.right.indexOf(t)) touchings.right.push(t);
+    }
+    if (player.y%1===0) for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++) {
+      t=ridBlockState(map[`${i},${player.y-1}`]);
+      if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+      if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+      if (!~touchings.top.indexOf(t)) touchings.top.push(t);
+    }
+    if ((player.y+HEIGHT)%1===0) for (var i=Math.floor(player.x),len=Math.ceil(player.x+WIDTH);i<len;i++) {
+      t=ridBlockState(map[`${i},${player.y+HEIGHT}`]);
+      if (!~touchings.all.indexOf(t)) touchings.all.push(t);
+      if (!~touchings.inside.indexOf(t)) touchings.sides.push(t);
+      if (!~touchings.bottom.indexOf(t)) touchings.bottom.push(t);
+    }
+    for (var array in touchings) {
+      touchings[array].sort((a,b)=>(a=blockData[a]?blockData[a].priority:0,b=blockData[b]?blockData[b].priority:0,b-a));
+      touchings[array]=touchings[array].filter(a=>!!blockData[a]);
+    }
+    for (var prop in properties) {
+      properties[prop+'amp']=1;
+      properties[prop+'Is prop still unfound?']=true;
+      for (var i=0,t;i<touchings.all.length;i++) {
+        if ((t=blockData[touchings.all[i]][prop+"Amplifier"])!==undefined) properties[prop+'amp']*=t;
+        if (properties[prop+'Is prop still unfound?']&&(t=blockData[touchings.all[i]][prop])!==undefined)
+          properties[prop]=t,properties[prop+'Is prop still unfound?']=false;
+      }
+      properties[prop]*=properties[prop+'amp'];
+      delete properties[prop+'amp'];
+      delete properties[prop+'Is prop still unfound?'];
+    }
+    player.xv+=properties.xGravity;
+    player.yv+=properties.yGravity;
+    if (keys.left&&!keys.right) player.xv-=properties.xMoveSpeed;
+    else if (!keys.left&&keys.right) player.xv+=properties.xMoveSpeed;
+    if (keys.up&&!keys.down) player.yv-=properties.yMoveSpeed;
+    else if (!keys.up&&keys.down) player.yv+=properties.yMoveSpeed;
+    if (blocksHave(touchings.top,'solid')) {
+      if (properties.yGravity<0) {
+        player.xv=(player.xv-properties.xDefaultVelocity)*properties.friction+properties.xDefaultVelocity;
+        if (keys.left&&!keys.right) player.xv-=properties.lateralAcceleration;
+        else if (!keys.left&&keys.right) player.xv+=properties.lateralAcceleration;
+      }
+      if (keys.down) player.yv+=properties.jumpVelocity;
+    }
+    if (blocksHave(touchings.bottom,'solid')) {
+      if (properties.yGravity>0) {
+        player.xv=(player.xv-properties.xDefaultVelocity)*properties.friction+properties.xDefaultVelocity;
+        if (keys.left&&!keys.right) player.xv-=properties.lateralAcceleration;
+        else if (!keys.left&&keys.right) player.xv+=properties.lateralAcceleration;
+      }
+      if (keys.up) player.yv-=properties.jumpVelocity;
+    }
+    if (blocksHave(touchings.left,'solid')) {
+      if (properties.xGravity<0) {
+        player.yv=(player.yv-properties.yDefaultVelocity)*properties.friction+properties.yDefaultVelocity;
+        if (keys.up&&!keys.down) player.yv-=properties.lateralAcceleration;
+        else if (!keys.up&&keys.down) player.yv+=properties.lateralAcceleration;
+      }
+      if (keys.right) player.xv+=properties.jumpVelocity;
+    }
+    if (blocksHave(touchings.right,'solid')) {
+      if (properties.xGravity>0) {
+        player.yv=(player.yv-properties.yDefaultVelocity)*properties.friction+properties.yDefaultVelocity;
+        if (keys.up&&!keys.down) player.yv-=properties.lateralAcceleration;
+        else if (!keys.up&&keys.down) player.yv+=properties.lateralAcceleration;
+      }
+      if (keys.left) player.xv-=properties.jumpVelocity;
+    }
+    player.xv=(player.xv-properties.xDefaultVelocity)*properties.xAirResist+properties.xDefaultVelocity;
+    player.yv=(player.yv-properties.yDefaultVelocity)*properties.yAirResist+properties.yDefaultVelocity;
+    if (blocksHave(touchings.left,'solid')&&player.xv<properties.xGravity||blocksHave(touchings.right,'solid')&&player.xv>properties.xGravity)
+      if (keys.left||keys.right) {
+        player.xv*=-properties.wallBounciness;
+        if (keys.up&&!blocksHave(touchings.bottom,'solid')) player.yv-=properties.wallJumpVelocity;
+        if (keys.down&&!blocksHave(touchings.top,'solid')) player.yv+=properties.wallJumpVelocity;
+      }
+    if (blocksHave(touchings.top,'solid')&&player.yv<properties.yGravity||blocksHave(touchings.bottom,'solid')&&player.yv>properties.yGravity)
+      if (keys.up||keys.down) {
+        player.yv*=-properties.wallBounciness;
+        if (keys.right&&!blocksHave(touchings.right,'solid')) player.xv-=properties.wallJumpVelocity;
+        if (keys.left&&!blocksHave(touchings.left,'solid')) player.xv+=properties.wallJumpVelocity;
+      }
+    player.updateVelocities();
+    player.updatePositions();
+    c.fillStyle=playerColour;
+    c.fillRect(player.x*BLOCKSIZE+scroll.x,player.y*BLOCKSIZE+scroll.y,WIDTH*BLOCKSIZE,HEIGHT*BLOCKSIZE);
+    var i=Math.floor(Math.random()*9);
+    const blockID = `${Math.round(player.x) + i%3 - 1},${Math.round(player.y) + Math.floor(i/3) - 1}`;
+    const tt=map[blockID];
+    if (tt!=playerColourName&&tt!=undefined) {
+      map[blockID] = playerColourName;
+      if (tt === 'solid') {
+        solids--;
+        scores[playerColourName]++;
+      } else {
+        scores[tt]--;
+      }
+      if (solids <= 0) {
+        document.body.classList.add('darken');
+        document.body.style.backgroundColor = scores.red === scores.blue ? '#000' : scores.red > scores.blue ? '#f44336' : '#2196F3';
+        cont = false;
+        renderLevel();
+      }
+    }
+  });
+  if (cont) window.requestAnimationFrame(render);
+}
+window.requestAnimationFrame(render);
+};
+    </script>
+  </body>
+  <!-- MADE BY SEAN -->
+</html>
