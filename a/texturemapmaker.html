@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>texture map maker</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="reee"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" type="text/css" href="../../sheep3.css">
+    <script src="../../sheep3.js" charset="utf-8"></script>
+    <style>
+      #canvas {
+        image-rendering: pixelated;
+        border: 1px solid black;
+        width: 60px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="20"></canvas>
+    <script>
+const blocks = ['stone', 'air', 'spawn', 'finish', 'grass', 'dirt', 'cave2',
+  'lava', 'darkair', 'water', 'spike', 'trampoline', 'cloud', 'ice', 'sand',
+  'seaweed', 'left', 'right', 'darkstone', 'darkair2', 'gem1', 'gem2', 'nojump',
+  'mud', 'slime', 'slimedebrie'];
+const canvas = document.getElementById('canvas');
+const c = canvas.getContext('2d');
+const images = {};
+Promise.all(blocks.map(block => new Promise(res => {
+  const image = new Image();
+  image.addEventListener('load', res);
+  image.src = `./images/${block}.png`;
+  images[block] = image;
+}))).then(() => {
+  canvas.height = blocks.length * 20 + 78;
+  const data = {};
+  let y = 0;
+  blocks.forEach(block => {
+    const height = block === 'cave2' ? 80 : block === 'spike' ? 38 : 20;
+    c.drawImage(images[block], 0, y, 20, height);
+    data[block] = {y};
+    if (height !== 20) data[block].height = height;
+    y += height;
+  });
+  console.log(JSON.stringify(data));
+});
+    </script>
+  </body>
+</html>

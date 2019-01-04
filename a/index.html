@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>A Platformer</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="JavaScript port of A Platformer"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" type="text/css" href="../../sheep3.css">
+    <script src="../../sheep3.js" charset="utf-8"></script>
+    <script src="./game.js" charset="utf-8"></script>
+    <style media="screen">
+      html, body {
+        height: 100%;
+        width: 100%
+      }
+      body {
+        margin: 0;
+        display: flex;
+        font-size: 0;
+        justify-content: center;
+        align-items: center;
+        background-color: black;
+      }
+      .game-wrapper {
+        width: 100vw;
+        height: 75vw;
+        position: relative;
+      }
+      #player {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: calc(10vw / 3);
+        height: calc(10vw / 3);
+        background-image: url('./player/blue.png');
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+      }
+      @media (min-aspect-ratio: 4/3) {
+        .game-wrapper {
+          height: 100vh;
+          width: calc(400vh / 3);
+        }
+        #player {
+          width: calc(40vh / 9);
+          height: calc(40vh / 9);
+        }
+      }
+      #stage {
+        width: 100%;
+        height: 100%;
+        image-rendering: pixelated;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="game-wrapper">
+      <canvas id="stage" width="480" height="360"></canvas>
+      <div id="player"></div>
+    </div>
+  </body>
+</html>

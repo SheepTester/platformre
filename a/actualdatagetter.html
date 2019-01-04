@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>a platformer data getter</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="very dumb!"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" type="text/css" href="../../sheep3.css">
+    <script src="../../sheep3.js" charset="utf-8"></script>
+    <style>
+      #canvas {
+        image-rendering: pixelated;
+        width: 480px;
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="24" height="18"></canvas>
+    <script>
+const canvas = document.getElementById('canvas');
+const c = canvas.getContext('2d');
+Promise.all([
+  fetch('./colour-data.json').then(r => r.json()),
+  fetch('./costume-data.json').then(r => r.json())
+]).then(([colours, levels]) => {
+  const images = {};
+  const promises = [];
+  function newImage(imageURL) {
+    const image = new Image();
+    promises.push(new Promise(res => { // do promises execute immediately? idk
+      image.addEventListener('load', res);
+      image.src = imageURL;
+    }));
+    return image;
+  }
+  Object.values(levels).forEach(({solids, liquids}) => {
+    images[solids] = newImage(`./project/${solids}.png`);
+    if (liquids) images[liquids] = newImage(`./project/${liquids}.png`);
+  });
+  const alphabet = 'abcdefghijklmnopqrstuvwxyz';
+  const key = {};
+  Object.keys(colours).forEach((colour, i) => {
+    key[alphabet[i]] = colours[colour];
+    colours[colour] = alphabet[i];
+  })
+  function getImageData(image) {
+    image = images[image];
+    const width = canvas.width = image.width;
+    const height = canvas.height = image.height;
+    c.drawImage(image, 0, 0);
+    const imageData = c.getImageData(0, 0, image.width, image.height).data;
+    let offsetX, offsetY;
+    for (let i = 0; i < imageData.length; i += 4) {
+      if (imageData[i] === 0 && imageData[i + 1] === 0 && imageData[i + 2] === 0 && imageData[i + 3] === 255) {
+        offsetX = i / 4 % width + 2;
+        offsetY = Math.floor(i / 4 / width) + 2;
+        break;
+      }
+    }
+    const level = [];
+    for (let x = 0; x < 24; x++) {
+      const col = [];
+      for (let y = 0; y < 18; y++) {
+        const index = ((y * 2 + offsetY) * width + x * 2 + offsetX) * 4;
+        if (imageData[index + 3] !== 255) {
+          col.push('.');
+        } else {
+          let colour = Array.from(imageData.slice(index, index + 3)).map(n => n.toString(16).padStart(2, '0')).join('');
+          if (colour === '656565') colour = '666666';
+          col.push(colours[colour] || '.');
+          if (!colours[colour])
+            console.log(colour);
+        }
+      }
+      level.push(col);
+    }
+    return level;
+  }
+  function simplify(str) {
+    return str.replace(/(.)\1*/g, (match) => {
+      return match.length > 2 ? match[0] + match.length : match;
+    });
+  }
+  Promise.all(promises).then(() => {
+    Object.values(levels).forEach(data => {
+      data.blocks = getImageData(data.solids);
+      data.solids = simplify(data.blocks.map(col => col.map(block => block !== '.' ? '@' : ' ').join('')).join(''));
+      if (data.liquids) {
+        getImageData(data.liquids).forEach((col, x) => {
+          col.forEach((block, y) => {
+            if (block !== '.')
+              data.blocks[x][y] = block;
+          });
+        });
+        delete data.liquids;
+      }
+      data.blocks = simplify(data.blocks.map(col => col.join('')).join(''));
+    });
+    console.log({key, levels});
+  });
+});
+    </script>
+  </body>
+</html>
