@@ -84,7 +84,7 @@ function ready([levelData, textureData, textures]) {
   const canvas = document.getElementById('stage');
   const c = canvas.getContext('2d');
   const startTime = Date.now();
-  let level = 37, stage = 0, deaths = 0;
+  let level = 0, stage = 0, deaths = 0;
   let lastTime = startTime, nextFrameID = null;
   let player;
   let startX = 0, startY = 0;
