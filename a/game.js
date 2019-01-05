@@ -66,6 +66,16 @@ document.addEventListener('keyup', e => {
   }
 });
 
+const audio = new Audio('./waterflame_glorious_morning.mp3');
+audio.loop = true;
+function aggressivelyTryPlaying() {
+  audio.play().catch(e => {
+    setTimeout(aggressivelyTryPlaying, 0);
+  });
+}
+aggressivelyTryPlaying();
+
+const stages = ['red', 'yellow'];
 const BLOCK_SIZE = 20;
 const PLAYER_SIZE = 16 / BLOCK_SIZE;
 function ready([levelData, textureData, textures]) {
@@ -73,22 +83,37 @@ function ready([levelData, textureData, textures]) {
   const playerElem = document.getElementById('player');
   const canvas = document.getElementById('stage');
   const c = canvas.getContext('2d');
-  let level = 0;
-  let lastTime = Date.now(), nextFrameID = null;
+  const startTime = Date.now();
+  let level = 37, stage = 0, deaths = 0;
+  let lastTime = startTime, nextFrameID = null;
   let player;
+  let startX = 0, startY = 0;
+  let spikes;
   function startLevel() {
-    let startX = 0, startY = 0;
+    spikes = {};
     levelData[level].blocks.forEach((col, x) => {
       col.forEach((block, y) => {
-        if (textureData[block]) c.drawImage(textures, 0, textureData[block].y, 20, textureData[block].height || 20, x * 20, y * 20, 20, textureData[block].height || 20);
-        if (block === 'spawn') startX = x, startY = y - 1;
+        if (block === 'slime' && Math.random() < 0.2) block = 'slimedebrie';
+        else if (block === 'gemX') block = 'gem' + (stage + 1);
+        if (textureData[block]) {
+          const height = textureData[block].height || 20;
+          c.drawImage(textures, 0, textureData[block].y, 20, height, x * 20, y * 20 + 20 - height, 20, height);
+        }
+        if (block === 'spawn') startX = x, startY = y - 0.8 - Number.EPSILON;
+        else if (block === 'spike') spikes[`${x}-${y - 1}`] = true;
+        else if (block === 'cave2') {
+          levelData[level].blocks[x][y - 1] = 'darkair';
+          levelData[level].blocks[x][y - 2] = 'darkair';
+        }
       });
     });
-    player = {x: startX, y: startY, xv: 0, yv: 0, onGround: false};
+    player = {x: startX, y: startY, xv: 0, yv: 0, onGround: false, died: false};
     renderPlayer();
   }
   function renderPlayer() {
-    playerElem.style.transform = `translate(${player.x * 100 / PLAYER_SIZE}%, ${player.y * 100 / PLAYER_SIZE}%)`;
+    playerElem.style.setProperty('--x', player.x / 24);
+    playerElem.style.setProperty('--y', player.y / 18);
+    // playerElem.style.transform = `translate(${player.x * 100 / PLAYER_SIZE}%, ${player.y * 100 / PLAYER_SIZE}%)`;
   }
   function getBlock(x, y) {
     if (x < 0 || x >= 24) return null;
@@ -98,22 +123,126 @@ function ready([levelData, textureData, textures]) {
     if (x < 0 || x >= 24 || y < 0 || y >= 18) return true;
     else return levelData[level].solids[x][y];
   }
+  function die(actualDeath) {
+    deaths++; // includes restarts
+    player = {x: startX, y: startY, xv: 0, yv: 0, onGround: false, died: actualDeath, diedEnd: Date.now() + 1000};
+    if (actualDeath) document.body.classList.add('died');
+  }
+  function insideSpike(x, y) {
+    if (player.x + PLAYER_SIZE < x + 0.2) return false;
+    else if (player.x > x + 0.8) return false;
+    else if (player.y + PLAYER_SIZE < y + 0.2) return false;
+    const playerX = player.x - x;
+    const playerY = player.y - y;
+    if (playerX * 3.2 - 1.56 < playerY + PLAYER_SIZE) return true;
+    else if ((playerX + PLAYER_SIZE) * -3.2 + 1.64 < playerY + PLAYER_SIZE) return true;
+    else return false;
+  }
   function paint() {
+    if (keys.restart) {
+      die(false);
+    }
     const now = Date.now();
-    const elapsedTime = now - lastTime;
-    const insideBlocks = [];
-    for (let x = Math.floor(player.x), stop = Math.ceil(player.x + PLAYER_SIZE); x < stop; x++) {
-      for (let y = Math.floor(player.y), stop = Math.ceil(player.y + PLAYER_SIZE); y < stop; y++) {
-        insideBlocks.push(getBlock(x, y));
+    if (player.diedEnd && now > player.diedEnd) {
+      if (player.died) {
+        player.died = false;
+        document.body.classList.remove('died');
+        document.body.classList.add('ok');
+        player.diedEnd = now + 500;
+      } else {
+        document.body.classList.remove('ok');
+        player.diedEnd = null;
       }
     }
-    if (elapsedTime !== 0)
-      player.xv *= 1 / (elapsedTime / 40 + 1);
-    player.yv += 0.00005 * elapsedTime;
-    if (player.touchingFloor && keys.up) player.yv = -0.025;
-    if (keys.left) player.xv -= 0.004;
-    if (keys.right) player.xv += 0.004;
-    const yMove = player.yv * elapsedTime;
+    const elapsedTime = now - lastTime;
+    const frameFraction = elapsedTime * 30 / 1000;
+    const insideBlocks = [], bottomBlocks = [], touchingBlocks = [], touchingSpikes = [];
+    const startX = Math.floor(player.x), startY = Math.floor(player.y);
+    const stopX = Math.ceil(player.x + PLAYER_SIZE), stopY = Math.ceil(player.y + PLAYER_SIZE);
+    for (let x = startX; x < stopX; x++) {
+      for (let y = startY; y < stopY; y++) {
+        const block = getBlock(x, y);
+        insideBlocks.push(block);
+        if (spikes[`${x}-${y}`]) touchingSpikes.push([x, y]);
+        if (x === startX && (player.touchingLeft || player.touchingRight)) {
+          touchingBlocks.push(getBlock(player.touchingLeft ? startX -1 : stopX, y));
+        }
+      }
+      if (player.touchingFloor) {
+        bottomBlocks.push(getBlock(x, stopY));
+      }
+      if (player.touchingFloor || player.touchingCeiling) {
+        touchingBlocks.push(getBlock(x, player.touchingCeiling ? startY - 1 : stopY));
+      }
+    }
+    player.xv *= Math.pow(bottomBlocks.includes('ice') ? 0.97 : 0.9, frameFraction);
+    if (insideBlocks.includes('water')) {
+      player.yv += (0.5 - player.yv) * 0.6 * frameFraction;
+      if (keys.left) player.xv -= (player.died ? 0.1 : 0.3) * frameFraction;
+      if (keys.right) player.xv += (player.died ? 0.1 : 0.3) * frameFraction;
+      if (keys.up) player.yv -= (player.died ? 1 : 3) * frameFraction;
+      if (keys.down) player.yv += (player.died ? 1 : 2) * frameFraction;
+      if (!document.body.classList.contains('water')) document.body.classList.add('water');
+    } else {
+      if (document.body.classList.contains('water')) document.body.classList.remove('water');
+      if (insideBlocks.includes('slime')) {
+        player.yv += (0.2 - player.yv) * 0.6 * frameFraction;
+        if (keys.left) player.xv -= 0.1 * frameFraction;
+        if (keys.right) player.xv += 0.1 * frameFraction;
+        if (keys.up) player.yv -= (player.died ? 0.5 : 1.5) * frameFraction;
+        if (keys.down) player.yv += (player.died ? 0.5 : 1) * frameFraction;
+      } else {
+        player.yv += 0.5 * frameFraction;
+        if (keys.left) player.xv -= (player.died ? 0.5 : 1) * frameFraction;
+        if (keys.right) player.xv += (player.died ? 0.5 : 1) * frameFraction;
+        if (player.touchingFloor && !bottomBlocks.includes('nojump') && keys.up) player.yv = player.died ? -3 : -7;
+      }
+    }
+    if (insideBlocks.includes('darkair')) {
+      if (!document.body.classList.contains('dark')) document.body.classList.add('dark');
+    } else {
+      if (document.body.classList.contains('dark')) document.body.classList.remove('dark');
+    }
+    if (bottomBlocks.includes('trampoline')) { // these three technically used touchingBlocks, but that doesn't make sense
+      player.yv = -16;
+    }
+    if (bottomBlocks.includes('left')) {
+      player.xv -= 5 * frameFraction;
+    }
+    if (bottomBlocks.includes('right')) {
+      player.xv += 5 * frameFraction;
+    }
+    if (bottomBlocks.includes('mud')) {
+      player.xv *= Math.pow(0.5, frameFraction);
+    }
+    if (player.y >= 17.2 - Number.EPSILON) {
+      die(true);
+    } else if ((insideBlocks.includes('lava') || touchingBlocks.includes('lava')) && !insideBlocks.includes('water')) {
+      // touching it can kill you because it's hot (also in line with Scratch)
+      die(true);
+    } else if (touchingSpikes.length && touchingSpikes.find(([x, y]) => insideSpike(x, y))) {
+      die(true);
+    } else if (touchingBlocks.includes('finish') || insideBlocks.includes('gemX')) {
+      if (insideBlocks.includes('gemX')) {
+        document.body.classList.add(stages[stage++]);
+      }
+      level++;
+      if (level >= levelData.length) {
+        const endScreen = document.getElementById('end-screen');
+        endScreen.innerHTML = `
+          <h1>Congratulations</h1>
+          <p>Times died</p>
+          <h2>${deaths}</h2>
+          <p>Time taken (in seconds)</p>
+          <h2>${(now - startTime) / 1000}</h2>
+          <p><a href="./">Play again</a></p>
+        `;
+        endScreen.classList.add('show');
+        return;
+      }
+      else startLevel();
+    }
+    const yMove = player.yv * frameFraction / BLOCK_SIZE;
     if (yMove !== 0) {
       checkAxis(yMove, player.y, player.x, (y, x) => isSolid(x, y), y => {
         player.y = y;
@@ -125,7 +254,7 @@ function ready([levelData, textureData, textures]) {
         player.touchingCeiling = player.touchingFloor = false;
       });
     }
-    const xMove = player.xv * elapsedTime;
+    const xMove = player.xv * frameFraction / BLOCK_SIZE;
     if (xMove !== 0) {
       checkAxis(xMove, player.x, player.y, (x, y) => isSolid(x, y), x => {
         player.x = x;
@@ -153,5 +282,5 @@ Promise.all([
     image.addEventListener('load', () => res(image));
     image.src = `./textures.png`;
   }),
-  new Promise(res => document.addEventListener('DOMContentLoaded', res))
+  new Promise(res => document.addEventListener('DOMContentLoaded', res, {once: true}))
 ]).then(ready);
