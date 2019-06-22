@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Box2D test</title>
+    <meta name="description" content="Playing with Box2DWeb"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" type="text/css" href="../../sheep3.css">
+    <script src="../../sheep3.js" charset="utf-8"></script>
+    <script src="./Box2d.min.js" charset="utf-8"></script>
+    <style>
+      html, body, canvas {
+        width: 100%;
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-size: 0;
+      }
+      canvas {
+        image-rendering: pixelated;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script>
+const SCALE = 30;
+
+const b2World = Box2D.Dynamics.b2World;
+const b2Vec2 = Box2D.Common.Math.b2Vec2;
+const b2AABB = Box2D.Collision.b2AABB;
+const b2BodyDef = Box2D.Dynamics.b2BodyDef;
+const b2Body = Box2D.Dynamics.b2Body;
+const b2FixtureDef = Box2D.Dynamics.b2FixtureDef;
+const b2Contact = Box2D.Dynamics.Contacts.b2Contact;
+const b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape;
+const b2CircleShape = Box2D.Collision.Shapes.b2CircleShape;
+const b2MouseJointDef = Box2D.Dynamics.Joints.b2MouseJointDef;
+const b2Math = Box2D.Common.Math.b2Math;
+const b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
+
+const canvas = document.getElementById('canvas');
+const c = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const bodyDef = new b2BodyDef();
+const fixDef = new b2FixtureDef();
+fixDef.density = 1.0;
+fixDef.friction = 0.5;
+fixDef.restitution = 0.2;
+
+const world = new b2World(new b2Vec2(0, 10), true);
+
+bodyDef.type = b2Body.b2_staticBody;
+bodyDef.position.x = canvas.width / 2 / SCALE;
+bodyDef.position.y = canvas.height / SCALE;
+fixDef.shape = new b2PolygonShape();
+fixDef.shape.SetAsBox((600 / SCALE) / 2, (10 / SCALE) / 2);
+world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+bodyDef.type = b2Body.b2_dynamicBody;
+for (let i = 0; i < 0; i++) {
+  if (Math.random() > 0.5) {
+    fixDef.shape = new b2PolygonShape();
+    fixDef.shape.SetAsBox(
+      Math.random() + 0.1,
+      Math.random() + 0.1
+    );
+  } else {
+    fixDef.shape = new b2CircleShape(Math.random() + 0.1);
+  }
+  bodyDef.position.x = (canvas.width / 2 + Math.random() * 600 - 300) / SCALE;
+  bodyDef.position.y = Math.random() * 10;
+  world.CreateBody(bodyDef).CreateFixture(fixDef);
+}
+
+fixDef.friction = 1;
+fixDef.shape = new b2CircleShape(20 / SCALE);
+bodyDef.position.x = canvas.width / 2 / SCALE;
+bodyDef.position.y = 0;
+const player = world.CreateBody(bodyDef);
+player.CreateFixture(fixDef);
+
+const debugDraw = new b2DebugDraw();
+debugDraw.SetSprite(c);
+debugDraw.SetDrawScale(SCALE);
+debugDraw.SetFillAlpha(0.3);
+debugDraw.SetLineThickness(1);
+debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+world.SetDebugDraw(debugDraw);
+
+const keys = {};
+document.addEventListener('keydown', e => {
+  keys[e.key.toLowerCase()] = true;
+});
+document.addEventListener('keyup', e => {
+  keys[e.key.toLowerCase()] = false;
+});
+
+function paint() {
+  if (keys.a) {
+    player.ApplyForce({x: -30, y: 0}, player.GetWorldPoint({x: 0, y: 0}));
+  }
+  if (keys.d) {
+    player.ApplyForce({x: 30, y: 0}, player.GetWorldPoint({x: 0, y: 0}));
+  }
+  if (keys.w && player.GetContactList()) {
+    player.ApplyForce({x: 0, y: -30}, player.GetWorldPoint({x: 0, y: 0}));
+  }
+
+  world.Step(1 / 60, 10, 10);
+  world.DrawDebugData();
+  world.ClearForces();
+
+  window.requestAnimationFrame(paint);
+}
+paint();
+    </script>
+  </body>
+</html>
