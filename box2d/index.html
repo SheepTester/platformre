@@ -61,7 +61,7 @@ fixDef.shape.SetAsBox((600 / SCALE) / 2, (10 / SCALE) / 2);
 world.CreateBody(bodyDef).CreateFixture(fixDef);
 
 bodyDef.type = b2Body.b2_dynamicBody;
-for (let i = 0; i < 0; i++) {
+for (let i = 0; i < 10; i++) {
   if (Math.random() > 0.5) {
     fixDef.shape = new b2PolygonShape();
     fixDef.shape.SetAsBox(
@@ -76,7 +76,7 @@ for (let i = 0; i < 0; i++) {
   world.CreateBody(bodyDef).CreateFixture(fixDef);
 }
 
-fixDef.friction = 1;
+// fixDef.friction = 1;
 fixDef.shape = new b2CircleShape(20 / SCALE);
 bodyDef.position.x = canvas.width / 2 / SCALE;
 bodyDef.position.y = 0;
@@ -107,7 +107,7 @@ function paint() {
     player.ApplyForce({x: 30, y: 0}, player.GetWorldPoint({x: 0, y: 0}));
   }
   if (keys.w && player.GetContactList()) {
-    player.ApplyForce({x: 0, y: -30}, player.GetWorldPoint({x: 0, y: 0}));
+    player.ApplyForce({x: 0, y: -100}, player.GetWorldPoint({x: 0, y: 0}));
   }
 
   world.Step(1 / 60, 10, 10);
