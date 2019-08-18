@@ -284,7 +284,25 @@ var exampleLevels=[
     "@wwwwwwwwwwwwwwwwwwCaaaaaa**####@@@@@@@@@@@@@                                yy@",
     "@wwwwwwwwwwwwww@w@@@############@@@@@@@@@@@@@yyyy       p                    yy@",
     "@wwwwwwwwww;;**@@@@@############@@@@@@@@@@@@@gggg******************************@"
-  ],"A level...","230141"
+  ],"A level...","230141",
+  // [[{"cpx":80,"cpy":80},"Hello world!"],
+  //   "@@@@@@@@@@@@@@@@@+@@>>>>>>>",
+  //   "@              @@w@@>>>>>>>",
+  //   "@               www       >",
+  //   "@   @===@       www       >",
+  //   "@     #         wwwiiii  +>",
+  //   "@     #        @w@@@>>>>>>>",
+  //   "@@@@@@@@@@@@@@@@@@@@>>>>>>>"
+  // ],"hiiii","hi",
+  [[{"cpx":80,"cpy":80},"lava ahead!"],
+    "@##@@@@@@@@@@@@@@+@@",
+    "#        wwwww @@w@@",
+    "+        wwwww  w@w@",
+    "@##v#a=  wwwwi  w@w@",
+    "@ @      wwwww  www@",
+    "@        íííííh;Cp^@",
+    "@B@@@@a>0@@@@@@@@@@@"
+  ],"training level","sysdl132"
 ];
 var loc=window.location.pathname.slice(window.location.pathname.lastIndexOf('/',window.location.pathname.lastIndexOf('/')-1),window.location.pathname.lastIndexOf('/'));
 if (loc=="/platformre"||loc=="/maker") {
