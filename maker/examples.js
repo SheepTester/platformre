@@ -302,7 +302,24 @@ var exampleLevels=[
     "@ @      wwwww  www@",
     "@        íííííh;Cp^@",
     "@B@@@@a>0@@@@@@@@@@@"
-  ],"training level","sysdl132"
+  ],"training level","sysdl132",
+  [[{"cpx":80,"cpy":80},"flappyball","1","2","3","4","finish"],
+    " #                #     #   #          +",
+    " #                #     #              +",
+    " #                #     #              +",
+    " #                #     #              +",
+    " #                #     #              +",
+    " #                #     #              +",
+    " #                #         #          +",
+    " f                          #          +",
+    " @                          #          +",
+    "+@      &                   #           ",
+    "+@     &#               #   #           ",
+    "+@    &##         #     #  ^#           ",
+    "+@   &###        @@ 1 @@ 2@@ C3gg       ",
+    "+@  &####a     @@#@hhCh            gg5 &",
+    "+@@&#######v0vC###@###################gg"
+  ],"flappyball changed","sysdl132",
 ];
 var loc=window.location.pathname.slice(window.location.pathname.lastIndexOf('/',window.location.pathname.lastIndexOf('/')-1),window.location.pathname.lastIndexOf('/'));
 if (loc=="/platformre"||loc=="/maker") {
