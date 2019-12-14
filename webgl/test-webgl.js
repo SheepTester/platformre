@@ -22,23 +22,31 @@ const vertexShaderCode = `
   // Our vertex position
   // "attribute" will receive values from its assigned buffer
   attribute vec4 aVertexPosition;
+  attribute vec4 aVertexColour;
 
   // idk lol
   // "uniform" is like a global variable; it stays the same throughout
   uniform mat4 uModelViewMatrix;
   uniform mat4 uProjectionMatrix;
 
+  // I guess this is how you set the colour
+  varying lowp vec4 vColour;
+
   void main() {
     // Save it in this variable to return the transformed vertex uau uau
     gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+    vColour = aVertexColour;
   }
 `
 // Fragment shader determine colours for a pixel
 // Applying a texture or lighting is done here
 const fragmentShaderCode = `
+  // "varying" I guess allows this program to use the value from the vertex
+  // shader
+  varying lowp vec4 vColour;
+
   void main() {
-    // Some opaque colour? (uncomment later pls)
-    gl_FragColor = vec4(224.0 / 255.0, 165.0 / 255.0, 233.0 / 255.0, 1.0);
+    gl_FragColor = vColour;
   }
 `
 
@@ -82,11 +90,12 @@ const programInfo = {
   program: shaderProgram,
   attrLocs: {
     vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+    vertexColour: gl.getAttribLocation(shaderProgram, 'aVertexColour')
   },
   uniformLocs: {
     projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-    modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
-  },
+    modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix')
+  }
 }
 
 // Create a buffer of vertex positions
@@ -108,8 +117,24 @@ function initBuffers (gl) {
     new Float32Array(positions),
     gl.STATIC_DRAW
   )
+
+  // An array of vertex colours (because WebGL objects are all about vertices,
+  // each with position and colour)
+  // (instagram colours lol)
+  const colours = [
+    81, 91, 212, 255, // blue
+    129, 52, 175, 255, // purple
+    254, 218, 119, 255, // yellow
+    221, 42, 123, 255 // magenta
+  ].map(c => c / 255)
+
+  const colourBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW)
+
   return {
     position: positionBuffer,
+    colour: colourBuffer
   }
 }
 
@@ -153,6 +178,19 @@ gl.vertexAttribPointer(
   0 // "offset" - Buffer start position
 )
 gl.enableVertexAttribArray(programInfo.attrLocs.vertexPosition)
+
+// Tell WebGL how to pull out the colours from the colour buffer in a similar
+// fashion
+gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colour)
+gl.vertexAttribPointer(
+  programInfo.attrLocs.vertexColour,
+  4,
+  gl.FLOAT,
+  false,
+  0,
+  0
+)
+gl.enableVertexAttribArray(programInfo.attrLocs.vertexColour)
 
 // Notice my program, WebGL-senpai!
 gl.useProgram(programInfo.program)
