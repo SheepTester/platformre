@@ -140,73 +140,94 @@ function initBuffers (gl) {
 
 const buffers = initBuffers(gl)
 
-// Set the clear colour to some opaque colour
-gl.clearColor(86 / 255, 122 / 255, 177 / 255, 1)
-// Clear everything
-gl.clearDepth(1.0)
-// Enable "depth testing" which means...
-gl.enable(gl.DEPTH_TEST)
-// ...closer things cover up things further away
-gl.depthFunc(gl.LEQUAL)
-// Clear canvas
-gl.clear(gl.COLOR_BUFFER_BIT)
+let squareRotation = 0
 
-// Perspective matrix simulates camera perspective distortion, scary!
-const fov = 45 * Math.PI / 180
-const aspect = width / height
-const zNear = 0.1
-const zFar = 100.0
-const projectionMatrix = mat4.create()
-// In glmatrix.js, first argument is the target matrix
-mat4.perspective(projectionMatrix, fov, aspect, zNear, zFar)
+function drawScene (gl, programInfo, buffers, elapsedTime) {
+  squareRotation += elapsedTime
 
-// Start from an "identity" point (centre of the scene)
-const modelViewMatrix = mat4.create()
-// Move to where square should be drawn
-// (the array is amount to translate: 6 units out from the camera)
-mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -6.0])
+  // Set the clear colour to some opaque colour
+  gl.clearColor(86 / 255, 122 / 255, 177 / 255, 1)
+  // Clear everything
+  gl.clearDepth(1.0)
+  // Enable "depth testing" which means...
+  gl.enable(gl.DEPTH_TEST)
+  // ...closer things cover up things further away
+  gl.depthFunc(gl.LEQUAL)
+  // Clear canvas
+  gl.clear(gl.COLOR_BUFFER_BIT)
 
-// Tell WebGL how to pull out the positions from the position buffer for the
-// square into the `aVertexPosition` shader attribute
-gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
-gl.vertexAttribPointer(
-  programInfo.attrLocs.vertexPosition,
-  2, // "numComponents" - Pull out two values per iteration
-  gl.FLOAT, // "type" - Buffer data type is 32bit float
-  false, // "normalize" - Normalizen't?
-  0, // "stride" - Number of bytes to get to next value; 0 means to determine from numComponents and type
-  0 // "offset" - Buffer start position
-)
-gl.enableVertexAttribArray(programInfo.attrLocs.vertexPosition)
+  // Perspective matrix simulates camera perspective distortion, scary!
+  const fov = 45 * Math.PI / 180
+  const aspect = width / height
+  const zNear = 0.1
+  const zFar = 100.0
+  const projectionMatrix = mat4.create()
+  // In glmatrix.js, first argument is the target matrix
+  mat4.perspective(projectionMatrix, fov, aspect, zNear, zFar)
 
-// Tell WebGL how to pull out the colours from the colour buffer in a similar
-// fashion
-gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colour)
-gl.vertexAttribPointer(
-  programInfo.attrLocs.vertexColour,
-  4,
-  gl.FLOAT,
-  false,
-  0,
-  0
-)
-gl.enableVertexAttribArray(programInfo.attrLocs.vertexColour)
+  // Start from an "identity" point (centre of the scene)
+  const modelViewMatrix = mat4.create()
+  // Move to where square should be drawn
+  // (the array is amount to translate: 6 units out from the camera)
+  mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -6.0])
+  // Rotate by `squareRotation` around the Z-axis (specified in array)
+  mat4.rotate(modelViewMatrix, modelViewMatrix, squareRotation, [0, 1, 1])
 
-// Notice my program, WebGL-senpai!
-gl.useProgram(programInfo.program)
+  // Tell WebGL how to pull out the positions from the position buffer for the
+  // square into the `aVertexPosition` shader attribute
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
+  gl.vertexAttribPointer(
+    programInfo.attrLocs.vertexPosition,
+    2, // "numComponents" - Pull out two values per iteration
+    gl.FLOAT, // "type" - Buffer data type is 32bit float
+    false, // "normalize" - Normalizen't?
+    0, // "stride" - Number of bytes to get to next value; 0 means to determine from numComponents and type
+    0 // "offset" - Buffer start position
+  )
+  gl.enableVertexAttribArray(programInfo.attrLocs.vertexPosition)
 
-// Set the shader uniform values
-gl.uniformMatrix4fv(
-  programInfo.uniformLocs.projectionMatrix,
-  false,
-  projectionMatrix
-)
-gl.uniformMatrix4fv(
-  programInfo.uniformLocs.modelViewMatrix,
-  false,
-  modelViewMatrix
-)
+  // Tell WebGL how to pull out the colours from the colour buffer in a similar
+  // fashion
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colour)
+  gl.vertexAttribPointer(
+    programInfo.attrLocs.vertexColour,
+    4,
+    gl.FLOAT,
+    false,
+    0,
+    0
+  )
+  gl.enableVertexAttribArray(programInfo.attrLocs.vertexColour)
 
-const offset = 0
-const vertexCount = 4
-gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount)
+  // Notice my program, WebGL-senpai!
+  gl.useProgram(programInfo.program)
+
+  // Set the shader uniform values
+  gl.uniformMatrix4fv(
+    programInfo.uniformLocs.projectionMatrix,
+    false,
+    projectionMatrix
+  )
+  gl.uniformMatrix4fv(
+    programInfo.uniformLocs.modelViewMatrix,
+    false,
+    modelViewMatrix
+  )
+
+  const offset = 0
+  const vertexCount = 4
+  gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount)
+}
+
+let lastTime = Date.now()
+function render () {
+  const now = Date.now()
+  const elapsedTime = now - lastTime
+  lastTime = now
+
+  drawScene(gl, programInfo, buffers, elapsedTime / 1000)
+
+  requestAnimationFrame(render)
+}
+
+render()
