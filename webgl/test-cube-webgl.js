@@ -116,6 +116,10 @@ function loadTexture (gl, url) {
       // mip
       // mip
       gl.generateMipmap(gl.TEXTURE_2D)
+      // The following two are needed to prevent white lines in between textures
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+      // The following two are needed to make the texture not blurry
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
     } else {
