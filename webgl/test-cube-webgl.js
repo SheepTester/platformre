@@ -8,23 +8,33 @@ const gl = canvas.getContext('webgl')
 
 const vertexShaderCode = `
   attribute vec4 aVertexPosition;
-  attribute vec4 aVertexColour;
+  // attribute vec4 aVertexColour;
+  attribute vec2 aTextureCoord;
 
   uniform mat4 uModelViewMatrix;
   uniform mat4 uProjectionMatrix;
 
-  varying lowp vec4 vColour;
+  // varying lowp vec4 vColour;
+  varying highp vec2 vTextureCoord;
 
   void main() {
     gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-    vColour = aVertexColour;
+    // vColour = aVertexColour;
+    vTextureCoord = aTextureCoord;
   }
 `
 const fragmentShaderCode = `
-  varying lowp vec4 vColour;
+  // varying lowp vec4 vColour;
+  varying highp vec2 vTextureCoord;
+
+  uniform sampler2D uSampler;
 
   void main() {
-    gl_FragColor = vColour;
+    // gl_FragColor = vColour;
+
+    // Fetches "texel" (texture pixel) from texture; interpolates between
+    // given texture coordinates like colours do
+    gl_FragColor = texture2D(uSampler, vTextureCoord);
   }
 `
 function loadShader (gl, type, source) {
@@ -60,12 +70,68 @@ const programInfo = {
   program: shaderProgram,
   attrLocs: {
     vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-    vertexColour: gl.getAttribLocation(shaderProgram, 'aVertexColour')
+    // vertexColour: gl.getAttribLocation(shaderProgram, 'aVertexColour')
+    textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord')
   },
   uniformLocs: {
     projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
-    modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix')
+    modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
+    uSampler: gl.getUniformLocation(shaderProgram, 'uSampler')
   }
+}
+
+function isPowerOf2 (n) {
+  return (n & (n - 1)) === 0
+}
+
+// When image loads, it'll be copied onto a texture
+function loadTexture (gl, url) {
+  const texture = gl.createTexture()
+  gl.bindTexture(gl.TEXTURE_2D, texture)
+
+  // Temporarily make the texture a single pixel until the image loads
+  const level = 0
+  const internalFormat = gl.RGBA
+  const srcFormat = gl.RGBA
+  const srcType = gl.UNSIGNED_BYTE
+  gl.texImage2D(
+    gl.TEXTURE_2D,
+    level,
+    internalFormat,
+    1, // width
+    1, // height
+    0, // border
+    srcFormat,
+    srcType,
+    new Uint8Array([255, 193, 7, 255]) // pixel
+  )
+
+  const image = new Image()
+  image.onload = e => {
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat, srcFormat, srcType, image)
+
+    // WebGL treats power of 2 images vs not-sos differently
+    if (isPowerOf2(image.width) && isPowerOf2(image.height)) {
+      // mip
+      // mip
+      gl.generateMipmap(gl.TEXTURE_2D)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+    } else {
+      // Turn off mips, set wrapping to clamp to edge
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST)
+      // MDN offers some other option but I don't think I'll be using non-power-of-2
+      // images, but just in case:
+      // https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API/Tutorial/Using_textures_in_WebGL
+    }
+  }
+  image.src = url
+
+  return texture
 }
 
 function initBuffers (gl) {
@@ -114,6 +180,7 @@ function initBuffers (gl) {
     gl.STATIC_DRAW
   )
 
+  /*
   const faceColours = [
     [233, 30, 99], // pink
     [156, 39, 176], // purple
@@ -132,6 +199,44 @@ function initBuffers (gl) {
   const colourBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW)
+  */
+
+  const textureCoordBuffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer)
+  // Coordinates correspond to each vertex, but only range between 0 and 1
+  const textureCoordinates = [
+    // Front
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Back
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Top
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Bottom
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Right
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+    // Left
+    0.0,  0.0,
+    1.0,  0.0,
+    1.0,  1.0,
+    0.0,  1.0,
+  ]
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW)
 
   const indexBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
@@ -150,14 +255,16 @@ function initBuffers (gl) {
 
   return {
     position: positionBuffer,
-    colour: colourBuffer,
+    // colour: colourBuffer,
+    textureCoord: textureCoordBuffer,
     indices: indexBuffer
   }
 }
 const buffers = initBuffers(gl)
+const texture = loadTexture(gl, './test-cube.png')
 
 let squareRotation = 0
-function drawScene (gl, programInfo, buffers, elapsedTime) {
+function drawScene (gl, programInfo, buffers, texture, elapsedTime) {
   squareRotation += elapsedTime
 
   gl.clearColor(54 / 255, 0 / 255, 33 / 255, 1)
@@ -189,6 +296,7 @@ function drawScene (gl, programInfo, buffers, elapsedTime) {
   )
   gl.enableVertexAttribArray(programInfo.attrLocs.vertexPosition)
 
+  /*
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colour)
   gl.vertexAttribPointer(
     programInfo.attrLocs.vertexColour,
@@ -199,6 +307,18 @@ function drawScene (gl, programInfo, buffers, elapsedTime) {
     0
   )
   gl.enableVertexAttribArray(programInfo.attrLocs.vertexColour)
+  */
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord)
+  gl.vertexAttribPointer(
+    programInfo.attrLocs.textureCoord,
+    2,
+    gl.FLOAT,
+    false,
+    0,
+    0
+  )
+  gl.enableVertexAttribArray(programInfo.attrLocs.textureCoord)
 
   // Tell which indices to use to index the vertices
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices)
@@ -216,6 +336,13 @@ function drawScene (gl, programInfo, buffers, elapsedTime) {
     modelViewMatrix
   )
 
+  // We are affecting "texture unit 0"
+  gl.activeTexture(gl.TEXTURE0)
+  // Bind texture to texture unit 0
+  gl.bindTexture(gl.TEXTURE_2D, texture)
+  // Tell the shader we bound to 0 so that it'll use texture unit 0
+  gl.uniform1i(programInfo.uniformLocs.uSampler, 0)
+
   const vertexCount = 36
   const type = gl.UNSIGNED_SHORT
   const offset = 0
@@ -228,7 +355,7 @@ function render () {
   const elapsedTime = now - lastTime
   lastTime = now
 
-  drawScene(gl, programInfo, buffers, elapsedTime / 1000)
+  drawScene(gl, programInfo, buffers, texture, elapsedTime / 1000)
 
   requestAnimationFrame(render)
 }
