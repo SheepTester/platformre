@@ -113,26 +113,26 @@ class Block {
       if (face === 'top' || face === 'bottom') {
         const planeY = face === 'top' ? globalY + 1 : globalY
         plane = [
-          globalX, planeY, globalZ,
-          globalX + 1, planeY, globalZ,
           globalX + 1, planeY, globalZ + 1,
-          globalX, planeY, globalZ + 1
+          globalX, planeY, globalZ + 1,
+          globalX, planeY, globalZ,
+          globalX + 1, planeY, globalZ
         ]
       } else if (face === 'left' || face === 'right') {
         const planeX = face === 'right' ? globalX + 1 : globalX
         plane = [
-          planeX, globalY, globalZ,
-          planeX, globalY + 1, globalZ,
           planeX, globalY + 1, globalZ + 1,
+          planeX, globalY + 1, globalZ,
+          planeX, globalY, globalZ,
           planeX, globalY, globalZ + 1
         ]
       } else if (face === 'front' || face === 'back') {
         const planeZ = face === 'front' ? globalZ + 1 : globalZ
         plane = [
-          globalX, globalY, planeZ,
-          globalX + 1, globalY, planeZ,
           globalX + 1, globalY + 1, planeZ,
-          globalX, globalY + 1, planeZ
+          globalX, globalY + 1, planeZ,
+          globalX, globalY, planeZ,
+          globalX + 1, globalY, planeZ
         ]
       } else {
         return
@@ -267,7 +267,7 @@ textureAtlasPromise.then(createTexture)
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < CHUNK_SIZE; x++) {
         for (let z = 0; z < CHUNK_SIZE; z++) {
-          subchunk.setBlock(x, y, z, new Block(y < 4 ? 'stone' : y < 6 ? 'dirt' : 'grass'))
+          subchunk.setBlock(x, y, z, new Block(y < 4 ? 'stone' : y < 7 ? 'dirt' : 'grass'))
         }
       }
     }
@@ -343,7 +343,6 @@ function render () {
     // TEMP; should do all subchunks nearby
     subchunk.storeFacesIn(faces, textureCoords)
     buffers = makeBuffers(faces, textureCoords)
-    console.log(faces, textureCoords);
     facesChanged = false
   }
 
