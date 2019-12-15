@@ -4,10 +4,58 @@ function mod (a, b) {
   return (a % b + b) % b
 }
 
+class Vector2 {
+  constructor (x = 0, y = 0) {
+    this.set({ x, y })
+  }
+
+  get length () {
+    if (this._length === undefined) {
+      this._length = Math.hypot(this.x, this.y)
+    }
+    return this._length
+  }
+
+  set ({ x = 0, y = 0 }) {
+    this.x = x
+    this.y = y
+    return this
+  }
+
+  add ({ x = 0, y = 0 }) {
+    this.x += x
+    this.y += y
+    return this
+  }
+
+  scale (factor = 1) {
+    this.x *= factor
+    this.y *= factor
+    return this
+  }
+
+  unit () {
+    return this.scale(1 / this.length)
+  }
+
+  rotate (angle = 0) {
+    const cos = Math.cos(angle)
+    const sin = Math.sin(angle)
+    const { x, y } = this
+    this.x = x * cos - y * sin
+    this.y = x * sin + y * cos
+    return this
+  }
+
+  clone () {
+    return new Vector(this.x, this.y)
+  }
+}
+
 const canvas = document.getElementById('canvas')
 const gl = canvas.getContext('webgl')
 
-let width, height
+let width, height, projectionMatrix
 function resize() {
   // TODO: device pixel ratio
   width = window.innerWidth
@@ -15,6 +63,9 @@ function resize() {
   canvas.width = width
   canvas.height = height
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+
+  projectionMatrix = mat4.create()
+  mat4.perspective(projectionMatrix, 45 * Math.PI / 180, width / height, 0.1, 100)
 }
 window.addEventListener('resize', resize)
 resize()
@@ -92,8 +143,6 @@ function makeProgram () {
       uniform sampler2D uSampler;
 
       void main() {
-        // Fetches "texel" (texture pixel) from texture; interpolates between
-        // given texture coordinates like colours do
         gl_FragColor = texture2D(uSampler, vTextureCoord);
       }
     `,
@@ -123,8 +172,8 @@ function makeBuffers (faces, textureCoords) {
   const indices = []
   const indexSets = faces.length / 12
   for (let i = 0; i < indexSets; i++) {
-    indices.push(i * 6, i * 6 + 1, i * 6 + 2)
-    indices.push(i * 6, i * 6 + 3, i * 6 + 2)
+    indices.push(i * 4, i * 4 + 1, i * 4 + 2)
+    indices.push(i * 4, i * 4 + 3, i * 4 + 2)
   }
   gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW)
 
@@ -136,18 +185,12 @@ function makeBuffers (faces, textureCoords) {
   }
 }
 
-function drawScene (programInfo, buffers, texture) {
+function drawScene (programInfo, buffers, texture, modelViewMatrix) {
   gl.clearColor(54 / 255, 0 / 255, 33 / 255, 1)
   gl.clearDepth(1.0)
   gl.enable(gl.DEPTH_TEST)
   gl.depthFunc(gl.LEQUAL)
   gl.clear(gl.COLOR_BUFFER_BIT)
-
-  const projectionMatrix = mat4.create()
-  mat4.perspective(projectionMatrix, 45 * Math.PI / 180, width / height, 0.1, 100)
-
-  const cameraMatrix = mat4.create()
-  mat4.translate(cameraMatrix, cameraMatrix, [0, 0.0, -6.0])
 
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
   gl.vertexAttribPointer( programInfo.attrs.vertexPosition, 3, gl.FLOAT, false, 0, 0)
@@ -162,7 +205,7 @@ function drawScene (programInfo, buffers, texture) {
   gl.useProgram(programInfo.program)
 
   gl.uniformMatrix4fv(programInfo.uniforms.projectionMatrix, false, projectionMatrix)
-  gl.uniformMatrix4fv(programInfo.uniforms.modelViewMatrix, false, cameraMatrix)
+  gl.uniformMatrix4fv(programInfo.uniforms.modelViewMatrix, false, modelViewMatrix)
 
   gl.activeTexture(gl.TEXTURE0)
   gl.bindTexture(gl.TEXTURE_2D, texture)

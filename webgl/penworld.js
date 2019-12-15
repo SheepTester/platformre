@@ -104,12 +104,11 @@ class Block {
   showFace (face) {
     if (this.faces[face]) return
     const texture = this.texture(face)
-    const x = this.chunk.x + this.x
     if (texture) {
       const { x, y, z } = this
       const globalX = this.chunk.x * CHUNK_SIZE + x
-      const globalY = this.chunk.y * CHUNK_SIZE + x
-      const globalZ = this.chunk.z * CHUNK_SIZE + x
+      const globalY = this.chunk.y * CHUNK_SIZE + y
+      const globalZ = this.chunk.z * CHUNK_SIZE + z
       let plane
       if (face === 'top' || face === 'bottom') {
         const planeY = face === 'top' ? globalY + 1 : globalY
@@ -276,13 +275,84 @@ textureAtlasPromise.then(createTexture)
     render()
   })
 
+const position = { x: 5, y: 10, z: 5 }
+const rotation = { vertical: 0, lateral: 0 }
+
+let mouseLocked = false
+document.addEventListener('pointerlockchange', e => {
+  mouseLocked = document.pointerLockElement === canvas
+})
+canvas.addEventListener('click', e => {
+  canvas.requestPointerLock()
+})
+canvas.addEventListener('mousemove', e => {
+  if (mouseLocked) {
+    rotation.lateral += e.movementX / 500
+    rotation.vertical += e.movementY / 500
+    if (rotation.vertical > Math.PI / 2) rotation.vertical = Math.PI / 2
+    else if (rotation.vertical < -Math.PI / 2) rotation.vertical = -Math.PI / 2
+  }
+})
+
+const keys = {}
+document.addEventListener('keydown', e => {
+  if (mouseLocked) {
+    keys[e.key.toLowerCase()] = true
+  }
+})
+document.addEventListener('keyup', e => {
+  keys[e.key.toLowerCase()] = false
+})
+
+let speed = 5
+document.addEventListener('wheel', e => {
+  if (mouseLocked) {
+    speed -= e.deltaY / 100
+    if (speed < 0) speed = 0
+  }
+})
+
+let lastTime = Date.now()
 function render () {
+  const now = Date.now()
+  const elapsedTime = (now - lastTime) / 1000
+  lastTime = now
+
+  if (elapsedTime < 0.1) {
+    if (keys.shift) {
+      position.y -= elapsedTime * speed
+    }
+    if (keys[' ']) {
+      position.y += elapsedTime * speed
+    }
+    const movement = new Vector2()
+    if (keys.a) movement.add({x: -1})
+    if (keys.d) movement.add({x: 1})
+    if (keys.w) movement.add({y: -1})
+    if (keys.s) movement.add({y: 1})
+    if (movement.length) {
+      const { x, y } = movement.unit().scale(elapsedTime * speed).rotate(rotation.lateral)
+      position.x += x
+      position.z += y
+    }
+  }
+
   if (facesChanged || !buffers) {
     const faces = []
     const textureCoords = []
     // TEMP; should do all subchunks nearby
     subchunk.storeFacesIn(faces, textureCoords)
     buffers = makeBuffers(faces, textureCoords)
+    console.log(faces, textureCoords);
+    facesChanged = false
   }
-  drawScene(program, buffers, textureAtlas)
+
+  const cameraMatrix = mat4.create()
+  mat4.translate(cameraMatrix, cameraMatrix, [position.x, position.y, position.z])
+  mat4.rotate(cameraMatrix, cameraMatrix, -rotation.lateral, [0, 1, 0])
+  mat4.rotate(cameraMatrix, cameraMatrix, -rotation.vertical, [1, 0, 0])
+  mat4.invert(cameraMatrix, cameraMatrix)
+  drawScene(program, buffers, textureAtlas, cameraMatrix)
+
+  window.requestAnimationFrame(render)
 }
