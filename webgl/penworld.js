@@ -71,6 +71,11 @@ class Block {
   isSolid () {
     return this.characteristics().solid
   }
+
+  updateFaces () {
+    // TODO: Should update a master Float32Array to show/hide faces for maximum efficiency!
+    const amSolid = this.isSolid()
+  }
 }
 
 const CHUNK_SIZE = 16
@@ -85,6 +90,7 @@ class Subchunk {
     this.y = y
     this.z = z
     this.blocks = new Array(CHUNK_SIZE ** 3).fill(null)
+    this.visibleFaces = []
   }
 
   getChunk (offsetX = 0, offsetY = 0, offsetZ = 0) {
@@ -105,6 +111,7 @@ class Subchunk {
     block.x = x
     block.y = y
     block.z = z
+    block.updateFaces()
   }
 }
 
