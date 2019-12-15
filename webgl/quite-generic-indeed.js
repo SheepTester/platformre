@@ -23,8 +23,8 @@ function happyWebGL (canvas) {
     },
 
     makeProgram (vsSource, fsSource, attributes, uniforms) {
-      const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource)
-      const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource)
+      const vertexShader = loadShader(gl.VERTEX_SHADER, vsSource)
+      const fragmentShader = loadShader(gl.FRAGMENT_SHADER, fsSource)
 
       const shaderProgram = gl.createProgram()
       gl.attachShader(shaderProgram, vertexShader)
@@ -102,16 +102,7 @@ function happyWebGL (canvas) {
       )
 
       let colourBuffer, textureCoordBuffer
-      if (colours === null) {
-        const textureCoordinates = []
-        for (let i = 0; i < planes.length; i++) {
-          indices.push(0, 0, 1, 0, 1, 1, 0, 1)
-        }
-
-        textureCoordBuffer = gl.createBuffer()
-        gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW)
-      } else {
+      if (colours) {
         colours = colours.map(c => [...c.map(ch => ch / 255), 1])
         const colourTable = []
         for (const colour of colours) {
@@ -121,7 +112,16 @@ function happyWebGL (canvas) {
 
         colourBuffer = gl.createBuffer()
         gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer)
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colourTable), gl.STATIC_DRAW)
+      } else {
+        const textureCoordinates = []
+        for (let i = 0; i < planes.length; i++) {
+          textureCoordinates.push(0, 0, 1, 0, 1, 1, 0, 1)
+        }
+
+        textureCoordBuffer = gl.createBuffer()
+        gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer)
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW)
       }
 
       const indices = []
@@ -143,11 +143,19 @@ function happyWebGL (canvas) {
       }
     },
 
+    clear (colour = [0, 0, 0]) {
+      gl.clearColor(...colour.map(ch => ch / 255), 1)
+      gl.clearDepth(1.0)
+      gl.enable(gl.DEPTH_TEST)
+      gl.depthFunc(gl.LEQUAL)
+      gl.clear(gl.COLOR_BUFFER_BIT)
+    },
+
     render ({
-      {program, attrLocs, uniformLocs},
+      program: {program, attrLocs, uniformLocs},
       projectionMatrix,
       modelMatrix,
-      {position, colour, textureCoord, indices, vertexCount},
+      planes: {position, colour, textureCoord, indices, vertexCount},
       texture
     }) {
       gl.useProgram(program)
@@ -157,6 +165,10 @@ function happyWebGL (canvas) {
       gl.enableVertexAttribArray(attrLocs.vertexPosition)
 
       if (textureCoord) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, textureCoord)
+        gl.vertexAttribPointer(attrLocs.textureCoord, 2, gl.FLOAT, false, 0, 0)
+        gl.enableVertexAttribArray(attrLocs.textureCoord)
+
         gl.activeTexture(gl.TEXTURE0)
         gl.bindTexture(gl.TEXTURE_2D, texture)
         gl.uniform1i(uniformLocs.uSampler, 0)
@@ -167,6 +179,17 @@ function happyWebGL (canvas) {
       }
 
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices)
+
+      gl.uniformMatrix4fv(
+        uniformLocs.projectionMatrix,
+        false,
+        projectionMatrix
+      )
+      gl.uniformMatrix4fv(
+        uniformLocs.modelViewMatrix,
+        false,
+        modelMatrix
+      )
 
       // vertexCount?
       gl.drawElements(gl.TRIANGLES, vertexCount, gl.UNSIGNED_SHORT, 0)

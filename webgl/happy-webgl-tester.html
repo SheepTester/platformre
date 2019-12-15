@@ -43,6 +43,44 @@ function resize() {
 window.addEventListener('resize', resize)
 resize()
 
+const cube = [
+  // Front face
+  [-1.0, -1.0,  1.0,
+   1.0, -1.0,  1.0,
+   1.0,  1.0,  1.0,
+  -1.0,  1.0,  1.0],
+
+  // Back face
+  [-1.0, -1.0, -1.0,
+  -1.0,  1.0, -1.0,
+   1.0,  1.0, -1.0,
+   1.0, -1.0, -1.0],
+
+  // Top face
+  [-1.0,  1.0, -1.0,
+  -1.0,  1.0,  1.0,
+   1.0,  1.0,  1.0,
+   1.0,  1.0, -1.0],
+
+  // Bottom face
+  [-1.0, -1.0, -1.0,
+   1.0, -1.0, -1.0,
+   1.0, -1.0,  1.0,
+  -1.0, -1.0,  1.0],
+
+  // Right face
+   [1.0, -1.0, -1.0,
+   1.0,  1.0, -1.0,
+   1.0,  1.0,  1.0,
+   1.0, -1.0,  1.0],
+
+  // Left face
+  [-1.0, -1.0, -1.0,
+  -1.0, -1.0,  1.0,
+  -1.0,  1.0,  1.0,
+  -1.0,  1.0, -1.0]
+]
+
 const textureProgram = happy.makeProgram(
   `
     attribute vec4 vertexPosition;
@@ -55,7 +93,7 @@ const textureProgram = happy.makeProgram(
 
     void main() {
       gl_Position = projectionMatrix * modelViewMatrix * vertexPosition;
-      vTextureCoord = aTextureCoord;
+      vTextureCoord = textureCoord;
     }
   `,
   `
@@ -71,11 +109,7 @@ const textureProgram = happy.makeProgram(
   ['modelViewMatrix', 'projectionMatrix', 'uSampler']
 )
 const texture = happy.loadTexture('./test-cube.png')
-const textureCube = happy.createPlanes([
-  [
-    0, 0, 0
-  ]
-])
+const textureCube = happy.createPlanes(cube)
 
 const colourProgram = happy.makeProgram(
   `
@@ -102,6 +136,52 @@ const colourProgram = happy.makeProgram(
   ['vertexPosition', 'vertexColour'],
   ['modelViewMatrix', 'projectionMatrix']
 )
+const colourCube = happy.createPlanes(cube, [
+  [233, 30, 99], // pink
+  [156, 39, 176], // purple
+  [63, 81, 181], // indigo
+  [33, 150, 243], // blue
+  [0, 188, 212], // cyan
+  [0, 150, 136] // teal
+])
+
+let squareRotation = 0
+let lastTime = Date.now()
+function render () {
+  const now = Date.now()
+  const elapsedTime = now - lastTime
+  lastTime = now
+
+  squareRotation += elapsedTime / 1000
+  happy.clear()
+  const projectionMatrix = mat4.create()
+  mat4.perspective(projectionMatrix, 45 * Math.PI / 180, width / height, 0.1, 100)
+
+  const textureTransform = mat4.create()
+  mat4.translate(textureTransform, textureTransform, [0.5, 0.0, -6.0])
+  mat4.rotate(textureTransform, textureTransform, squareRotation, [0, 1, 1])
+  happy.render({
+    program: textureProgram,
+    projectionMatrix,
+    modelMatrix: textureTransform,
+    planes: textureCube,
+    texture
+  })
+
+  const colourTransform = mat4.create()
+  mat4.translate(colourTransform, colourTransform, [-0.5, 0.0, -6.0])
+  mat4.rotate(colourTransform, colourTransform, squareRotation * 0.7, [1, 1, 0])
+  happy.render({
+    program: colourProgram,
+    projectionMatrix,
+    modelMatrix: colourTransform,
+    planes: colourCube
+  })
+
+  requestAnimationFrame(render)
+}
+
+render()
     </script>
   </body>
 </html>
