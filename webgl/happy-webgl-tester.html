@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>test happy [ABANDONED, NOT WORK]</title>
+    <meta name="description" content="hope"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" type="text/css" href="/sheep3.css">
+    <script src="/sheep3.js" charset="utf-8"></script>
+    <script src="./gl-matrix-min.js" charset="utf-8"></script>
+    <script src="./quite-generic-indeed.js" charset="utf-8"></script>
+    <style>
+      html,
+      body {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        font-size: 0;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script type="text/javascript">
+const { mat4 } = glMatrix
+
+const canvas = document.getElementById('canvas')
+const happy = happyWebGL(canvas)
+
+let width, height
+function resize() {
+  width = window.innerWidth
+  height = window.innerHeight
+  canvas.width = width
+  canvas.height = height
+  happy.updateSize()
+}
+window.addEventListener('resize', resize)
+resize()
+
+const textureProgram = happy.makeProgram(
+  `
+    attribute vec4 vertexPosition;
+    attribute vec2 textureCoord;
+
+    uniform mat4 modelViewMatrix;
+    uniform mat4 projectionMatrix;
+
+    varying highp vec2 vTextureCoord;
+
+    void main() {
+      gl_Position = projectionMatrix * modelViewMatrix * vertexPosition;
+      vTextureCoord = aTextureCoord;
+    }
+  `,
+  `
+    varying highp vec2 vTextureCoord;
+
+    uniform sampler2D uSampler;
+
+    void main() {
+      gl_FragColor = texture2D(uSampler, vTextureCoord);
+    }
+  `,
+  ['vertexPosition', 'textureCoord'],
+  ['modelViewMatrix', 'projectionMatrix', 'uSampler']
+)
+const texture = happy.loadTexture('./test-cube.png')
+const textureCube = happy.createPlanes([
+  [
+    0, 0, 0
+  ]
+])
+
+const colourProgram = happy.makeProgram(
+  `
+    attribute vec4 vertexPosition;
+    attribute vec4 vertexColour;
+
+    uniform mat4 modelViewMatrix;
+    uniform mat4 projectionMatrix;
+
+    varying lowp vec4 vColour;
+
+    void main() {
+      gl_Position = projectionMatrix * modelViewMatrix * vertexPosition;
+      vColour = vertexColour;
+    }
+  `,
+  `
+    varying lowp vec4 vColour;
+
+    void main() {
+      gl_FragColor = vColour;
+    }
+  `,
+  ['vertexPosition', 'vertexColour'],
+  ['modelViewMatrix', 'projectionMatrix']
+)
+    </script>
+  </body>
+</html>
