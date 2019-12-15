@@ -12,37 +12,6 @@ function resize() {
 window.addEventListener('resize', resize)
 resize()
 
-const vertexShaderCode = `
-  attribute vec4 aVertexPosition;
-  // attribute vec4 aVertexColour;
-  attribute vec2 aTextureCoord;
-
-  uniform mat4 uModelViewMatrix;
-  uniform mat4 uProjectionMatrix;
-
-  // varying lowp vec4 vColour;
-  varying highp vec2 vTextureCoord;
-
-  void main() {
-    gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-    // vColour = aVertexColour;
-    vTextureCoord = aTextureCoord;
-  }
-`
-const fragmentShaderCode = `
-  // varying lowp vec4 vColour;
-  varying highp vec2 vTextureCoord;
-
-  uniform sampler2D uSampler;
-
-  void main() {
-    // gl_FragColor = vColour;
-
-    // Fetches "texel" (texture pixel) from texture; interpolates between
-    // given texture coordinates like colours do
-    gl_FragColor = texture2D(uSampler, vTextureCoord);
-  }
-`
 function loadShader (gl, type, source) {
   const shader = gl.createShader(type)
   gl.shaderSource(shader, source)
@@ -71,18 +40,79 @@ function initShaderProgram (gl, vsSource, fsSource) {
   return shaderProgram
 }
 
-const shaderProgram = initShaderProgram(gl, vertexShaderCode, fragmentShaderCode)
+const shaderProgram = initShaderProgram(
+  gl,
+  `
+    attribute vec4 aVertexPosition;
+    attribute vec2 aTextureCoord;
+
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
+
+    varying highp vec2 vTextureCoord;
+
+    void main() {
+      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+      vTextureCoord = aTextureCoord;
+    }
+  `,
+  `
+    varying highp vec2 vTextureCoord;
+
+    uniform sampler2D uSampler;
+
+    void main() {
+      // Fetches "texel" (texture pixel) from texture; interpolates between
+      // given texture coordinates like colours do
+      gl_FragColor = texture2D(uSampler, vTextureCoord);
+    }
+  `
+)
 const programInfo = {
   program: shaderProgram,
   attrLocs: {
     vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-    // vertexColour: gl.getAttribLocation(shaderProgram, 'aVertexColour')
     textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord')
   },
   uniformLocs: {
     projectionMatrix: gl.getUniformLocation(shaderProgram, 'uProjectionMatrix'),
     modelViewMatrix: gl.getUniformLocation(shaderProgram, 'uModelViewMatrix'),
     uSampler: gl.getUniformLocation(shaderProgram, 'uSampler')
+  }
+}
+const shaderProgramColour = initShaderProgram(
+  gl,
+  `
+    attribute vec4 aVertexPosition;
+    attribute vec4 aVertexColour;
+
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
+
+    varying lowp vec4 vColour;
+
+    void main() {
+      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+      vColour = aVertexColour;
+    }
+  `,
+  `
+    varying lowp vec4 vColour;
+
+    void main() {
+      gl_FragColor = vColour;
+    }
+  `
+)
+const programInfoColour = {
+  program: shaderProgramColour,
+  attrLocs: {
+    vertexPosition: gl.getAttribLocation(shaderProgramColour, 'aVertexPosition'),
+    vertexColour: gl.getAttribLocation(shaderProgramColour, 'aVertexColour')
+  },
+  uniformLocs: {
+    projectionMatrix: gl.getUniformLocation(shaderProgramColour, 'uProjectionMatrix'),
+    modelViewMatrix: gl.getUniformLocation(shaderProgramColour, 'uModelViewMatrix')
   }
 }
 
@@ -190,7 +220,14 @@ function initBuffers (gl) {
     gl.STATIC_DRAW
   )
 
-  /*
+  const position2Buffer = gl.createBuffer()
+  gl.bindBuffer(gl.ARRAY_BUFFER, position2Buffer)
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array(positions),
+    gl.STATIC_DRAW
+  )
+
   const faceColours = [
     [233, 30, 99], // pink
     [156, 39, 176], // purple
@@ -209,7 +246,6 @@ function initBuffers (gl) {
   const colourBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, colourBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colours), gl.STATIC_DRAW)
-  */
 
   const textureCoordBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer)
@@ -265,7 +301,8 @@ function initBuffers (gl) {
 
   return {
     position: positionBuffer,
-    // colour: colourBuffer,
+    position2: position2Buffer,
+    colour: colourBuffer,
     textureCoord: textureCoordBuffer,
     indices: indexBuffer
   }
@@ -290,10 +327,11 @@ function drawScene (gl, programInfo, buffers, texture, elapsedTime) {
   const projectionMatrix = mat4.create()
   mat4.perspective(projectionMatrix, fov, aspect, zNear, zFar)
 
+  // ----- TEXTURE KAABA -----
+
   const modelViewMatrix = mat4.create()
-  mat4.translate(modelViewMatrix, modelViewMatrix, [-0.0, 0.0, -6.0])
+  mat4.translate(modelViewMatrix, modelViewMatrix, [-0.5, 0.0, -6.0])
   mat4.rotate(modelViewMatrix, modelViewMatrix, squareRotation, [0, 1, 1])
-  // mat4.rotate(modelViewMatrix, modelViewMatrix, squareRotation * 0.7, [0, 1, 0])
 
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
   gl.vertexAttribPointer(
@@ -305,19 +343,6 @@ function drawScene (gl, programInfo, buffers, texture, elapsedTime) {
     0
   )
   gl.enableVertexAttribArray(programInfo.attrLocs.vertexPosition)
-
-  /*
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colour)
-  gl.vertexAttribPointer(
-    programInfo.attrLocs.vertexColour,
-    4,
-    gl.FLOAT,
-    false,
-    0,
-    0
-  )
-  gl.enableVertexAttribArray(programInfo.attrLocs.vertexColour)
-  */
 
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord)
   gl.vertexAttribPointer(
@@ -357,6 +382,60 @@ function drawScene (gl, programInfo, buffers, texture, elapsedTime) {
   const type = gl.UNSIGNED_SHORT
   const offset = 0
   gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
+
+  // ----- COLOUR KAABA -----
+  {
+    const modelViewMatrix = mat4.create()
+    mat4.translate(modelViewMatrix, modelViewMatrix, [0.5, 0.0, -6.0])
+    mat4.rotate(modelViewMatrix, modelViewMatrix, squareRotation, [0, 1, 1])
+    mat4.rotate(modelViewMatrix, modelViewMatrix, squareRotation * 0.7, [0, 1, 0])
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position2)
+    gl.vertexAttribPointer(
+      programInfoColour.attrLocs.vertexPosition,
+      3,
+      gl.FLOAT,
+      false,
+      0,
+      0
+    )
+    gl.enableVertexAttribArray(programInfoColour.attrLocs.vertexPosition)
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.colour)
+    gl.vertexAttribPointer(
+      programInfoColour.attrLocs.vertexColour,
+      4,
+      gl.FLOAT,
+      false,
+      0,
+      0
+    )
+    gl.enableVertexAttribArray(programInfoColour.attrLocs.vertexColour)
+
+    // Tell which indices to use to index the vertices
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices)
+
+    gl.useProgram(programInfoColour.program)
+
+    // Tell which indices to use to index the vertices
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices)
+
+    gl.uniformMatrix4fv(
+      programInfoColour.uniformLocs.projectionMatrix,
+      false,
+      projectionMatrix
+    )
+    gl.uniformMatrix4fv(
+      programInfoColour.uniformLocs.modelViewMatrix,
+      false,
+      modelViewMatrix
+    )
+
+    const vertexCount = 36
+    const type = gl.UNSIGNED_SHORT
+    const offset = 0
+    gl.drawElements(gl.TRIANGLES, vertexCount, type, offset)
+  }
 }
 
 let lastTime = Date.now()
