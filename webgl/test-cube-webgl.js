@@ -1,10 +1,16 @@
 const { mat4 } = glMatrix
 const canvas = document.getElementById('canvas')
-const width = window.innerWidth
-const height = window.innerHeight
-canvas.width = width
-canvas.height = height
 const gl = canvas.getContext('webgl')
+let width, height
+function resize() {
+  width = window.innerWidth
+  height = window.innerHeight
+  canvas.width = width
+  canvas.height = height
+  gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
+}
+window.addEventListener('resize', resize)
+resize()
 
 const vertexShaderCode = `
   attribute vec4 aVertexPosition;
