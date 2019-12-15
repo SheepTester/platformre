@@ -97,10 +97,6 @@ class Block {
     return texture ? texture[face] || texture : null
   }
 
-  isSolid () {
-    return this.characteristics().solid
-  }
-
   showFace (face) {
     if (this.faces[face]) return
     const texture = this.texture(face)
@@ -152,18 +148,12 @@ class Block {
     }
   }
 
-  neighbourIsSolid (offsetX = 0, offsetY = 0, offsetZ = 0) {
-    const { x, y, z } = this
-    const neighbour = this.chunk.getBlock(x + offsetX, y + offsetY, z + offsetZ)
-    return neighbour ? neighbour.isSolid() : false
-  }
-
   updateFaces () {
-    const amSolid = this.isSolid()
+    const amSolid = this.characteristics().solid
     const { x, y, z } = this
     for (const [offsetX, offsetY, offsetZ, myFace, theirFace] of neighbours) {
       const neighbour = this.chunk.getBlock(x + offsetX, y + offsetY, z + offsetZ)
-      const theyreSolid = neighbour && neighbour.isSolid()
+      const theyreSolid = neighbour && neighbour.characteristics().solid
       if (amSolid && theyreSolid) {
         this.hideFace(myFace)
         neighbour.hideFace(theirFace)

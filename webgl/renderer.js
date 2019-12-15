@@ -52,6 +52,48 @@ class Vector2 {
   }
 }
 
+class Vector3 {
+  constructor (x = 0, y = 0, z = 0) {
+    this.set({ x, y, z })
+  }
+
+  get length () {
+    if (this._length === undefined) {
+      this._length = Math.hypot(this.x, this.y, this.z)
+    }
+    return this._length
+  }
+
+  set ({ x = 0, y = 0, z = 0 }) {
+    this.x = x
+    this.y = y
+    this.z = z
+    return this
+  }
+
+  add ({ x = 0, y = 0, z = 0 }) {
+    this.x += x
+    this.y += y
+    this.z += z
+    return this
+  }
+
+  scale (factor = 1) {
+    this.x *= factor
+    this.y *= factor
+    this.z *= factor
+    return this
+  }
+
+  unit () {
+    return this.scale(1 / this.length)
+  }
+
+  clone () {
+    return new Vector(this.x, this.y, this.z)
+  }
+}
+
 const canvas = document.getElementById('canvas')
 const gl = canvas.getContext('webgl')
 
@@ -65,7 +107,7 @@ function resize() {
   gl.viewport(0, 0, gl.canvas.width, gl.canvas.height)
 
   projectionMatrix = mat4.create()
-  mat4.perspective(projectionMatrix, 45 * Math.PI / 180, width / height, 0.1, 100)
+  mat4.perspective(projectionMatrix, 90 * Math.PI / 180, width / height, 0.1, 100)
 }
 window.addEventListener('resize', resize)
 resize()
@@ -74,7 +116,6 @@ function createTexture (canvas) {
   const texture = gl.createTexture()
   gl.bindTexture(gl.TEXTURE_2D, texture)
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas)
-  gl.generateMipmap(gl.TEXTURE_2D)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
