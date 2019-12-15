@@ -251,36 +251,36 @@ function initBuffers (gl) {
   gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer)
   // Coordinates correspond to each vertex, but only range between 0 and 1
   const textureCoordinates = [
-    // Front
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0,
-    // Back
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0,
-    // Top
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0,
-    // Bottom
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0,
-    // Right
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0,
-    // Left
-    0.0,  0.0,
-    1.0,  0.0,
-    1.0,  1.0,
-    0.0,  1.0,
+    // Front - red eye
+    0.25, 0,
+    0.50, 0,
+    0.50, 0.5,
+    0.25, 0.5,
+    // Back - circle
+    0.75, 0,
+    1.00, 0,
+    1.00, 0.5,
+    0.75, 0.5,
+    // Top - purple
+    0.75, 0.5,
+    0.75, 1,
+    1.00, 1,
+    1.00, 0.5,
+    // Bottom - blue
+    0.25, 1,
+    0.50, 1,
+    0.50, 0.5,
+    0.25, 0.5,
+    // Right - green
+    0.75, 0,
+    0.75, 0.5,
+    0.50, 0.5,
+    0.50, 0,
+    // Left - orange
+    0.00, 0,
+    0.25, 0,
+    0.25, 0.5,
+    0.00, 0.5,
   ]
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoordinates), gl.STATIC_DRAW)
 
@@ -308,11 +308,20 @@ function initBuffers (gl) {
   }
 }
 const buffers = initBuffers(gl)
-const texture = loadTexture(gl, './test-cube.png')
+const texture = loadTexture(gl, './six-faced-cube.png')
+
+let upDownRot = 0
+let sideRot = 0
+let upDownRotVel = 0
+let sideRotVel = 0
 
 let squareRotation = 0
 function drawScene (gl, programInfo, buffers, texture, elapsedTime) {
   squareRotation += elapsedTime
+  upDownRot += upDownRotVel
+  sideRot += sideRotVel
+  upDownRotVel *= 0.9
+  sideRot *= 0.9
 
   gl.clearColor(54 / 255, 0 / 255, 33 / 255, 1)
   gl.clearDepth(1.0)
@@ -330,8 +339,9 @@ function drawScene (gl, programInfo, buffers, texture, elapsedTime) {
   // ----- TEXTURE KAABA -----
 
   const modelViewMatrix = mat4.create()
-  mat4.translate(modelViewMatrix, modelViewMatrix, [-0.5, 0.0, -6.0])
-  mat4.rotate(modelViewMatrix, modelViewMatrix, squareRotation, [0, 1, 1])
+  mat4.translate(modelViewMatrix, modelViewMatrix, [-1, 0.0, -6.0])
+  mat4.rotate(modelViewMatrix, modelViewMatrix, upDownRot, [1, 0, 0])
+  mat4.rotate(modelViewMatrix, modelViewMatrix, sideRot, [0, 1, 0])
 
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
   gl.vertexAttribPointer(
@@ -386,7 +396,7 @@ function drawScene (gl, programInfo, buffers, texture, elapsedTime) {
   // ----- COLOUR KAABA -----
   {
     const modelViewMatrix = mat4.create()
-    mat4.translate(modelViewMatrix, modelViewMatrix, [0.5, 0.0, -6.0])
+    mat4.translate(modelViewMatrix, modelViewMatrix, [1, 0.0, -6.0])
     mat4.rotate(modelViewMatrix, modelViewMatrix, squareRotation, [0, 1, 1])
     mat4.rotate(modelViewMatrix, modelViewMatrix, squareRotation * 0.7, [0, 1, 0])
 
@@ -450,3 +460,20 @@ function render () {
 }
 
 render()
+
+document.addEventListener('keydown', e => {
+  switch (e.key) {
+    case 'ArrowLeft':
+      sideRotVel -= 0.1
+      break
+    case 'ArrowRight':
+      sideRotVel += 0.1
+      break
+    case 'ArrowDown':
+      upDownRotVel -= 0.1
+      break
+    case 'ArrowUp':
+      upDownRotVel += 0.1
+      break
+  }
+})
