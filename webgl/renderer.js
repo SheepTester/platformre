@@ -17,7 +17,7 @@ class Vector2 {
     return [this.x, this.y]
   }
 
-  set ({ x = 0, y = 0 }) {
+  set ({ x = this.x, y = this.y }) {
     this.x = x
     this.y = y
     return this
@@ -69,7 +69,7 @@ class Vector3 {
     return [this.x, this.y, this.z]
   }
 
-  set ({ x = 0, y = 0, z = 0 }) {
+  set ({ x = this.x, y = this.y, z = this.z }) {
     this.x = x
     this.y = y
     this.z = z
