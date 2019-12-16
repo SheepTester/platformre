@@ -147,24 +147,6 @@ class Block {
       if (!facesChanged) facesChanged = true
     }
   }
-
-  updateFaces () {
-    const amSolid = this.characteristics().solid
-    const { x, y, z } = this
-    for (const [offsetX, offsetY, offsetZ, myFace, theirFace] of neighbours) {
-      const neighbour = this.chunk.getBlock(x + offsetX, y + offsetY, z + offsetZ)
-      const theyreSolid = neighbour && neighbour.characteristics().solid
-      if (amSolid && theyreSolid) {
-        this.hideFace(myFace)
-        neighbour.hideFace(theirFace)
-      } else {
-        this.showFace(myFace)
-        if (neighbour) {
-          neighbour.showFace(theirFace)
-        }
-      }
-    }
-  }
 }
 
 const CHUNK_SIZE = 16
@@ -207,7 +189,9 @@ class Subchunk {
     if (!this.inChunk(x, y, z)) {
       throw new Error('not my block!')
     }
-    if (this.getBlock(x, y, z)) {
+    const oldBlock = this.getBlock(x, y, z)
+    if (oldBlock === block) return
+    if (oldBlock) {
       this.blocks[(y * CHUNK_SIZE + x) * CHUNK_SIZE + z].chunk = null
     }
     this.blocks[(y * CHUNK_SIZE + x) * CHUNK_SIZE + z] = block
@@ -216,7 +200,27 @@ class Subchunk {
       block.x = x
       block.y = y
       block.z = z
-      block.updateFaces()
+    }
+    this.updateBlockFaces(x, y, z)
+  }
+
+  updateBlockFaces (x, y, z) {
+    const block = this.getBlock(x, y, z)
+    const blockSolid = block && block.characteristics().solid
+    for (const [offsetX, offsetY, offsetZ, blockFace, neighbourFace] of neighbours) {
+      const neighbour = this.getBlock(x + offsetX, y + offsetY, z + offsetZ)
+      const neighbourSolid = neighbour && neighbour.characteristics().solid
+      if (blockSolid && neighbourSolid) {
+        block.hideFace(blockFace)
+        neighbour.hideFace(neighbourFace)
+      } else {
+        if (block) {
+          block.showFace(blockFace)
+        }
+        if (neighbour) {
+          neighbour.showFace(neighbourFace)
+        }
+      }
     }
   }
 
@@ -261,6 +265,7 @@ textureAtlasPromise.then(createTexture)
         }
       }
     }
+    subchunk.setBlock(3, 7, 3, null)
 
     render()
   })
