@@ -157,7 +157,40 @@ function loadShader (gl, type, source) {
   }
   return shader
 }
-function shaderProgram (gl, vsSource, fsSource, attrs, uniforms) {
+function shaderProgram ({
+  vsSource = `
+    attribute vec4 aVertexPosition;
+    attribute vec2 aTextureCoord;
+
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
+
+    varying highp vec2 vTextureCoord;
+
+    void main() {
+      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+      vTextureCoord = aTextureCoord;
+    }
+  `,
+  fsSource = `
+    varying highp vec2 vTextureCoord;
+
+    uniform sampler2D uSampler;
+
+    void main() {
+      gl_FragColor = texture2D(uSampler, vTextureCoord);
+    }
+  `,
+  attrs = [
+    ['vertexPosition', 'aVertexPosition'],
+    ['textureCoord', 'aTextureCoord']
+  ],
+  uniforms = [
+    ['projectionMatrix', 'uProjectionMatrix'],
+    ['modelViewMatrix', 'uModelViewMatrix'],
+    ['uSampler', 'uSampler']
+  ]
+} = {}) {
   const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource)
   const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource)
 
@@ -184,52 +217,18 @@ function shaderProgram (gl, vsSource, fsSource, attrs, uniforms) {
     uniforms: uniformLocs
   }
 }
-function makeProgram () {
-  return shaderProgram(
-    gl,
-    `
-      attribute vec4 aVertexPosition;
-      attribute vec2 aTextureCoord;
-
-      uniform mat4 uModelViewMatrix;
-      uniform mat4 uProjectionMatrix;
-
-      varying highp vec2 vTextureCoord;
-
-      void main() {
-        gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-        vTextureCoord = aTextureCoord;
-      }
-    `,
-    `
-      varying highp vec2 vTextureCoord;
-
-      uniform sampler2D uSampler;
-
-      void main() {
-        gl_FragColor = texture2D(uSampler, vTextureCoord);
-      }
-    `,
-    [
-      ['vertexPosition', 'aVertexPosition'],
-      ['textureCoord', 'aTextureCoord']
-    ],
-    [
-      ['projectionMatrix', 'uProjectionMatrix'],
-      ['modelViewMatrix', 'uModelViewMatrix'],
-      ['uSampler', 'uSampler']
-    ]
-  )
-}
 
 function makeBuffers (faces, textureCoords) {
   const positionBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(faces), gl.STATIC_DRAW)
 
-  const textureCoordBuffer = gl.createBuffer()
-  gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer)
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW)
+  let textureCoordBuffer
+  if (textureCoords) {
+    textureCoordBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordBuffer)
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(textureCoords), gl.STATIC_DRAW)
+  }
 
   const indexBuffer = gl.createBuffer()
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer)
@@ -249,31 +248,35 @@ function makeBuffers (faces, textureCoords) {
   }
 }
 
-function drawScene (programInfo, buffers, texture, modelViewMatrix) {
-  gl.clearColor(54 / 255, 0 / 255, 33 / 255, 1)
-  gl.clearDepth(1.0)
-  gl.enable(gl.DEPTH_TEST)
-  gl.depthFunc(gl.LEQUAL)
-  gl.clear(gl.COLOR_BUFFER_BIT)
+function drawScene (programInfo, buffers, texture, modelViewMatrix, clear = true) {
+  if (clear) {
+    gl.clearColor(54 / 255, 0 / 255, 33 / 255, 1)
+    gl.clearDepth(1.0)
+    gl.enable(gl.DEPTH_TEST)
+    gl.depthFunc(gl.LEQUAL)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  }
+
+  gl.useProgram(programInfo.program)
 
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position)
   gl.vertexAttribPointer( programInfo.attrs.vertexPosition, 3, gl.FLOAT, false, 0, 0)
   gl.enableVertexAttribArray(programInfo.attrs.vertexPosition)
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord)
-  gl.vertexAttribPointer(programInfo.attrs.textureCoord, 2, gl.FLOAT, false, 0, 0)
-  gl.enableVertexAttribArray(programInfo.attrs.textureCoord)
+  if (texture) {
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.textureCoord)
+    gl.vertexAttribPointer(programInfo.attrs.textureCoord, 2, gl.FLOAT, false, 0, 0)
+    gl.enableVertexAttribArray(programInfo.attrs.textureCoord)
+
+    gl.activeTexture(gl.TEXTURE0)
+    gl.bindTexture(gl.TEXTURE_2D, texture)
+    gl.uniform1i(programInfo.uniforms.uSampler, 0)
+  }
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices)
 
-  gl.useProgram(programInfo.program)
-
   gl.uniformMatrix4fv(programInfo.uniforms.projectionMatrix, false, projectionMatrix)
   gl.uniformMatrix4fv(programInfo.uniforms.modelViewMatrix, false, modelViewMatrix)
-
-  gl.activeTexture(gl.TEXTURE0)
-  gl.bindTexture(gl.TEXTURE_2D, texture)
-  gl.uniform1i(programInfo.uniforms.uSampler, 0)
 
   gl.drawElements(gl.TRIANGLES, buffers.vertexCount, gl.UNSIGNED_SHORT, 0)
 }

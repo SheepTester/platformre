@@ -278,19 +278,30 @@ function raycast (from, dir, onCollide, maxDist) {
       (dir.z > 0 ? Math.floor : Math.ceil)(z)
     )
   }
-  const initBlock = getBlock(from)
-  if (onCollide(initBlock)) return { block: initBlock, from: 'inside' }
+  function adjustPos (block) {
+    return block.clone().add({
+      x: dir.x > 0 ? 0 : -1,
+      y: dir.y > 0 ? 0 : -1,
+      z: dir.z > 0 ? 0 : -1
+    })
+  }
 
-  let nextX = from.x + Math.sign(dir.x)
+  const initBlock = getBlock(from)
+  const adjustedInitBlock = adjustPos(initBlock)
+  if (onCollide(adjustedInitBlock)) {
+    return { block: adjustedInitBlock, from: 'inside' }
+  }
+
+  let nextX = initBlock.x + Math.sign(dir.x)
   let nextXT = dir.x === 0 ? Infinity : getT(from, dir, 'x', nextX)
-  let nextY = from.y + Math.sign(dir.y)
+  let nextY = initBlock.y + Math.sign(dir.y)
   let nextYT = dir.y === 0 ? Infinity : getT(from, dir, 'y', nextY)
-  let nextZ = from.z + Math.sign(dir.z)
+  let nextZ = initBlock.z + Math.sign(dir.z)
   let nextZT = dir.z === 0 ? Infinity : getT(from, dir, 'z', nextZ)
   while (true) {
     const t = Math.min(nextXT, nextYT, nextZT)
     if (t > maxDist) break
-    const block = getBlock(parametric(from, dir, t))
+    const block = adjustPos(getBlock(parametric(from, dir, t)))
     if (onCollide(block)) {
       return {
         block,
@@ -313,7 +324,31 @@ function raycast (from, dir, onCollide, maxDist) {
   return null
 }
 
-const program = makeProgram()
+const program = shaderProgram()
+const selectedProgram = shaderProgram({
+  vsSource: `
+    attribute vec4 aVertexPosition;
+
+    uniform mat4 uModelViewMatrix;
+    uniform mat4 uProjectionMatrix;
+
+    void main() {
+      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+    }
+  `,
+  fsSource: `
+    void main() {
+      gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    }
+  `,
+  attrs: [
+    ['vertexPosition', 'aVertexPosition']
+  ],
+  uniforms: [
+    ['projectionMatrix', 'uProjectionMatrix'],
+    ['modelViewMatrix', 'uModelViewMatrix']
+  ]
+})
 let buffers
 let textureAtlas
 
@@ -381,6 +416,7 @@ document.addEventListener('wheel', e => {
 })
 
 let lastTime = Date.now()
+let selectedBlock = null
 function render () {
   const now = Date.now()
   const elapsedTime = (now - lastTime) / 1000
@@ -416,11 +452,24 @@ function render () {
     },
     7
   )
+  keys.r = false
   if (raycastCollision) {
-    const { block, from } = raycastCollision
+    const { block: blockPos, from } = raycastCollision
     if (keys.mouse1) {
-      Subchunk.setGlobalBlock(block, null)
+      Subchunk.setGlobalBlock(blockPos, null)
     }
+    const block = Subchunk.getGlobalBlock(blockPos)
+    if (!block && selectedBlock) {
+      selectedBlock = null
+    } else if (block && (!selectedBlock || selectedBlock.block !== block)) {
+      const faces = [].concat(...Object.values(block.faces).map(({ plane }) => plane))
+      selectedBlock = {
+        block,
+        buffers: faces.length ? makeBuffers(faces) : null
+      }
+    }
+  } else if (selectedBlock) {
+    selectedBlock = null
   }
 
   if (facesChanged || !buffers) {
@@ -438,6 +487,9 @@ function render () {
   mat4.rotate(cameraMatrix, cameraMatrix, -rotation.vertical, [1, 0, 0])
   mat4.invert(cameraMatrix, cameraMatrix)
   drawScene(program, buffers, textureAtlas, cameraMatrix)
+  if (selectedBlock && selectedBlock.buffers) {
+    drawScene(selectedProgram, selectedBlock.buffers, null, cameraMatrix, false)
+  }
 
   window.requestAnimationFrame(render)
 }
