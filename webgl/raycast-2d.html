@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>2d raycasting test</title>
+    <meta name="description" content="hope can generalize to 3d"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link rel="stylesheet" type="text/css" href="/sheep3.css">
+    <script src="/sheep3.js" charset="utf-8"></script>
+    <style>
+      body {
+        background-color: #528532;
+        color: white;
+        font-family: sans-serif;
+      }
+      canvas {
+        border-radius: 5px;
+        background-color: white;
+        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+      }
+    </style>
+  </head>
+  <body>
+    <p>Right-click to set origin; click to set the direction. Hold shift for a line parallel to an axis.</p>
+    <canvas id="canvas" width="480" height="360"></canvas>
+    <script>
+const TILE_SIZE = 30
+
+class Vector2 {
+  constructor (x = 0, y = 0) {
+    this.set({ x, y })
+  }
+
+  get length () {
+    return Math.hypot(this.x, this.y)
+  }
+
+  get comps () {
+    return [this.x, this.y]
+  }
+
+  set ({ x = 0, y = 0 }) {
+    this.x = x
+    this.y = y
+    return this
+  }
+
+  add ({ x = 0, y = 0 }) {
+    this.x += x
+    this.y += y
+    return this
+  }
+
+  scale (factor = 1) {
+    this.x *= factor
+    this.y *= factor
+    return this
+  }
+
+  unit () {
+    return this.scale(1 / this.length)
+  }
+
+  rotate (angle = 0) {
+    const cos = Math.cos(angle)
+    const sin = Math.sin(angle)
+    const { x, y } = this
+    this.x = x * cos - y * sin
+    this.y = x * sin + y * cos
+    return this
+  }
+
+  clone () {
+    return new Vector2(this.x, this.y)
+  }
+}
+
+const canvas = document.getElementById('canvas')
+const c = canvas.getContext('2d')
+
+function markPoint ({ x, y }) {
+  c.fillStyle = 'blue'
+  c.fillRect(x - 2, y - 2, 4, 4)
+}
+
+function getT (anchor, dir, comp, value) {
+  return (value - anchor[comp]) / dir[comp]
+}
+function parametric (anchor, dir, t) {
+  return anchor.clone().add(dir.clone().scale(t))
+}
+
+const pos = new Vector2(canvas.width / 2, canvas.height / 2)
+
+canvas.addEventListener('mousedown', e => {
+  if (e.which === 3) {
+    pos.set({ x: e.offsetX, y: e.offsetY })
+    markPoint(pos)
+    return
+  }
+
+  c.fillStyle = 'rgba(255, 255, 255, 0.5)'
+  c.fillRect(0, 0, canvas.width, canvas.height)
+  const dir = new Vector2(e.offsetX - pos.x, e.offsetY - pos.y)
+  if (e.shiftKey) {
+    if (Math.abs(dir.x) > Math.abs(dir.y)) {
+      dir.y = 0
+    } else {
+      dir.x = 0
+    }
+  }
+  dir.unit()
+
+  function getTile ({ x, y }) {
+    return new Vector2(
+      (dir.x > 0 ? Math.floor : Math.ceil)(x / TILE_SIZE),
+      (dir.y > 0 ? Math.floor : Math.ceil)(y / TILE_SIZE)
+    )
+  }
+  function renderTile (tile) {
+    c.fillRect(...tile.clone().add({
+      x: dir.x > 0 ? 0 : -1,
+      y: dir.y > 0 ? 0 : -1
+    }).scale(TILE_SIZE).comps, TILE_SIZE, TILE_SIZE)
+  }
+
+  const initTile = getTile(pos)
+  c.fillStyle = 'rgba(0, 255, 255, 0.5)'
+  renderTile(initTile)
+
+  let nextX = initTile.x + Math.sign(dir.x)
+  let nextXT = dir.x === 0 ? Infinity : getT(pos, dir, 'x', nextX * TILE_SIZE)
+  let nextY = initTile.y + Math.sign(dir.y)
+  let nextYT = dir.y === 0 ? Infinity : getT(pos, dir, 'y', nextY * TILE_SIZE)
+  let alpha = 0.5
+  while (alpha > 0) {
+    const t = Math.min(nextXT, nextYT)
+    const point = parametric(pos, dir, t)
+    markPoint(point)
+    const tile = getTile(point)
+    c.fillStyle = `rgba(0, 0, 0, ${alpha})`
+    renderTile(tile)
+    if (nextXT < nextYT && dir.x !== 0) {
+      nextX += Math.sign(dir.x)
+      nextXT = getT(pos, dir, 'x', nextX * TILE_SIZE)
+    } else if (dir.y !== 0) {
+      nextY += Math.sign(dir.y)
+      nextYT = getT(pos, dir, 'y', nextY * TILE_SIZE)
+    }
+    alpha -= 0.05
+  }
+
+  c.strokeStyle = 'red'
+  c.beginPath()
+  c.moveTo(...pos.comps)
+  c.lineTo(...parametric(pos, dir, 200).comps)
+  c.stroke()
+})
+
+canvas.addEventListener('contextmenu', e => {
+  e.preventDefault()
+})
+    </script>
+  </body>
+</html>

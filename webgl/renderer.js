@@ -10,10 +10,11 @@ class Vector2 {
   }
 
   get length () {
-    if (this._length === undefined) {
-      this._length = Math.hypot(this.x, this.y)
-    }
-    return this._length
+    return Math.hypot(this.x, this.y)
+  }
+
+  get comps () {
+    return [this.x, this.y]
   }
 
   set ({ x = 0, y = 0 }) {
@@ -48,7 +49,7 @@ class Vector2 {
   }
 
   clone () {
-    return new Vector(this.x, this.y)
+    return new Vector2(this.x, this.y)
   }
 }
 
@@ -62,6 +63,10 @@ class Vector3 {
       this._length = Math.hypot(this.x, this.y, this.z)
     }
     return this._length
+  }
+
+  get comps () {
+    return [this.x, this.y, this.z]
   }
 
   set ({ x = 0, y = 0, z = 0 }) {
@@ -90,7 +95,7 @@ class Vector3 {
   }
 
   clone () {
-    return new Vector(this.x, this.y, this.z)
+    return new Vector3(this.x, this.y, this.z)
   }
 }
 
