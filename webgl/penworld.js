@@ -26,6 +26,10 @@ const blocks = {
     texture: './textures/carved-darkstone.png',
     solid: true,
     selectable: true
+  },
+  water: {
+    texture: './textures/water.png',
+    translucent: true
   }
 }
 const textures = {}
@@ -89,6 +93,7 @@ const neighbours = [
 ]
 
 let facesChanged = false
+let translucentFaces = []
 
 class Block {
   constructor (type) {
@@ -205,30 +210,46 @@ class Subchunk {
 
   updateBlockFaces (pos) {
     const block = this.getBlock(pos)
-    const blockSolid = block && block.characteristics().solid
+    const blockType = block && block.type
+    const blockChars = block ? block.characteristics() : {}
     for (const [offset, blockFace, neighbourFace] of neighbours) {
       const neighbour = this.getBlock(pos.clone().add(offset))
-      const neighbourSolid = neighbour && neighbour.characteristics().solid
-      if (blockSolid && neighbourSolid) {
+      const neighbourType = neighbour && neighbour.type
+      const neighbourChars = neighbour ? neighbour.characteristics() : {}
+      if (blockChars.solid && neighbourChars.solid) {
         block.hideFace(blockFace)
         neighbour.hideFace(neighbourFace)
       } else {
         if (block) {
-          block.showFace(blockFace)
+          // Translucent blocks will only show when adjacent to a non-solid
+          // and non-it block
+          if (blockChars.solid || !neighbourChars.solid && blockType !== neighbourType) {
+            block.showFace(blockFace)
+          } else {
+            block.hideFace(blockFace)
+          }
         }
         if (neighbour) {
-          neighbour.showFace(neighbourFace)
+          if (neighbourChars.solid || !blockChars.solid && neighbourType !== blockType) {
+            neighbour.showFace(neighbourFace)
+          } else {
+            neighbour.hideFace(neighbourFace)
+          }
         }
       }
     }
   }
 
-  storeFacesIn (faces, textureCoords) {
+  storeFacesIn (faces, textureCoords, translucentFaces) {
     for (const block of this.blocks) {
       if (block) {
         for (const { plane, coords } of Object.values(block.faces)) {
-          faces.push(...plane)
-          textureCoords.push(...coords)
+          if (block.characteristics().translucent) {
+            translucentFaces.push({ plane, coords })
+          } else {
+            faces.push(...plane)
+            textureCoords.push(...coords)
+          }
         }
       }
     }
@@ -371,6 +392,7 @@ textureAtlasPromise.then(createTexture)
       }
     }
     subchunk.setBlock(new Vector3(3, 7, 3), null)
+    subchunk.setBlock(new Vector3(3, 7, 4), new Block('water'))
 
     render()
   })
@@ -421,6 +443,7 @@ document.addEventListener('wheel', e => {
 })
 
 let lastTime = Date.now()
+let currentBlock = 'carved-darkstone'
 let selectedBlock = null
 let nextDestroy = 0
 let nextPlace = 0
@@ -464,11 +487,11 @@ function render () {
     }
     if (keys.mouse3 && now > nextPlace) {
       if (from === 'x') {
-        Subchunk.setGlobalBlock(blockPos.clone().add({ x: -Math.sign(raycastDir.x) }), new Block('carved-darkstone'))
+        Subchunk.setGlobalBlock(blockPos.clone().add({ x: -Math.sign(raycastDir.x) }), new Block(currentBlock))
       } else if (from === 'y') {
-        Subchunk.setGlobalBlock(blockPos.clone().add({ y: -Math.sign(raycastDir.y) }), new Block('carved-darkstone'))
+        Subchunk.setGlobalBlock(blockPos.clone().add({ y: -Math.sign(raycastDir.y) }), new Block(currentBlock))
       } else if (from === 'z') {
-        Subchunk.setGlobalBlock(blockPos.clone().add({ z: -Math.sign(raycastDir.z) }), new Block('carved-darkstone'))
+        Subchunk.setGlobalBlock(blockPos.clone().add({ z: -Math.sign(raycastDir.z) }), new Block(currentBlock))
       }
       nextPlace = now + 150
     }
@@ -489,8 +512,9 @@ function render () {
   if (facesChanged || !buffers) {
     const faces = []
     const textureCoords = []
+    translucentFaces = []
     // TEMP; should do all subchunks nearby
-    subchunk.storeFacesIn(faces, textureCoords)
+    subchunk.storeFacesIn(faces, textureCoords, translucentFaces)
     buffers = makeBuffers(faces, textureCoords)
     facesChanged = false
   }
@@ -501,6 +525,10 @@ function render () {
   mat4.rotate(cameraMatrix, cameraMatrix, -rotation.vertical, [1, 0, 0])
   mat4.invert(cameraMatrix, cameraMatrix)
   drawScene(program, buffers, cameraMatrix, { texture: textureAtlas })
+  drawScene(program, makeBuffers(
+    [].concat(...translucentFaces.map(({ plane }) => plane)),
+    [].concat(...translucentFaces.map(({ coords }) => coords))
+  ), cameraMatrix, { texture: textureAtlas, opacity: true, clear: false })
   if (selectedBlock && selectedBlock.buffers) {
     drawScene(selectedProgram, selectedBlock.buffers, cameraMatrix, {
       clear: false,
