@@ -9,15 +9,18 @@ const blocks = {
       back: './textures/grass-side.png',
       bottom: './textures/dirt.png'
     },
-    solid: true
+    solid: true,
+    selectable: true
   },
   dirt: {
     texture: './textures/dirt.png',
-    solid: true
+    solid: true,
+    selectable: true
   },
   stone: {
     texture: './textures/stone.png',
-    solid: true
+    solid: true,
+    selectable: true
   }
 }
 const textures = {}
@@ -72,12 +75,12 @@ const textureAtlasPromise = Promise.all(textureURLs.map(url =>
   })
 
 const neighbours = [
-  [0, 1, 0, 'top', 'bottom'],
-  [0, -1, 0, 'bottom', 'top'],
-  [1, 0, 0, 'right', 'left'],
-  [-1, 0, 0, 'left', 'right'],
-  [0, 0, 1, 'front', 'back'],
-  [0, 0, -1, 'back', 'front']
+  [new Vector3(0, 1, 0), 'top', 'bottom'],
+  [new Vector3(0, -1, 0), 'bottom', 'top'],
+  [new Vector3(1, 0, 0), 'right', 'left'],
+  [new Vector3(-1, 0, 0), 'left', 'right'],
+  [new Vector3(0, 0, 1), 'front', 'back'],
+  [new Vector3(0, 0, -1), 'back', 'front']
 ]
 
 let facesChanged = false
@@ -101,34 +104,31 @@ class Block {
     if (this.faces[face]) return
     const texture = this.texture(face)
     if (texture) {
-      const { x, y, z } = this
-      const globalX = this.chunk.x * CHUNK_SIZE + x
-      const globalY = this.chunk.y * CHUNK_SIZE + y
-      const globalZ = this.chunk.z * CHUNK_SIZE + z
+      const global = this.chunk.pos.clone().scale(CHUNK_SIZE).add(this.pos)
       let plane
       if (face === 'top' || face === 'bottom') {
-        const planeY = face === 'top' ? globalY + 1 : globalY
+        const planeY = face === 'top' ? global.y + 1 : global.y
         plane = [
-          globalX + 1, planeY, globalZ + 1,
-          globalX, planeY, globalZ + 1,
-          globalX, planeY, globalZ,
-          globalX + 1, planeY, globalZ
+          global.x + 1, planeY, global.z + 1,
+          global.x, planeY, global.z + 1,
+          global.x, planeY, global.z,
+          global.x + 1, planeY, global.z
         ]
       } else if (face === 'left' || face === 'right') {
-        const planeX = face === 'right' ? globalX + 1 : globalX
+        const planeX = face === 'right' ? global.x + 1 : global.x
         plane = [
-          planeX, globalY + 1, globalZ + 1,
-          planeX, globalY + 1, globalZ,
-          planeX, globalY, globalZ,
-          planeX, globalY, globalZ + 1
+          planeX, global.y + 1, global.z + 1,
+          planeX, global.y + 1, global.z,
+          planeX, global.y, global.z,
+          planeX, global.y, global.z + 1
         ]
       } else if (face === 'front' || face === 'back') {
-        const planeZ = face === 'front' ? globalZ + 1 : globalZ
+        const planeZ = face === 'front' ? global.z + 1 : global.z
         plane = [
-          globalX + 1, globalY + 1, planeZ,
-          globalX, globalY + 1, planeZ,
-          globalX, globalY, planeZ,
-          globalX + 1, globalY, planeZ
+          global.x + 1, global.y + 1, planeZ,
+          global.x, global.y + 1, planeZ,
+          global.x, global.y, planeZ,
+          global.x + 1, global.y, planeZ
         ]
       } else {
         return
@@ -152,63 +152,57 @@ class Block {
 const CHUNK_SIZE = 16
 
 class Subchunk {
-  constructor (x, y, z) {
-    if (Subchunk.subchunks[`${x},${y},${z}`]) {
+  constructor (pos) {
+    if (Subchunk.getChunk(pos)) {
       throw new Error('Chunk exists where I am!')
     }
+    const { x, y, z } = pos
     Subchunk.subchunks[`${x},${y},${z}`] = this
 
-    this.x = x
-    this.y = y
-    this.z = z
+    this.pos = pos
     this.blocks = new Array(CHUNK_SIZE ** 3).fill(null)
   }
 
-  getChunk (offsetX = 0, offsetY = 0, offsetZ = 0) {
-    const { x, y, z } = this
-    return subchunks[`${x + offsetX},${y + offsetY},${z + offsetZ}`]
+  getChunk (offset) {
+    return Subchunk.getChunk(this.pos.clone().add(offset))
   }
 
-  inChunk (x, y, z) {
+  inChunk ({ x, y, z }) {
     return x >= 0 && x < CHUNK_SIZE && y >= 0 && y < CHUNK_SIZE && z >= 0 && z < CHUNK_SIZE
   }
 
-  getBlock (x, y, z) {
-    if (this.inChunk(x, y, z)) {
+  getBlock (pos) {
+    if (this.inChunk(pos)) {
+      const { x, y, z } = pos
       return this.blocks[(y * CHUNK_SIZE + x) * CHUNK_SIZE + z]
     } else {
-      return Subchunk.getGlobalBlock(
-        this.x * CHUNK_SIZE + x,
-        this.y * CHUNK_SIZE + y,
-        this.z * CHUNK_SIZE + z
-      )
+      return Subchunk.getGlobalBlock(this.pos.clone().scale(CHUNK_SIZE).add(pos))
     }
   }
 
-  setBlock (x, y, z, block) {
-    if (!this.inChunk(x, y, z)) {
+  setBlock (pos, block) {
+    if (!this.inChunk(pos)) {
       throw new Error('not my block!')
     }
-    const oldBlock = this.getBlock(x, y, z)
+    const oldBlock = this.getBlock(pos)
     if (oldBlock === block) return
+    const { x, y, z } = pos
     if (oldBlock) {
       this.blocks[(y * CHUNK_SIZE + x) * CHUNK_SIZE + z].chunk = null
     }
     this.blocks[(y * CHUNK_SIZE + x) * CHUNK_SIZE + z] = block
     if (block) {
       block.chunk = this
-      block.x = x
-      block.y = y
-      block.z = z
+      block.pos = pos
     }
-    this.updateBlockFaces(x, y, z)
+    this.updateBlockFaces(pos)
   }
 
-  updateBlockFaces (x, y, z) {
-    const block = this.getBlock(x, y, z)
+  updateBlockFaces (pos) {
+    const block = this.getBlock(pos)
     const blockSolid = block && block.characteristics().solid
-    for (const [offsetX, offsetY, offsetZ, blockFace, neighbourFace] of neighbours) {
-      const neighbour = this.getBlock(x + offsetX, y + offsetY, z + offsetZ)
+    for (const [offset, blockFace, neighbourFace] of neighbours) {
+      const neighbour = this.getBlock(pos.clone().add(offset))
       const neighbourSolid = neighbour && neighbour.characteristics().solid
       if (blockSolid && neighbourSolid) {
         block.hideFace(blockFace)
@@ -235,24 +229,95 @@ class Subchunk {
     }
   }
 
-  static getGlobalBlock (x, y, z) {
-    const subchunk = this.subchunks[`${Math.floor(x / CHUNK_SIZE)},${Math.floor(y / CHUNK_SIZE)},${Math.floor(z / CHUNK_SIZE | 0)}`]
+  static getChunk ({ x, y, z }) {
+    return this.subchunks[`${x},${y},${z}`]
+  }
+
+  static blockToChunk ({ x, y, z }) {
+    return new Vector3(
+      Math.floor(x / CHUNK_SIZE),
+      Math.floor(y / CHUNK_SIZE),
+      Math.floor(z / CHUNK_SIZE)
+    )
+  }
+
+  static getGlobalBlock (pos) {
+    const subchunk = this.getChunk(this.blockToChunk(pos))
     if (subchunk) {
-      return subchunk.getBlock(mod(x, CHUNK_SIZE), mod(y, CHUNK_SIZE), mod(z, CHUNK_SIZE))
+      const { x, y, z } = pos
+      return subchunk.getBlock(new Vector3(mod(x, CHUNK_SIZE), mod(y, CHUNK_SIZE), mod(z, CHUNK_SIZE)))
     } else {
       return null
     }
+  }
+
+  static setGlobalBlock (pos, block) {
+    const chunkPos = this.blockToChunk(pos)
+    let subchunk = this.getChunk(chunkPos)
+    if (!subchunk) {
+      subchunk = new Subchunk(chunkPos)
+    }
+    const { x, y, z } = pos
+    subchunk.setBlock(new Vector3(mod(x, CHUNK_SIZE), mod(y, CHUNK_SIZE), mod(z, CHUNK_SIZE)), block)
   }
 }
 
 Subchunk.subchunks = {}
 
+function getT (anchor, dir, comp, value) {
+  return (value - anchor[comp]) / dir[comp]
+}
+function parametric (anchor, dir, t) {
+  return anchor.clone().add(dir.clone().scale(t))
+}
+function raycast (from, dir, onCollide, maxDist) {
+  function getBlock ({ x, y, z }) {
+    return new Vector3(
+      (dir.x > 0 ? Math.floor : Math.ceil)(x),
+      (dir.y > 0 ? Math.floor : Math.ceil)(y),
+      (dir.z > 0 ? Math.floor : Math.ceil)(z)
+    )
+  }
+  const initBlock = getBlock(from)
+  if (onCollide(initBlock)) return { block: initBlock, from: 'inside' }
+
+  let nextX = from.x + Math.sign(dir.x)
+  let nextXT = dir.x === 0 ? Infinity : getT(from, dir, 'x', nextX)
+  let nextY = from.y + Math.sign(dir.y)
+  let nextYT = dir.y === 0 ? Infinity : getT(from, dir, 'y', nextY)
+  let nextZ = from.z + Math.sign(dir.z)
+  let nextZT = dir.z === 0 ? Infinity : getT(from, dir, 'z', nextZ)
+  while (true) {
+    const t = Math.min(nextXT, nextYT, nextZT)
+    if (t > maxDist) break
+    const block = getBlock(parametric(from, dir, t))
+    if (onCollide(block)) {
+      return {
+        block,
+        from: nextXT === t ? 'x' : nextYT === t ? 'y' : 'z'
+      }
+    }
+    if (nextXT === t) {
+      nextX += Math.sign(dir.x)
+      nextXT = getT(from, dir, 'x', nextX)
+    } else if (nextYT === t) {
+      nextY += Math.sign(dir.y)
+      nextYT = getT(from, dir, 'y', nextY)
+    } else if (nextZT === t) {
+      nextZ += Math.sign(dir.z)
+      nextZT = getT(from, dir, 'z', nextZ)
+    } else {
+      throw new Error('How??')
+    }
+  }
+  return null
+}
+
 const program = makeProgram()
 let buffers
 let textureAtlas
 
-const subchunk = new Subchunk(0, 0, 0)
-
+const subchunk = new Subchunk(new Vector3(0, 0, 0))
 textureAtlasPromise.then(createTexture)
   .then(texture => {
     textureAtlas = texture
@@ -261,16 +326,16 @@ textureAtlasPromise.then(createTexture)
     for (let y = 0; y < 8; y++) {
       for (let x = 0; x < CHUNK_SIZE; x++) {
         for (let z = 0; z < CHUNK_SIZE; z++) {
-          subchunk.setBlock(x, y, z, new Block(y < 4 ? 'stone' : y < 7 ? 'dirt' : 'grass'))
+          subchunk.setBlock(new Vector3(x, y, z), new Block(y < 4 ? 'stone' : y < 7 ? 'dirt' : 'grass'))
         }
       }
     }
-    subchunk.setBlock(3, 7, 3, null)
+    subchunk.setBlock(new Vector3(3, 7, 3), null)
 
     render()
   })
 
-const position = { x: 5, y: 10, z: 5 }
+const position = new Vector3(5, 10, 5)
 const rotation = { vertical: 0, lateral: 0 }
 
 let mouseLocked = false
@@ -297,6 +362,14 @@ document.addEventListener('keydown', e => {
 })
 document.addEventListener('keyup', e => {
   keys[e.key.toLowerCase()] = false
+})
+document.addEventListener('mousedown', e => {
+  if (mouseLocked) {
+    keys[`mouse${e.which}`] = true
+  }
+})
+document.addEventListener('mouseup', e => {
+  keys[`mouse${e.which}`] = false
 })
 
 let speed = 5
@@ -332,6 +405,24 @@ function render () {
     }
   }
 
+  const raycastCollision = raycast(
+    position,
+    new Vector3(0, 0, -1)
+      .rotateAboutGlobalX(rotation.vertical)
+      .rotateAboutGlobalY(rotation.lateral),
+    pos => {
+      const block = Subchunk.getGlobalBlock(pos)
+      return block && block.characteristics().selectable
+    },
+    7
+  )
+  if (raycastCollision) {
+    const { block, from } = raycastCollision
+    if (keys.mouse1) {
+      Subchunk.setGlobalBlock(block, null)
+    }
+  }
+
   if (facesChanged || !buffers) {
     const faces = []
     const textureCoords = []
@@ -342,7 +433,7 @@ function render () {
   }
 
   const cameraMatrix = mat4.create()
-  mat4.translate(cameraMatrix, cameraMatrix, [position.x, position.y, position.z])
+  mat4.translate(cameraMatrix, cameraMatrix, position.comps)
   mat4.rotate(cameraMatrix, cameraMatrix, -rotation.lateral, [0, 1, 0])
   mat4.rotate(cameraMatrix, cameraMatrix, -rotation.vertical, [1, 0, 0])
   mat4.invert(cameraMatrix, cameraMatrix)

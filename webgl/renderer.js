@@ -94,6 +94,24 @@ class Vector3 {
     return this.scale(1 / this.length)
   }
 
+  rotateAboutGlobalX (angle = 0) {
+    const cos = Math.cos(angle)
+    const sin = Math.sin(angle)
+    const { z, y } = this
+    this.z = -(z * cos - y * sin)
+    this.y = z * sin + y * cos
+    return this
+  }
+
+  rotateAboutGlobalY (angle = 0) {
+    const cos = Math.cos(angle)
+    const sin = Math.sin(angle)
+    const { x, z } = this
+    this.x = -(x * cos - z * sin)
+    this.z = -(x * sin + z * cos)
+    return this
+  }
+
   clone () {
     return new Vector3(this.x, this.y, this.z)
   }
