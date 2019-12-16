@@ -248,13 +248,21 @@ function makeBuffers (faces, textureCoords) {
   }
 }
 
-function drawScene (programInfo, buffers, texture, modelViewMatrix, clear = true) {
+function drawScene (programInfo, buffers, modelViewMatrix, {
+  texture,
+  clear = true,
+  opacity = false
+} = {}) {
   if (clear) {
     gl.clearColor(54 / 255, 0 / 255, 33 / 255, 1)
     gl.clearDepth(1.0)
     gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
+  }
+  if (opacity) {
+    gl.enable(gl.BLEND)
+    gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
   }
 
   gl.useProgram(programInfo.program)
@@ -279,4 +287,8 @@ function drawScene (programInfo, buffers, texture, modelViewMatrix, clear = true
   gl.uniformMatrix4fv(programInfo.uniforms.modelViewMatrix, false, modelViewMatrix)
 
   gl.drawElements(gl.TRIANGLES, buffers.vertexCount, gl.UNSIGNED_SHORT, 0)
+
+  if (opacity) {
+    gl.disable(gl.BLEND)
+  }
 }

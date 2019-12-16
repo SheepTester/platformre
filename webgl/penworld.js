@@ -21,6 +21,11 @@ const blocks = {
     texture: './textures/stone.png',
     solid: true,
     selectable: true
+  },
+  'carved-darkstone': {
+    texture: './textures/carved-darkstone.png',
+    solid: true,
+    selectable: true
   }
 }
 const textures = {}
@@ -338,7 +343,7 @@ const selectedProgram = shaderProgram({
   `,
   fsSource: `
     void main() {
-      gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+      gl_FragColor = vec4(1.0, 1.0, 1.0, 0.2);
     }
   `,
   attrs: [
@@ -417,6 +422,8 @@ document.addEventListener('wheel', e => {
 
 let lastTime = Date.now()
 let selectedBlock = null
+let nextDestroy = 0
+let nextPlace = 0
 function render () {
   const now = Date.now()
   const elapsedTime = (now - lastTime) / 1000
@@ -441,22 +448,29 @@ function render () {
     }
   }
 
-  const raycastCollision = raycast(
-    position,
-    new Vector3(0, 0, -1)
-      .rotateAboutGlobalX(rotation.vertical)
-      .rotateAboutGlobalY(rotation.lateral),
-    pos => {
-      const block = Subchunk.getGlobalBlock(pos)
-      return block && block.characteristics().selectable
-    },
-    7
-  )
+  const raycastDir = new Vector3(0, 0, -1)
+    .rotateAboutGlobalX(rotation.vertical)
+    .rotateAboutGlobalY(rotation.lateral)
+  const raycastCollision = raycast(position, raycastDir, pos => {
+    const block = Subchunk.getGlobalBlock(pos)
+    return block && block.characteristics().selectable
+  }, 7)
   keys.r = false
   if (raycastCollision) {
     const { block: blockPos, from } = raycastCollision
-    if (keys.mouse1) {
+    if (keys.mouse1 && now > nextDestroy) {
       Subchunk.setGlobalBlock(blockPos, null)
+      nextDestroy = now + 100
+    }
+    if (keys.mouse3 && now > nextPlace) {
+      if (from === 'x') {
+        Subchunk.setGlobalBlock(blockPos.clone().add({ x: -Math.sign(raycastDir.x) }), new Block('carved-darkstone'))
+      } else if (from === 'y') {
+        Subchunk.setGlobalBlock(blockPos.clone().add({ y: -Math.sign(raycastDir.y) }), new Block('carved-darkstone'))
+      } else if (from === 'z') {
+        Subchunk.setGlobalBlock(blockPos.clone().add({ z: -Math.sign(raycastDir.z) }), new Block('carved-darkstone'))
+      }
+      nextPlace = now + 150
     }
     const block = Subchunk.getGlobalBlock(blockPos)
     if (!block && selectedBlock) {
@@ -486,9 +500,12 @@ function render () {
   mat4.rotate(cameraMatrix, cameraMatrix, -rotation.lateral, [0, 1, 0])
   mat4.rotate(cameraMatrix, cameraMatrix, -rotation.vertical, [1, 0, 0])
   mat4.invert(cameraMatrix, cameraMatrix)
-  drawScene(program, buffers, textureAtlas, cameraMatrix)
+  drawScene(program, buffers, cameraMatrix, { texture: textureAtlas })
   if (selectedBlock && selectedBlock.buffers) {
-    drawScene(selectedProgram, selectedBlock.buffers, null, cameraMatrix, false)
+    drawScene(selectedProgram, selectedBlock.buffers, cameraMatrix, {
+      clear: false,
+      opacity: true
+    })
   }
 
   window.requestAnimationFrame(render)
