@@ -10,22 +10,26 @@ const blocks = {
       bottom: './textures/dirt.png'
     },
     solid: true,
-    selectable: true
+    selectable: true,
+    collidable: true
   },
   dirt: {
     texture: './textures/dirt.png',
     solid: true,
-    selectable: true
+    selectable: true,
+    collidable: true
   },
   stone: {
     texture: './textures/stone.png',
     solid: true,
-    selectable: true
+    selectable: true,
+    collidable: true
   },
   'carved-darkstone': {
     texture: './textures/carved-darkstone.png',
     solid: true,
-    selectable: true
+    selectable: true,
+    collidable: true
   },
   water: {
     texture: './textures/water.png',
@@ -350,6 +354,43 @@ function raycast (from, dir, onCollide, maxDist) {
   return null
 }
 
+// Sets velocity vector
+function collide (pos, velocity, comp, size, aComp, aSize, bComp, bSize, onCollide) {
+  if (velocity[comp] === 0) return null
+  
+  const minA = Math.floor(pos[aComp] - aSize + Number.EPSILON)
+  const maxA = Math.ceil(pos[aComp] + aSize - Number.EPSILON)
+  const minB = Math.floor(pos[bComp] - bSize + Number.EPSILON)
+  const maxB = Math.ceil(pos[bComp] + bSize - Number.EPSILON)
+  
+  const stop = Math.abs(velocity[comp])
+  const initPos = velocity[comp] > 0 ? pos[comp] + size : pos[comp] - size
+  let val = velocity[comp] > 0 ? Math.ceil(initPos - Number.EPSILON) : Math.floor(initPos + Number.EPSILON)
+  if (keys.r) {
+    console.log('R')
+    console.log(minA, maxA, minB, maxB)
+    console.log(stop, initPos, val)
+  }
+  while (Math.abs(val - initPos) <= stop) {
+    const block = new Vector3().set({ [comp]: velocity[comp] > 0 ? val : val - 1 })
+    for (let a = minA; a < maxA; a++) {
+      block.set({ [aComp]: a })
+      for (let b = minB; b < maxB; b++) {
+        block.set({ [bComp]: b })
+        if (onCollide(block)) {
+          if (keys.r) {
+            console.log(val, initPos, val - initPos, pos[comp], (pos[comp] + val - initPos) - size)
+          }
+          velocity[comp] = val - initPos
+          return block
+        }
+      }
+    }
+    val += Math.sign(velocity[comp])
+  }
+  return null
+}
+
 const program = shaderProgram()
 const selectedProgram = shaderProgram({
   vsSource: `
@@ -397,6 +438,9 @@ textureAtlasPromise.then(createTexture)
     render()
   })
 
+const PLAYER_HEIGHT = 1.8
+const EYE_HEIGHT = 1.6
+const PLAYER_RADIUS = 0.4
 const position = new Vector3(5, 10, 5)
 const rotation = { vertical: 0, lateral: 0 }
 
@@ -442,6 +486,11 @@ document.addEventListener('wheel', e => {
   }
 })
 
+const isCollidable = pos => {
+  const block = Subchunk.getGlobalBlock(pos)
+  return block && block.characteristics().collidable
+}
+
 let lastTime = Date.now()
 let currentBlock = 'carved-darkstone'
 let selectedBlock = null
@@ -453,11 +502,12 @@ function render () {
   lastTime = now
 
   if (elapsedTime < 0.1) {
+    const velocity = new Vector3()
     if (keys.shift) {
-      position.y -= elapsedTime * speed
+      velocity.y -= elapsedTime * speed
     }
     if (keys[' ']) {
-      position.y += elapsedTime * speed
+      velocity.y += elapsedTime * speed
     }
     const movement = new Vector2()
     if (keys.a) movement.add({x: -1})
@@ -466,9 +516,16 @@ function render () {
     if (keys.s) movement.add({y: 1})
     if (movement.length) {
       const { x, y } = movement.unit().scale(elapsedTime * speed).rotate(rotation.lateral)
-      position.x += x
-      position.z += y
+      velocity.x += x
+      velocity.z += y
     }
+    const playerCentre = position.clone().set({
+      y: position.y - EYE_HEIGHT + PLAYER_HEIGHT / 2
+    })
+    collide(playerCentre, velocity, 'y', PLAYER_HEIGHT / 2, 'x', PLAYER_RADIUS, 'z', PLAYER_RADIUS, isCollidable)
+    collide(playerCentre, velocity, 'x', PLAYER_RADIUS, 'y', PLAYER_HEIGHT / 2, 'z', PLAYER_RADIUS, isCollidable)
+    collide(playerCentre, velocity, 'z', PLAYER_RADIUS, 'y', PLAYER_HEIGHT / 2, 'x', PLAYER_RADIUS, isCollidable)
+    position.add(velocity)
   }
 
   const raycastDir = new Vector3(0, 0, -1)
@@ -478,7 +535,6 @@ function render () {
     const block = Subchunk.getGlobalBlock(pos)
     return block && block.characteristics().selectable
   }, 7)
-  keys.r = false
   if (raycastCollision) {
     const { block: blockPos, from } = raycastCollision
     if (keys.mouse1 && now > nextDestroy) {
