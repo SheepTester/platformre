@@ -1,4 +1,4 @@
-const { mat4 } = glMatrix
+const { mat4, vec3 } = glMatrix
 
 function mod (a, b) {
   return (a % b + b) % b
@@ -258,11 +258,13 @@ function drawScene (programInfo, buffers, modelViewMatrix, {
     gl.clearDepth(1.0)
     gl.enable(gl.DEPTH_TEST)
     gl.depthFunc(gl.LEQUAL)
+    gl.depthMask(true)
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
   }
   if (opacity) {
     gl.enable(gl.BLEND)
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA)
+    gl.depthMask(false)
   }
 
   gl.useProgram(programInfo.program)

@@ -525,10 +525,39 @@ function render () {
   mat4.rotate(cameraMatrix, cameraMatrix, -rotation.vertical, [1, 0, 0])
   mat4.invert(cameraMatrix, cameraMatrix)
   drawScene(program, buffers, cameraMatrix, { texture: textureAtlas })
+
+  // Get the furthest (most negative) transformed z for each translucent face
+  for (const translucent of translucentFaces) {
+    const vertex = vec3.create()
+    translucent._z = Infinity
+    for (let i = 0; i < translucent.plane.length; i += 4) {
+      vec3.set(vertex, ...translucent.plane.slice(i, i + 4))
+      vec3.transformMat4(vertex, vertex, cameraMatrix)
+      if (vertex[2] < translucent._z) {
+        translucent._z = vertex[2]
+      }
+    }
+  }
+  // Insertion sort because it's efficient when the array has already been sorted
+  // Sorting from furthest to closest (- -> +)
+  for (let i = 1; i < translucentFaces.length; i++) {
+    const translucent = translucentFaces[i]
+    let j = i - 1
+    while (j >= 0 && translucentFaces[j]._z > translucent._z) {
+      j--
+    }
+    if (j < i - 1) {
+      // This way it shifts all the items in between up instead of having to swap
+      // each item manually
+      translucentFaces.splice(i, 1)
+      translucentFaces.splice(j + 1, 0, translucent)
+    }
+  }
   drawScene(program, makeBuffers(
     [].concat(...translucentFaces.map(({ plane }) => plane)),
     [].concat(...translucentFaces.map(({ coords }) => coords))
   ), cameraMatrix, { texture: textureAtlas, opacity: true, clear: false })
+
   if (selectedBlock && selectedBlock.buffers) {
     drawScene(selectedProgram, selectedBlock.buffers, cameraMatrix, {
       clear: false,
