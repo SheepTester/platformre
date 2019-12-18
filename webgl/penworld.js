@@ -513,8 +513,9 @@ function render () {
     const faces = []
     const textureCoords = []
     translucentFaces = []
-    // TEMP; should do all subchunks nearby
-    subchunk.storeFacesIn(faces, textureCoords, translucentFaces)
+    for (const subchunk of Object.values(Subchunk.subchunks)) {
+      subchunk.storeFacesIn(faces, textureCoords, translucentFaces)
+    }
     buffers = makeBuffers(faces, textureCoords)
     facesChanged = false
   }
