@@ -357,15 +357,15 @@ function raycast (from, dir, onCollide, maxDist) {
 // Sets velocity vector
 function collide (pos, velocity, comp, size, aComp, aSize, bComp, bSize, onCollide) {
   if (velocity[comp] === 0) return null
-  
+
   const minA = Math.floor(pos[aComp] - aSize + Number.EPSILON)
   const maxA = Math.ceil(pos[aComp] + aSize - Number.EPSILON)
   const minB = Math.floor(pos[bComp] - bSize + Number.EPSILON)
   const maxB = Math.ceil(pos[bComp] + bSize - Number.EPSILON)
-  
+
   const stop = Math.abs(velocity[comp])
   const initPos = velocity[comp] > 0 ? pos[comp] + size : pos[comp] - size
-  let val = velocity[comp] > 0 ? Math.ceil(initPos - Number.EPSILON) : Math.floor(initPos + Number.EPSILON)
+  let val = Math.round(initPos)
   if (keys.r) {
     console.log('R')
     console.log(minA, maxA, minB, maxB)
