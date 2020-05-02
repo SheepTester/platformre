@@ -30,7 +30,7 @@ var paletteIdToPaletteLabel={
   ice:"It's a bit slippery and hard to move on.",
   mud:"A muddy block that makes you move slower.",
   water:"A liquid that you can swim in without dying too quickly.",
-  leftconveyorbelt:"Stand on it and you magically move to the left.",rightconveyorbelt:"Stand on it and you magically move to the left.",
+  leftconveyorbelt:"Stand on it and you magically move to the left.",rightconveyorbelt:"Stand on it and you magically move to the right.",
   checkpoint:"After standing on this you'll resurrect here when you die.",
   leftfan:"Pushes you to the left.",rightfan:"Pushes you to the right.",upfan:"Pushes you upwards and allows you to swim through the air.",downfan:"A decorational block that just finishes the family of fans.",
   autojumppad:"Makes you jump higher and also does it for you.",
