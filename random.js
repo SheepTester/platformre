@@ -198,7 +198,7 @@ var xv=0,yv=0,x=40,y=40,lev=0,cpx=40,cpy=40,collide="@^v*=<>0123456789CLRB|&gsa`
           } else if (danger.includes(tt)) {
             setBlock(i%3*40-40,Math.floor(i/3)*40-40,"`");
             anyChanges=true;
-          } else if (!collide.includes(tt)||tt=="f") {
+          } else if (tt&&!collide.includes(tt)||tt=="f") {
             setBlock(i%3*40-40,Math.floor(i/3)*40-40,"w");
             anyChanges=true;
           }
