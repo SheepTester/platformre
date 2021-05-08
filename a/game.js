@@ -125,7 +125,17 @@ function ready([levelData, textureData, textures]) {
   }
   function die(actualDeath) {
     deaths++; // includes restarts
-    player = {x: startX, y: startY, xv: 0, yv: 0, onGround: false, died: actualDeath, diedEnd: Date.now() + 1000};
+    player = {
+      x: startX,
+      y: startY,
+      xv: 0,
+      yv: 0,
+      onGround:
+      false,
+      died: actualDeath || player.died,
+      // Preserve red dot timer on restart
+      diedEnd: actualDeath ? Date.now() + 1000 : player.diedEnd
+    };
     if (actualDeath) document.body.classList.add('died');
   }
   function insideSpike(x, y) {
