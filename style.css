@@ -4,6 +4,7 @@ body {
   background: #E9EEF2;
   font-family: 'Open Sans', sans-serif;
   font-size: 16px;
+  overflow: scroll;
 }
 #player {
   position: absolute;
@@ -254,7 +255,7 @@ span:active {
   padding: 5px;
   font-family: 'Open Sans', sans-serif;
   color: #333;
-  max-height: calc(100vh - 40px);
+  max-height: calc(100vh - 80px);
   overflow-y: auto;
   box-sizing: border-box;
 }
