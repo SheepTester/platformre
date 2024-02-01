@@ -166,15 +166,15 @@ class Block {
 const CHUNK_SIZE = 16
 
 class Subchunk {
-  constructor (pos) {
-    if (Subchunk.getChunk(pos)) {
+  constructor (pos, blocks=new Array(CHUNK_SIZE ** 3).fill(null), exc = true) { // allow loading custom blocks to subchunk
+    if (exc && Subchunk.getChunk(pos)) {
       throw new Error('Chunk exists where I am!')
     }
     const { x, y, z } = pos
     Subchunk.subchunks[`${x},${y},${z}`] = this
 
     this.pos = pos
-    this.blocks = new Array(CHUNK_SIZE ** 3).fill(null)
+    this.blocks = blocks
   }
 
   getChunk (offset) {
@@ -623,4 +623,88 @@ function render () {
   }
 
   window.requestAnimationFrame(render)
+}
+
+Vector3.prototype.listify = function() { // compact
+  return [this.x, this.y, this.z];
+};
+
+Vector3.prototype.fromList = function(l) { // extract
+  this.x = l[0];
+  this.y = l[1];
+  this.z = l[2];
+}
+
+function save() {
+  
+  const data = Subchunk.subchunks; // world data
+  const chunks = Object.keys(data); // chunks
+  let result = {}; // resulting data
+  
+  for (let i=0; i<chunks.length; i++) { // iterate over chunks
+    const index = chunks[i];
+    const chunk = data[index]; // choose current chunk
+    
+    result[index] = [chunk.pos.listify(), []]; // converts Vector3 to list
+    
+    const blocks = chunk.blocks; // get blocks
+    for (let j=0; j<blocks.length; j++) { // iterate over blocks
+      const block = blocks[j]; // choose current block
+      
+      // don't store chunk or faces because they're redundant
+      if (block !== null) { // if it's not null
+        result[index][1].push([block.pos.listify(), block.type]);
+      } else { // bad idea but i'm lazy and i'll work on it tomorrow
+        result[index][1].push(0);
+      }
+    }
+  }
+  
+  result.version = 1;
+  
+  return JSON.stringify(result);
+}
+
+function load(data) {
+  data = JSON.parse(data);
+  delete data.version;
+  const chunks = Object.keys(data); // chunks
+  s = data;
+  Subchunk.subchunks = {};
+  
+  for (let i=0; i<chunks.length; i++) {
+    const index = chunks[i];
+    const chunk = data[index]; // choose current chunk
+    
+    let v = new Vector3();
+    v.fromList(chunk[0]);
+    
+    s[index] = new Subchunk(v, [], false)
+    
+    const blocks = chunk[1]; // get blocks
+    for (let j=0; j<blocks.length; j++) { // iterate over blocks
+      const block = blocks[j]; // choose current block
+      if (block === 0) {
+        s[index].blocks.push(null);
+      } else {
+        let b = new Block(block[1]);
+        s[index].blocks.push(b);
+        
+        let v = new Vector3();
+        v.fromList(block[0]);
+        
+        b.pos = v;
+        b.chunk = s[index];
+        // b.faces is initialized already
+      }
+    }
+    
+    s[index].blocks.forEach((b) => {
+      if (b !== null) {
+        s[index].updateBlockFaces(b.pos);
+      }
+    })
+  }
+  
+  Subchunk.subchunks = s; // put it back in its place
 }
