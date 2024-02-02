@@ -166,15 +166,15 @@ class Block {
 const CHUNK_SIZE = 16
 
 class Subchunk {
-  constructor (pos) {
-    if (Subchunk.getChunk(pos)) {
+  constructor (pos, blocks=new Array(CHUNK_SIZE ** 3).fill(null), loading = false) {
+    if (!loading && Subchunk.getChunk(pos)) { // if the game isn't loading a world and there is a subchunk
       throw new Error('Chunk exists where I am!')
     }
     const { x, y, z } = pos
     Subchunk.subchunks[`${x},${y},${z}`] = this
 
     this.pos = pos
-    this.blocks = new Array(CHUNK_SIZE ** 3).fill(null)
+    this.blocks = blocks
   }
 
   getChunk (offset) {
@@ -210,6 +210,11 @@ class Subchunk {
       block.pos = pos
     }
     this.updateBlockFaces(pos)
+    
+    // Ensures that if a newly deleted block has no neighbors, facesChanged will be set to true.
+    if (block === null) {
+      facesChanged = true;
+    }
   }
 
   updateBlockFaces (pos) {
@@ -500,6 +505,14 @@ function render () {
   const now = Date.now()
   const elapsedTime = (now - lastTime) / 1000
   lastTime = now
+  
+  // allows user to select currentBlock
+  for (let i=0; i<Object.keys(blocks).length; i++) { // iterate over blocks
+    // 0 is air so don't add 1 to i
+    if (keys[i]) { // if index of block pressed
+      currentBlock = Object.keys(blocks)[i]; // set current block
+    }
+  }
 
   if (elapsedTime < 0.1) {
     const velocity = new Vector3()
@@ -623,4 +636,108 @@ function render () {
   }
 
   window.requestAnimationFrame(render)
+}
+
+/*
+
+Lists use a smaller amount of data than objects.
+
+{"x":x,"y":y,"z":z}
+[x,y,z]
+
+*/
+
+function vectorToList(v) {
+  return [v.x, v.y, v.z];
+}
+
+function vectorFromList(l) {
+  return new Vector3( ...l );
+}
+
+function save() {
+  
+  const data = Subchunk.subchunks; // world data
+  const chunks = Object.keys(data); // chunks
+  let result = {}; // resulting data
+  
+  for (let i=0; i<chunks.length; i++) { // iterate over chunks
+    const index = chunks[i];
+    const chunk = data[index]; // choose current chunk
+    
+    result[index] = [vectorToList(chunk.pos), []]; // converts Vector3 to list
+    let rBlocks = result[index][1]; // blocks
+    
+    const chunkBlocks = chunk.blocks; // get blocks
+    let repeatingAir = 0;
+    
+    for (let j=0; j<chunkBlocks.length; j++) { // iterate over blocks
+      const block = chunkBlocks[j]; // choose current block
+      
+      // don't store chunk or faces because they're redundant
+      if (block !== null) { // if it's not null
+        if (repeatingAir > 0) {
+          rBlocks.push(repeatingAir);
+          repeatingAir = 0;
+        }
+        // Object.keys(blocks).indexOf(block.type) to make it smaller
+        rBlocks.push([vectorToList(block.pos), Object.keys(blocks).indexOf(block.type)]);
+      } else { // bad idea but i'm lazy and i'll work on it tomorrow
+        repeatingAir += 1;
+      }
+    }
+    
+    while (rBlocks[rBlocks.length - 1] === 0) { // removes air at end of subchunk
+      rBlocks.pop();
+    }
+  }
+  
+  result.version = 1;
+  
+  return JSON.stringify(result);
+}
+
+function load(data) {
+  data = JSON.parse(data);
+  delete data.version;
+  const chunks = Object.keys(data); // chunks
+  
+  for (let i=0; i<chunks.length; i++) {
+    const index = chunks[i];
+    const chunk = data[index]; // choose current chunk
+    
+    data[index] = new Subchunk(vectorFromList(chunk[0]), [], true)
+    
+    const chunkBlocks = chunk[1]; // get blocks
+    for (let j=0; j<chunkBlocks.length; j++) { // iterate over blocks
+      const block = chunkBlocks[j]; // choose current block
+      if (block === 0) {
+        data[index].blocks.push(null);
+      } else if (typeof block === "number") {
+        for (let k=0; k<block; k++) {
+          data[index].blocks.push(null);
+        }
+      } else {
+        // Object.keys(blocks)[block[1]] is because block[1] is a key of blocks
+        let b = new Block(Object.keys(blocks)[block[1]]);
+        data[index].blocks.push(b);
+        b.pos = vectorFromList(block[0]);
+        b.chunk = data[index];
+        // b.faces is initialized already
+      }
+    }
+    
+    while (data[index].blocks.length < 4096) { // adds back air at end of subchunk
+      data[index].blocks.push(null);
+    }
+    
+    data[index].blocks.forEach((b) => {
+      if (b !== null) {
+        data[index].updateBlockFaces(b.pos); // updates faces
+      }
+    })
+  }
+  
+  Subchunk.subchunks = data; // put it back in its place
+  
 }
