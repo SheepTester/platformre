@@ -210,6 +210,11 @@ class Subchunk {
       block.pos = pos
     }
     this.updateBlockFaces(pos)
+    
+    // Ensures that if a newly deleted block has no neighbors, facesChanged will be set to true.
+    if (block === null) {
+      facesChanged = true;
+    }
   }
 
   updateBlockFaces (pos) {
